@@ -17,7 +17,7 @@
 - API client, token stores, normalized errors, common contracts, and MSW setup: implemented; eight HTTP tests pass.
 - Portal shell, Arabic/English direction switching, guards, layouts, error handling, and dev-only UI gallery: implemented; browser smoke assertions pass.
 - ESLint architecture rules: implemented; 14/14 violation fixtures prove the configured errors.
-- CI, security baseline, ADRs, and contract differences: implemented. The final F0 verification report is being written after the checks.
+- CI, security baseline, ADRs, contract differences, and the F0 verification report: implemented.
 
 ## How to run
 
@@ -31,4 +31,4 @@
 
 - Owner confirmation of the provisional brand name and logo.
 - Backend refresh endpoint and refresh-cookie contract are not available yet; current differences are recorded in `docs/contract-differences.md`.
-- The ESLint/import toolchain currently resolves vulnerable `minimatch@10.2.6`; upstream must publish compatible ranges before the audit can pass without a prohibited override.
+- The ESLint/import toolchain currently resolves vulnerable `minimatch@10.2.6`; upstream must publish compatible ranges before the audit can pass without a prohibited override. Details are in `docs/reports/F0-report.md`.

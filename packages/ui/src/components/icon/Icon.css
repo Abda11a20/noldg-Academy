@@ -1,0 +1,7 @@
+.icon-flipped {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .icon-direction-auto {
+  transform: scaleX(-1);
+}

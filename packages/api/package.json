@@ -1,0 +1,30 @@
+{
+  "name": "@noldg/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./http": "./src/http/client.ts",
+    "./auth/token-store": "./src/auth/token-store.ts",
+    "./auth/events": "./src/constants/http.ts",
+    "./errors": "./src/errors/app-error.ts",
+    "./contracts/common": "./src/contracts/common.ts",
+    "./mocks/mode": "./src/mocks/mode.ts",
+    "./mocks/browser": "./src/mocks/browser.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "msw": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@noldg/config": "workspace:*",
+    "@vitest/coverage-v8": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,0 +1,36 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version-file: .nvmrc
+      - uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1
+        with:
+          version: 11.28.11
+          cache: true
+          install: false
+      - run: node --version
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm lint:rules
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm --filter @noldg/portal exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - run: pnpm build
+      - run: pnpm knip
+      - run: pnpm dependency-cruiser
+      - run: pnpm audit

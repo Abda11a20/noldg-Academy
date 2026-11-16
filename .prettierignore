@@ -1,0 +1,12 @@
+referencebackend/
+node_modules/
+.pnpm-modules/
+.pnpm-store/
+.node_modules-partial/
+**/node_modules.partial/
+dist/
+coverage/
+.turbo/
+pnpm-lock.yaml
+apps/portal/public/mockServiceWorker.js
+tools/lint-fixtures/

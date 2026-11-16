@@ -1,0 +1,12 @@
+{
+  "name": "@noldg/config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tsconfig/base": "./tsconfig.base.json",
+    "./vitest": "./vitest.preset.ts",
+    "./prettier": "./prettier.config.cjs",
+    "./eslint": "./eslint.config.js"
+  }
+}

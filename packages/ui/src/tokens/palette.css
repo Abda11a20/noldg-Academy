@@ -1,0 +1,29 @@
+@import "@fontsource/ibm-plex-sans-arabic";
+
+:root {
+  --palette-primary: #245b54;
+  --palette-primary-hover: #1d4b45;
+  --palette-primary-soft: #e7f1ee;
+  --palette-accent: #93512f;
+  --palette-accent-soft: #f6ede8;
+  --palette-background: #f7f9f7;
+  --palette-surface: #ffffff;
+  --palette-surface-muted: #eef2ef;
+  --palette-border: #819188;
+  --palette-border-strong: #687b72;
+  --palette-foreground: #1b2925;
+  --palette-foreground-muted: #4c6058;
+  --palette-foreground-subtle: #5e7069;
+  --palette-success: #246844;
+  --palette-success-soft: #e7f3eb;
+  --palette-warning: #805000;
+  --palette-warning-soft: #fff3d8;
+  --palette-danger: #a12d33;
+  --palette-danger-soft: #fcebed;
+  --palette-info: #215c91;
+  --palette-info-soft: #e9f2fb;
+  --palette-focus-ring: #126eaa;
+  --palette-overlay: #15231f;
+  --font-family-arabic: "IBM Plex Sans Arabic", sans-serif;
+  --font-family-latin: "IBM Plex Sans Arabic", sans-serif;
+}

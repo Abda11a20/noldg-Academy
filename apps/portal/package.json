@@ -1,0 +1,38 @@
+{
+  "name": "@noldg/portal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@noldg/api": "workspace:*",
+    "@noldg/config": "workspace:*",
+    "@noldg/ui": "workspace:*",
+    "@fontsource/ibm-plex-sans-arabic": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "i18next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-i18next": "catalog:",
+    "react-router": "catalog:"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "jsdom": "catalog:",
+    "@types/node": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "tailwindcss": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

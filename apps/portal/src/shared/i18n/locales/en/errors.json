@@ -1,0 +1,9 @@
+{
+  "requestFailed": "The request could not be completed. Try again.",
+  "networkError": "We could not connect. Check your connection and try again.",
+  "requestTimeout": "The request took too long.",
+  "requestCancelled": "The request was cancelled.",
+  "invalidResponse": "We received an invalid response. Try again.",
+  "unauthorized": "Sign in to continue.",
+  "forbidden": "You do not have access to this page."
+}

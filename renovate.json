@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["every weekend"],
+  "automerge": false,
+  "rangeStrategy": "pin",
+  "minimumReleaseAge": "7 days",
+  "packageRules": [
+    { "groupName": "weekly dependency updates", "matchPackageNames": ["*"] },
+    {
+      "matchPackageNames": ["eslint"],
+      "description": "Revisit ESLint 10 only after every configured plugin declares compatible peer support; see ADR-006."
+    }
+  ]
+}

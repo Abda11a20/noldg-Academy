@@ -2,13 +2,13 @@
 
 ## 1. Summary
 
-F1A established shared design foundations on feat/f1a-design-system: tokens, UI components, icons, forms, feedback and data display, the Arabic/English UI gallery, tooling, lint proofs, CI and docs. F1A-FIX resolves the Windows Playwright exit behavior, adds absolute portal bundle budgets and API tree-shaking metadata, fixes the anonymous redirect's unhandled request, and adds keyboard and axe coverage for the requested controls. No product pages were added. referencebackend/ remained read-only. No install command ran and node_modules was not touched.
+F1A established shared design foundations on feat/f1a-design-system: tokens, UI components, icons, forms, feedback and data display, the Arabic/English UI gallery, tooling, lint proofs, CI and docs. F1A-FIX resolves the Windows Playwright exit behavior, adds absolute portal bundle budgets and API tree-shaking metadata, fixes the anonymous redirect's unhandled request, and adds keyboard and axe coverage for the requested controls. The E2E production test build enables MSW strict mode, and browser console/page errors fail a scenario. No product pages were added. referencebackend/ remained read-only. No install command ran and node_modules was not touched.
 
 Lint, all 17 custom lint fixtures, typecheck, unit/component tests, build, no-dev-route check, headers tests, knip, dependency-cruiser, bundle budgets, and two Playwright runs passed. Both E2E runs passed 4/4 scenarios and exited with code 0. Audit scripts were left unchanged and not run, as requested.
 
 ## 2. Files created or changed
 
-- Portal E2E: apps/portal/scripts/run-e2e.mjs, e2e-constants.mjs, Playwright config, Vite route gating, E2E redirect scenario, strict MSW handling.
+- Portal E2E: apps/portal/scripts/run-e2e.mjs, e2e-constants.mjs, Playwright config, Vite route gating, E2E redirect scenario, strict MSW handling in the test build, and browser error assertions.
 - Bundle gate: apps/portal/scripts/check-bundle-size.mjs, root package script, Vite manifest setting, CI order/check.
 - Tree-shaking: packages/api/package.json sets sideEffects false; packages/ui/package.json keeps only CSS files marked side effectful.
 - Tests: packages/ui/src/f1a-forms.test.tsx and f1a-display.test.tsx add keyboard and axe checks.
@@ -52,12 +52,12 @@ No pnpm install, node_modules deletion, or node_modules modification occurred.
 | pnpm check:no-dev-routes                               | Pass; production output has no gallery marker.                 |
 | pnpm test:headers                                      | Pass; 3/3 tests.                                               |
 | pnpm knip                                              | Pass; no unused files, exports, or dependencies.               |
-| pnpm dependency-cruiser                                | Pass; 171 modules and 263 dependencies, no violations.         |
+| pnpm dependency-cruiser                                | Pass; 169 modules and 258 dependencies, no violations.         |
 | pnpm test:e2e — run 1                                  | Pass; 4/4 scenarios, E2E_EXIT_CODE=0.                          |
 | pnpm test:e2e — run 2                                  | Pass; 4/4 scenarios, E2E_EXIT_CODE=0.                          |
 | pnpm audit:prod and pnpm audit:full                    | Not run and unchanged; owner runs outside sandbox per request. |
 
-The E2E runner builds a test-only production bundle with the dev gallery enabled, launches Vite preview directly with Node on port 4174, and starts Playwright with list and JSON reporters. The JSON report provides the result if Playwright remains alive after reporting. On Windows, taskkill was denied for the Playwright child; direct child termination fallback allowed both commands to exit with code 0. The preview port was no longer listening after each run. Playwright workers printed Node NO_COLOR/FORCE_COLOR warnings only.
+The E2E runner builds a test-only production bundle with the dev gallery and MSW enabled (VITE_API_MODE=mock, VITE_E2E_MOCKS=true), launches Vite preview directly with Node on port 4174, and starts Playwright with list and JSON reporters. The page fixture fails each scenario on browser console errors or uncaught page errors; MSW onUnhandledFrame: error aborts unknown network frames. The JSON report provides the result if Playwright remains alive after reporting. On Windows, taskkill was denied for the Playwright child; direct child termination fallback allowed both commands to exit with code 0. The preview port was no longer listening after each run. Playwright workers printed Node NO_COLOR/FORCE_COLOR warnings only.
 
 ## 5. Test results and coverage
 
@@ -66,7 +66,7 @@ The E2E runner builds a test-only production bundle with the dev gallery enabled
 - Header generation: 3/3 passed.
 - Portal unit tests: none currently exist; Vitest reports no test files and exits 0.
 - E2E: two passes, each 4/4: portal/auth redirect, language and direction switch, gallery in both directions, and Arabic/English gallery at 375px and 1280px.
-- The anonymous redirect scenario now uses client-side navigation after login so it does not issue a document GET /student. MSW mock mode configures onUnhandledFrame: "error". Neither E2E run printed an unhandled-request warning.
+- The anonymous redirect scenario now uses client-side navigation after login so it does not issue a document GET /student. The E2E build starts MSW with onUnhandledFrame: "error", and Playwright fails on browser console/page errors. Neither E2E run printed an unhandled-request warning.
 - Gallery screenshots were generated at 375px and 1280px in Arabic and English.
 
 | Component     | Render/variants | axe | Keyboard                       | RTL                | States                                           |
@@ -102,7 +102,7 @@ No visualizer package exists in the installed dependency store. Adding dependenc
 - No third-party visualizer was run because the dependency is absent and this fix does not authorize adding dependencies or reinstalling. Manifest/chunk graph analysis was used.
 - Audit scripts were intentionally left unchanged and not run per owner instruction; vulnerability status is not updated here.
 - Windows denied taskkill for the Playwright CLI child. The script uses direct child termination as a fallback; both runs exited zero and the preview port closed.
-- E2E creates a test-only production build with gallery enabled. The ordinary production build and bundle gate remain gallery-free.
+- E2E creates a test-only production build with the gallery and mock worker enabled. The ordinary production build and bundle gate remain gallery-free and mock-worker-free.
 - Install and peer-warning checks were not rerun, honoring the no-install/no-node_modules rule.
 
 ## 9. Assumptions
@@ -133,13 +133,15 @@ F1A commits before this fix:
 - 94b76be feat(portal): expand the development UI gallery
 - 5808396 feat(ui): add F1A shared design system
 
-Earlier history: aab5296 docs(f0): add foundation verification report; 7832185 feat(f0): establish frontend foundation; 4d00558 chore: initialize repository. F1A-FIX implementation commits:
+F1A-FIX implementation and initial documentation commits:
 
 - ee96404 fix(portal): exit Windows E2E runs cleanly
 - 59bc402 build(portal): enforce initial bundle gzip budgets
 - 1429102 test(ui): cover keyboard and accessibility interactions
+- 669b8cc test(portal): fail e2e on unhandled requests
+- 013400e docs(f1a): record Windows validation results
 
-Earlier history: aab5296 docs(f0): add foundation verification report; 7832185 feat(f0): establish frontend foundation; 4d00558 chore: initialize repository. This report and CONTEXT are committed in a separate docs commit; its own hash is included in the final chat git log because a commit cannot contain its own hash.
+Earlier history: aab5296 docs(f0): add foundation verification report; 7832185 feat(f0): establish frontend foundation; 4d00558 chore: initialize repository. The final report addendum and CONTEXT update are committed separately; that commit's own hash is included in the final chat git log because a commit cannot contain its own hash.
 
 ## 13. What I should review first
 

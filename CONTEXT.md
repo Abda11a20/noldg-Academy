@@ -10,7 +10,7 @@
 - F1A uses lucide-react in the sole icon registry and Radix primitives for Select, Checkbox, RadioGroup, and Switch. See ADR-007 and ADR-008.
 - UI components live in packages/ui; API calls and auth token storage live in packages/api.
 - F1A-FIX uses absolute portal JS gzip budgets: entry <=150 kB and initial-route total <=250 kB.
-- E2E uses a Node script to build a test-only gallery bundle, launch Vite preview on port 4174, run Playwright, and terminate the preview. The standard production build does not include the gallery.
+- E2E uses a Node script to build a test-only gallery and mock-worker bundle, launch Vite preview on port 4174, run Playwright, fail on browser console/page errors, and terminate the preview. The standard production build does not include the gallery or mock worker.
 - API access-token memory storage with refresh-cookie flow is the target. sessionStorage fallback is temporary while the backend lacks a refresh endpoint.
 
 ## Module status
@@ -18,7 +18,7 @@
 - Monorepo, dependency catalog, security policy, CI, and developer hooks: implemented in F0; F1A adds design-system dependencies and F1A-FIX adds the bundle gate.
 - UI tokens, brand assets, and shared components: implemented. Latest coverage is 100% statements, branches, functions, and lines across packages/ui; 14 UI tests pass.
 - API client, token stores, normalized errors, common contracts, and MSW setup: implemented; 8 tests pass.
-- Portal shell, Arabic/English direction switching, guards, layouts, error handling, and dev-only UI gallery: implemented. E2E passed twice (4/4 each; exit code 0); screenshots are under docs/reports/.
+- Portal shell, Arabic/English direction switching, guards, layouts, error handling, and dev-only UI gallery: implemented. E2E passed twice with MSW strict mode active (4/4 each; exit code 0); screenshots are under docs/reports/.
 - ESLint architecture rules and fixture proofs: 17/17 pass.
 - Latest lint, typecheck, unit/component tests, build, bundle budget, no-dev-route check, header tests, knip, and dependency-cruiser passed.
 - F1A-FIX left audit scripts unchanged and did not run audit commands; owner runs them outside sandbox. Current recorded moderate development-only minimatch advisory remains in docs/security-exceptions.md.

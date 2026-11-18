@@ -1,8 +1,9 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { Icon } from "../icon/Icon";
+import type { ButtonHTMLAttributes, MouseEventHandler, ReactNode } from "react";
 import type { IconName } from "../../icons";
-import { Spinner } from "../spinner/Spinner";
+import { useUiContext } from "../../providers/UiProvider";
+import { ButtonContent } from "./ButtonContent";
+import { ButtonLink } from "./ButtonLink";
 
 const buttonStyles = cva(
   "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-(--duration-fast) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60",
@@ -20,20 +21,30 @@ const buttonStyles = cva(
         lg: "min-h-12 px-6 text-lg",
       },
       fullWidth: { true: "w-full", false: "" },
+      iconOnly: { true: "aspect-square px-0", false: "" },
     },
-    defaultVariants: { variant: "primary", size: "md", fullWidth: false },
+    defaultVariants: { variant: "primary", size: "md", fullWidth: false, iconOnly: false },
   },
 );
 
 export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonStyles> {
+  extends
+    Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onClick">,
+    VariantProps<typeof buttonStyles> {
   loading?: boolean;
   iconStart?: IconName;
   iconEnd?: IconName;
-  children: ReactNode;
+  iconOnly?: boolean;
+  to?: string;
+  target?: string;
+  children?: ReactNode;
+  onClick?: MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
 }
 
-/** Renders a semantic button with consistent variants, optional icons, and a guarded loading state. */
+/** Renders a shared button or injected router link with variants, icons, and guarded loading.
+ * @param props Visual variant, size, optional icons/navigation, state, and accessible label.
+ * @throws Error when navigation lacks a router link provider or icon-only accessibility label.
+ */
 export function Button({
   variant,
   size,
@@ -41,22 +52,53 @@ export function Button({
   loading = false,
   iconStart,
   iconEnd,
+  iconOnly = false,
+  to,
+  target,
   className,
   disabled,
   children,
   ...props
 }: ButtonProps) {
+  const { linkComponent } = useUiContext();
+  if (iconOnly && !props["aria-label"]) {
+    throw new Error("Icon-only buttons require an accessible aria-label.");
+  }
+  const classes = buttonStyles({ variant, size, fullWidth, iconOnly, className });
+  const contents = (
+    <ButtonContent loading={loading} iconStart={iconStart} iconEnd={iconEnd}>
+      {children}
+    </ButtonContent>
+  );
+
+  if (to)
+    return (
+      <ButtonLink
+        linkComponent={linkComponent}
+        to={to}
+        target={target}
+        disabled={disabled}
+        loading={loading}
+        className={classes}
+        label={props["aria-label"]}
+        id={props.id}
+        rel={props.rel}
+        title={props.title}
+        onClick={props.onClick}
+      >
+        {contents}
+      </ButtonLink>
+    );
+
   return (
     <button
       aria-busy={loading}
-      className={buttonStyles({ variant, size, fullWidth, className })}
+      className={classes}
       disabled={disabled || loading}
       type="button"
       {...props}
     >
-      {loading ? <Spinner /> : iconStart ? <Icon name={iconStart} size="sm" /> : null}
-      {children}
-      {!loading && iconEnd ? <Icon name={iconEnd} size="sm" /> : null}
+      {contents}
     </button>
   );
 }

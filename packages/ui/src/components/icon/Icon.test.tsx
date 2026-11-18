@@ -1,7 +1,7 @@
 import { axe } from "jest-axe";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { getIconDirectionBehavior } from "../../icons";
+import { getIconDirectionBehavior, type IconName } from "../../icons";
 import { Icon } from "./Icon";
 
 describe("Icon", () => {
@@ -18,6 +18,7 @@ describe("Icon", () => {
     rerender(<Icon direction="ltr" name="chevronStart" />);
     expect(container.querySelector(".icon-flipped")).not.toBeInTheDocument();
     expect(getIconDirectionBehavior("chevronEnd", "ltr")).toBe("none");
+    expect(getIconDirectionBehavior("unknown" as IconName, "rtl")).toBe("none");
   });
 
   it("marks inherited directional icons for automatic RTL styling", () => {

@@ -1,9 +1,12 @@
+import { Suspense } from "react";
 import {
   iconRegistry,
   getIconDirectionBehavior,
   type IconDirection,
   type IconName,
 } from "../../icons";
+import { useUiContext } from "../../providers/UiProvider";
+import { IconFallback } from "./IconFallback";
 import "./Icon.css";
 
 const sizeClasses = { sm: "size-4", md: "size-5", lg: "size-6" } as const;
@@ -34,12 +37,13 @@ export function Icon({
   name,
   size = "md",
   color = "current",
-  direction = "auto",
+  direction,
   label,
   className = "",
 }: IconProps) {
-  const definition = iconRegistry[name];
-  const directionBehavior = getIconDirectionBehavior(name, direction);
+  const { direction: providerDirection } = useUiContext();
+  const RegisteredIcon = iconRegistry[name];
+  const directionBehavior = getIconDirectionBehavior(name, direction ?? providerDirection);
   const directionClass =
     directionBehavior === "flip"
       ? "icon-flipped"
@@ -51,20 +55,16 @@ export function Icon({
     .join(" ");
 
   return (
-    <svg
-      aria-hidden={label ? undefined : true}
-      aria-label={label}
-      className={classes}
-      fill="none"
-      role={label ? "img" : undefined}
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      {label ? <title>{label}</title> : null}
-      <path d={definition.path} />
-    </svg>
+    <Suspense fallback={<IconFallback className={classes} label={label} />}>
+      <RegisteredIcon
+        aria-hidden={label ? undefined : true}
+        aria-label={label}
+        className={classes}
+        fill={name === "starFilled" ? "currentColor" : "none"}
+        role={label ? "img" : undefined}
+        size="1em"
+        strokeWidth={1.8}
+      />
+    </Suspense>
   );
 }

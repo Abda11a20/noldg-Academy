@@ -58,6 +58,10 @@ it("wires field labels, descriptions, errors, password toggle, search, and chara
   expect(password).toHaveAttribute("type", "password");
   await user.click(screen.getAllByRole("button", { name: "Show password" })[0]!);
   expect(screen.getByLabelText("Password")).toHaveAttribute("type", "text");
+  const keyboardToggle = screen.getByRole("button", { name: "Show password" });
+  keyboardToggle.focus();
+  await user.keyboard("{Enter}");
+  expect(screen.getByLabelText("Plain password")).toHaveAttribute("type", "text");
   expect(screen.getByText("5 / 20")).toBeVisible();
   expect((await axe(container)).violations).toHaveLength(0);
 });
@@ -95,12 +99,24 @@ it("supports Radix select, checkbox, radio, and switch keyboard and controlled s
   expect(changed).toHaveBeenCalledWith("math");
   await user.click(screen.getByRole("checkbox", { name: "Agree" }));
   expect(screen.getByRole("checkbox", { name: "Agree" })).toBeChecked();
+  screen.getByRole("checkbox", { name: "Agree" }).focus();
+  await user.keyboard(" ");
+  expect(screen.getByRole("checkbox", { name: "Agree" })).not.toBeChecked();
   await user.click(screen.getByRole("radio", { name: "In person" }));
+  expect(screen.getByRole("radio", { name: "In person" })).toBeChecked();
+  screen.getByRole("radio", { name: "Online" }).focus();
+  await user.keyboard("{ArrowDown}");
   expect(screen.getByRole("radio", { name: "In person" })).toBeChecked();
   await user.click(screen.getByRole("switch", { name: "Notifications" }));
   expect(screen.getByRole("switch", { name: "Notifications" })).toHaveAttribute(
     "data-state",
     "checked",
+  );
+  screen.getByRole("switch", { name: "Notifications" }).focus();
+  await user.keyboard(" ");
+  expect(screen.getByRole("switch", { name: "Notifications" })).toHaveAttribute(
+    "data-state",
+    "unchecked",
   );
   expect((await axe(container)).violations).toHaveLength(0);
   unmount();
@@ -166,6 +182,9 @@ it("emits selected drop files and displays supplied progress and errors", async 
     .mockImplementation(() => undefined);
   fireEvent.click(screen.getByRole("button", { name: "Upload file" }));
   expect(clickSpy).toHaveBeenCalledOnce();
+  screen.getByRole("button", { name: "Upload file" }).focus();
+  await userEvent.setup().keyboard(" ");
+  expect(clickSpy).toHaveBeenCalledTimes(2);
   const changeSpy = vi.fn();
   rerender(
     <FileDropzone

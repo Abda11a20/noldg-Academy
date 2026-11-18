@@ -106,6 +106,7 @@ it("renders display components and every DataTable state with responsive labels"
   );
   expect(screen.getByRole("table", { name: "Students" })).toBeInTheDocument();
   expect(screen.getByRole("img", { name: "Rating" })).toBeInTheDocument();
+  expect((await axe(states.container)).violations).toHaveLength(0);
   states.rerender(
     <DataTable
       columns={columns}
@@ -118,6 +119,7 @@ it("renders display components and every DataTable state with responsive labels"
     />,
   );
   expect(screen.getByText("Loading")).toBeVisible();
+  expect((await axe(states.container)).violations).toHaveLength(0);
   states.rerender(
     <DataTable
       columns={columns}
@@ -129,6 +131,7 @@ it("renders display components and every DataTable state with responsive labels"
     />,
   );
   expect(screen.getByText("No data")).toBeVisible();
+  expect((await axe(states.container)).violations).toHaveLength(0);
   states.rerender(
     <DataTable
       columns={columns}
@@ -141,6 +144,7 @@ it("renders display components and every DataTable state with responsive labels"
     />,
   );
   expect(screen.getByText("Failed")).toBeVisible();
+  expect((await axe(states.container)).violations).toHaveLength(0);
   const user = userEvent.setup();
   const onChange = vi.fn();
   states.rerender(
@@ -151,6 +155,7 @@ it("renders display components and every DataTable state with responsive labels"
       value={2}
     />,
   );
+  expect((await axe(states.container)).violations).toHaveLength(0);
   await user.click(screen.getByRole("button", { name: "4 stars" }));
   expect(onChange).toHaveBeenCalledWith(4);
   const keyboardRating = screen.getByRole("button", { name: "3 stars" });

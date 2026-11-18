@@ -17,6 +17,11 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:e2e": "pnpm --filter @noldg/portal test:e2e",
+    "audit:prod": "pnpm audit --prod --audit-level moderate",
+    "audit:full": "pnpm audit --audit-level high",
+    "check:no-dev-routes": "node tools/check-no-dev-routes.mjs",
+    "test:headers": "node --test apps/portal/scripts/generate-headers.test.mjs",
+    "precommit": "lint-staged",
     "knip": "knip",
     "dependency-cruiser": "depcruise --config .dependency-cruiser.cjs apps packages",
     "format:check": "prettier --check ."

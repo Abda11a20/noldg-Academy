@@ -41,21 +41,22 @@ Other exact pins and selection reasons are in docs/reports/F0-report.md and the 
 
 No pnpm install, node_modules deletion, or node_modules modification occurred.
 
-| Command                                                | Result                                                         |
-| ------------------------------------------------------ | -------------------------------------------------------------- |
-| pnpm lint                                              | Pass; ESLint completed with zero warnings.                     |
-| pnpm lint:rules                                        | Pass; 17/17 expected fixture violations detected.              |
-| pnpm typecheck                                         | Pass; 3 workspace tasks succeeded.                             |
-| pnpm test                                              | Pass; UI 14/14, API 8/8; portal has no unit-test files.        |
-| VITE_API_ORIGIN=https://api.example.invalid pnpm build | Pass; production build completed.                              |
-| pnpm check:bundle-size                                 | Pass; entry 126.00 kB gzip, initial-route JS 131.11 kB gzip.   |
-| pnpm check:no-dev-routes                               | Pass; production output has no gallery marker.                 |
-| pnpm test:headers                                      | Pass; 3/3 tests.                                               |
-| pnpm knip                                              | Pass; no unused files, exports, or dependencies.               |
-| pnpm dependency-cruiser                                | Pass; 169 modules and 258 dependencies, no violations.         |
-| pnpm test:e2e — run 1                                  | Pass; 4/4 scenarios, E2E_EXIT_CODE=0.                          |
-| pnpm test:e2e — run 2                                  | Pass; 4/4 scenarios, E2E_EXIT_CODE=0.                          |
-| pnpm audit:prod and pnpm audit:full                    | Not run and unchanged; owner runs outside sandbox per request. |
+| Command                                                | Result                                                           |
+| ------------------------------------------------------ | ---------------------------------------------------------------- |
+| pnpm lint                                              | Pass; ESLint completed with zero warnings.                       |
+| pnpm lint:rules                                        | Pass; 17/17 expected fixture violations detected.                |
+| pnpm typecheck                                         | Pass; 3 workspace tasks succeeded.                               |
+| pnpm test                                              | Pass; UI 14/14, API 8/8; portal has no unit-test files.          |
+| VITE_API_ORIGIN=https://api.example.invalid pnpm build | Pass; production build completed.                                |
+| pnpm check:bundle-size                                 | Pass; entry 126.00 kB gzip, initial-route JS 131.11 kB gzip.     |
+| pnpm check:no-dev-routes                               | Pass; production output has no gallery marker.                   |
+| pnpm test:headers                                      | Pass; 3/3 tests.                                                 |
+| pnpm knip                                              | Pass; no unused files, exports, or dependencies.                 |
+| pnpm dependency-cruiser                                | Pass; 169 modules and 258 dependencies, no violations.           |
+| Pattern secret scan                                    | Pass; no matching key/token patterns; gitleaks is not installed. |
+| pnpm test:e2e — run 1                                  | Pass; 4/4 scenarios, E2E_EXIT_CODE=0.                            |
+| pnpm test:e2e — run 2                                  | Pass; 4/4 scenarios, E2E_EXIT_CODE=0.                            |
+| pnpm audit:prod and pnpm audit:full                    | Not run and unchanged; owner runs outside sandbox per request.   |
 
 The E2E runner builds a test-only production bundle with the dev gallery and MSW enabled (VITE_API_MODE=mock, VITE_E2E_MOCKS=true), launches Vite preview directly with Node on port 4174, and starts Playwright with list and JSON reporters. The page fixture fails each scenario on browser console errors or uncaught page errors; MSW onUnhandledFrame: error aborts unknown network frames. The JSON report provides the result if Playwright remains alive after reporting. On Windows, taskkill was denied for the Playwright child; direct child termination fallback allowed both commands to exit with code 0. The preview port was no longer listening after each run. Playwright workers printed Node NO_COLOR/FORCE_COLOR warnings only.
 
@@ -140,6 +141,7 @@ F1A-FIX implementation and initial documentation commits:
 - 1429102 test(ui): cover keyboard and accessibility interactions
 - 669b8cc test(portal): fail e2e on unhandled requests
 - 013400e docs(f1a): record Windows validation results
+- c4b2bd6 docs(f1a): record strict E2E verification
 
 Earlier history: aab5296 docs(f0): add foundation verification report; 7832185 feat(f0): establish frontend foundation; 4d00558 chore: initialize repository. The final report addendum and CONTEXT update are committed separately; that commit's own hash is included in the final chat git log because a commit cannot contain its own hash.
 

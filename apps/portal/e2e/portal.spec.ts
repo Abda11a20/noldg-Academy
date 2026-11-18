@@ -1,5 +1,20 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { resolve } from "node:path";
+
+const pageErrors = new WeakMap<Page, string[]>();
+
+test.beforeEach(({ page }) => {
+  const errors: string[] = [];
+  pageErrors.set(page, errors);
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+});
+
+test.afterEach(({ page }) => {
+  expect(pageErrors.get(page) ?? []).toEqual([]);
+});
 
 test("portal loads and anonymous student routes redirect to login", async ({ page }) => {
   await page.goto("/login");

@@ -9,7 +9,8 @@ import "./shell.css";
 const root = document.getElementById("root");
 
 async function startPortal(): Promise<void> {
-  if (import.meta.env.DEV && apiMode === "mock") {
+  const mockWorkerEnabled = import.meta.env.DEV || import.meta.env.VITE_E2E_MOCKS === "true";
+  if (mockWorkerEnabled && apiMode === "mock") {
     const { browserWorker } = await import("@noldg/api/mocks/browser");
     await browserWorker.start({ onUnhandledFrame: "error" });
   }

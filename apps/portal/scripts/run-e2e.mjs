@@ -81,6 +81,8 @@ async function prepareE2EBuild() {
   const environment = {
     ...process.env,
     VITE_API_ORIGIN: process.env.VITE_API_ORIGIN ?? "https://api.example.invalid",
+    VITE_API_MODE: "mock",
+    VITE_E2E_MOCKS: "true",
     VITE_INCLUDE_UI_GALLERY: "true",
   };
   await runCommand(process.execPath, [VITE_CLI, "build"], environment);

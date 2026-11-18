@@ -11,7 +11,7 @@ const root = document.getElementById("root");
 async function startPortal(): Promise<void> {
   if (import.meta.env.DEV && apiMode === "mock") {
     const { browserWorker } = await import("@noldg/api/mocks/browser");
-    await browserWorker.start();
+    await browserWorker.start({ onUnhandledFrame: "error" });
   }
   if (root)
     createRoot(root).render(

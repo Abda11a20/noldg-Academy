@@ -40,7 +40,7 @@ const routes: RouteObject[] = [
   },
 ];
 
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV || import.meta.env.VITE_INCLUDE_UI_GALLERY === "true") {
   routes.push({
     path: ROUTE_PATHS.uiGallery,
     lazy: async () => ({

@@ -4,7 +4,10 @@ import { resolve } from "node:path";
 test("portal loads and anonymous student routes redirect to login", async ({ page }) => {
   await page.goto("/login");
   await expect(page.getByRole("banner")).toBeVisible();
-  await page.goto("/student", { waitUntil: "domcontentloaded" });
+  await page.evaluate(() => {
+    window.history.pushState({}, "", "/student");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  });
   await expect(page).toHaveURL(/\/login$/);
 });
 
@@ -21,7 +24,7 @@ test("development gallery renders both directions", async ({ page }) => {
   await expect(page.locator("section[dir='ltr']")).toBeVisible();
   await expect(page.getByRole("heading", { name: "معرض عناصر الواجهة" })).toBeVisible();
   await page.screenshot({
-    path: resolve(process.cwd(), "../../docs/reports/F0-gallery.png"),
+    path: resolve(process.cwd(), "../../docs/reports/f1a-gallery-ar-1280.png"),
     fullPage: true,
   });
 });

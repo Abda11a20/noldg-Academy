@@ -28,12 +28,13 @@ jobs:
       - run: pnpm lint:rules
       - run: pnpm typecheck
       - run: pnpm test
-      - run: pnpm --filter @noldg/portal exec playwright install --with-deps chromium
-      - run: pnpm test:e2e
       - run: pnpm build
         env:
           VITE_API_ORIGIN: https://api.example.invalid
+      - run: pnpm check:bundle-size
       - run: pnpm check:no-dev-routes
+      - run: pnpm --filter @noldg/portal exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
       - run: pnpm knip
       - run: pnpm dependency-cruiser
       - run: pnpm audit:prod

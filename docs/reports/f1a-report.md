@@ -2,124 +2,148 @@
 
 ## 1. Summary
 
-Implemented the F1A design system and housekeeping scope on `feat/f1a-design-system`: responsive tokens, shared UI components, Lucide icon registry, Radix-backed controls, the Arabic/English UI gallery, headers generation, security and tooling updates, lint fixtures, and CI/docs updates. No product pages were added. `referencebackend/` remained read-only and excluded from tooling and Git. No install command ran and `node_modules` was not touched.
+F1A established shared design foundations on feat/f1a-design-system: tokens, UI components, icons, forms, feedback and data display, the Arabic/English UI gallery, tooling, lint proofs, CI and docs. F1A-FIX resolves the Windows Playwright exit behavior, adds absolute portal bundle budgets and API tree-shaking metadata, fixes the anonymous redirect's unhandled request, and adds keyboard and axe coverage for the requested controls. No product pages were added. referencebackend/ remained read-only. No install command ran and node_modules was not touched.
 
-Lint, all 17 custom lint-rule fixtures, typecheck, unit/component tests, production build, production-gallery exclusion, headers tests, knip, and dependency-cruiser passed. The two npm audit commands could not reach npm's advisory endpoint (`EACCES`). Playwright listed all four scenarios as passed and generated all four requested screenshots, but the Playwright process did not exit after the final scenario; it was interrupted, so the e2e command is not recorded as a clean pass. The change is therefore implemented but not fully verified against every F1A gate.
+Lint, all 17 custom lint fixtures, typecheck, unit/component tests, build, no-dev-route check, headers tests, knip, dependency-cruiser, bundle budgets, and two Playwright runs passed. Both E2E runs passed 4/4 scenarios and exited with code 0. Audit scripts were left unchanged and not run, as requested.
 
 ## 2. Files created or changed
 
-- UI: expanded `packages/ui/src/` with F1A layout, typography, form, feedback, and data-display components; Button extensions; `UiProvider`; Lucide registry and lazy glyph renderer; tokens; and tests split by concern in `f1a-buttons-icons.test.tsx`, `f1a-forms.test.tsx`, and `f1a-display.test.tsx`. Updated `packages/ui/package.json` and `src/index.ts`.
-- Portal: expanded the development-only `/__ui` gallery with separate forms, feedback, and data showcase components, language switch, gallery fixtures/translations, and Playwright coverage. Added CSP header generator and tests under `apps/portal/scripts/`; removed static `apps/portal/public/_headers`.
-- Tooling and supply chain: updated `pnpm-workspace.yaml`, `pnpm-lock.yaml`, package scripts, `turbo.json`, `.npmrc`, `.gitignore`, `.prettierignore`, ESLint/TypeScript config, Husky, dependency-cruiser, Knip configuration, and CI.
-- Lint proof: added F1A fixtures for literal strings in UI, external Lucide imports, and feature anchors; updated the fixture verifier.
-- Docs: updated `README.md`, `CONTEXT.md`, `docs/rules/FRONTEND-RULES.md`; added ADR-007, ADR-008, and `docs/security-exceptions.md`.
-- Screenshots: `docs/reports/f1a-gallery-ar-375.png`, `f1a-gallery-ar-1280.png`, `f1a-gallery-en-375.png`, and `f1a-gallery-en-1280.png`.
+- Portal E2E: apps/portal/scripts/run-e2e.mjs, e2e-constants.mjs, Playwright config, Vite route gating, E2E redirect scenario, strict MSW handling.
+- Bundle gate: apps/portal/scripts/check-bundle-size.mjs, root package script, Vite manifest setting, CI order/check.
+- Tree-shaking: packages/api/package.json sets sideEffects false; packages/ui/package.json keeps only CSS files marked side effectful.
+- Tests: packages/ui/src/f1a-forms.test.tsx and f1a-display.test.tsx add keyboard and axe checks.
+- Gallery screenshots: docs/reports/f1a-gallery-ar-375.png, f1a-gallery-ar-1280.png, f1a-gallery-en-375.png, f1a-gallery-en-1280.png.
+- F1A implementation files and docs are described in the earlier F1A commits listed in section 12.
+- Updated docs/reports/f1a-report.md and CONTEXT.md.
 
 ## 3. Versions
 
-| Package/tool                    |         Version | Selection reason                                                                                                                                                                                            |
-| ------------------------------- | --------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node.js                         |         24.22.3 | Required Node 24 runtime; `.nvmrc` and engines pin the major.                                                                                                                                               |
-| pnpm                            |        11.28.11 | Required pnpm 11; exact packageManager pin.                                                                                                                                                                 |
-| React / React DOM               | 19.3.1 / 19.3.1 | Existing compatible catalog versions.                                                                                                                                                                       |
-| ESLint / `@eslint/js`           | 9.39.5 / 9.39.5 | ESLint 9 is required by ADR-006 because configured React, jsx-a11y, and import plugins have not declared ESLint 10 support.                                                                                 |
-| TypeScript                      |           6.0.3 | TypeScript 7.0.2 is newer, but the full TypeScript API toolchain does not declare compatible support.                                                                                                       |
-| Vite / Vitest                   |   8.3.7 / 5.1.0 | Existing catalog versions; retained for the configured toolchain.                                                                                                                                           |
-| React Router / TanStack Query   | 8.5.1 / 5.107.1 | Existing catalog versions used for library-mode routing and query provider.                                                                                                                                 |
-| Tailwind / `@tailwindcss/vite`  |   4.3.5 / 4.3.5 | Existing compatible catalog pair.                                                                                                                                                                           |
-| `lucide-react`                  |          1.71.0 | Required by F1A to replace handwritten icon paths with the requested maintained library; highest release selected under seven-day release-age and React peer constraints. Maintained upstream; ISC license. |
-| `radix-ui`                      |           1.8.1 | Required for the requested accessible Select, Checkbox, RadioGroup, and Switch primitives; the unified package supports those controls. Maintained upstream; MIT license.                                   |
-| Fontsource IBM Plex Sans Arabic |           5.3.0 | Existing self-hosted font package retained; OFL license and Arabic/Latin subsets.                                                                                                                           |
+No package version or dependency changed during F1A-FIX. Relevant resolved versions:
 
-Other exact pins retained from F0 include i18next 27.0.1, react-i18next 18.0.1, Zod 4.6.7, MSW 3.0.4, class-variance-authority 0.7.1, TanStack Query 5.107.1, Playwright 1.65.0, Testing Library React 16.3.3, jest-axe 11.0.0, Tailwind 4.3.5, Turbo 2.11.10, Prettier 3.9.10, Husky 9.1.7, Knip 6.44.2, dependency-cruiser 18.7.2, typescript-eslint 8.72.2, and the configured ESLint plugins. The full resolved F0 catalog and reasons for other non-latest selections remain in [F0-report.md](F0-report.md); F1A changed only the two dependencies listed above. A fresh install/peer-warning transcript was not produced in this continuation because the owner supplied the installed modules and prohibited install operations.
+| Package/tool                    |         Version | Reason                                                                     |
+| ------------------------------- | --------------: | -------------------------------------------------------------------------- |
+| Node.js                         |         24.22.3 | Required Node 24 runtime.                                                  |
+| pnpm                            |        11.28.11 | Required pnpm 11; exact packageManager pin.                                |
+| React / React DOM               | 19.3.1 / 19.3.1 | Existing compatible catalog versions.                                      |
+| ESLint / @eslint/js             | 9.39.5 / 9.39.5 | ADR-006 keeps ESLint 9 until configured plugins declare ESLint 10 support. |
+| TypeScript                      |           6.0.3 | TypeScript 7 is newer, but toolchain peers do not yet declare support.     |
+| Vite / Vitest                   |   8.3.7 / 5.1.0 | Existing catalog versions; retained.                                       |
+| React Router / TanStack Query   | 8.5.1 / 5.107.1 | Existing catalog versions.                                                 |
+| Tailwind / @tailwindcss/vite    |   4.3.5 / 4.3.5 | Existing compatible pair.                                                  |
+| lucide-react                    |          1.71.0 | F1A-required icon library; maintained upstream, ISC.                       |
+| radix-ui                        |           1.8.1 | F1A-required accessible controls; maintained upstream, MIT.                |
+| @playwright/test                |          1.65.0 | Existing exact pin; no dependency changes in this fix.                     |
+| Fontsource IBM Plex Sans Arabic |           5.3.0 | Self-hosted Arabic and Latin font package; OFL.                            |
+
+Other exact pins and selection reasons are in docs/reports/F0-report.md and the previous F1A report history. No new dependency was added.
 
 ## 4. Commands run with results
 
-Commands were run in the requested gate order after the final code change, except that the production build needed the documented public API origin.
+No pnpm install, node_modules deletion, or node_modules modification occurred.
 
-| Command                        | Result                                                                                                                                                                                                                                                                                 |
-| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm lint`                    | Pass; ESLint completed with `--max-warnings 0`.                                                                                                                                                                                                                                        |
-| `pnpm lint:rules`              | Pass; 17/17 expected fixture violations detected.                                                                                                                                                                                                                                      |
-| `pnpm typecheck`               | Pass; 3 workspace typecheck tasks succeeded.                                                                                                                                                                                                                                           |
-| `pnpm test`                    | Pass; UI 14/14, API 8/8; portal has no unit-test files.                                                                                                                                                                                                                                |
-| `pnpm build`                   | First invocation failed because required `VITE_API_ORIGIN` was absent. Rerun with `VITE_API_ORIGIN=https://api.example.invalid` passed.                                                                                                                                                |
-| `pnpm check:no-dev-routes`     | Pass; no gallery marker in production output.                                                                                                                                                                                                                                          |
-| `pnpm test:headers`            | Pass; 3/3 tests.                                                                                                                                                                                                                                                                       |
-| `pnpm knip`                    | Pass; no unused files, exports, or dependencies reported.                                                                                                                                                                                                                              |
-| `pnpm dependency-cruiser`      | Pass; 158 modules and 242 dependencies, no violations.                                                                                                                                                                                                                                 |
-| `pnpm audit:prod`              | Fail/blocked; npm advisory bulk endpoint POST returned `EACCES`, then `fetch failed` after retries.                                                                                                                                                                                    |
-| `pnpm audit:full`              | Fail/blocked for the same npm endpoint network error.                                                                                                                                                                                                                                  |
-| `pnpm test:e2e -- --workers=1` | Incomplete command result: Playwright displayed all 4 scenarios as `ok`, generated the four screenshots, then remained alive without a final summary/exit code. Interrupted well before the 10-minute limit. CI-mode and direct Playwright invocations showed the same post-test hang. |
+| Command                                                | Result                                                         |
+| ------------------------------------------------------ | -------------------------------------------------------------- |
+| pnpm lint                                              | Pass; ESLint completed with zero warnings.                     |
+| pnpm lint:rules                                        | Pass; 17/17 expected fixture violations detected.              |
+| pnpm typecheck                                         | Pass; 3 workspace tasks succeeded.                             |
+| pnpm test                                              | Pass; UI 14/14, API 8/8; portal has no unit-test files.        |
+| VITE_API_ORIGIN=https://api.example.invalid pnpm build | Pass; production build completed.                              |
+| pnpm check:bundle-size                                 | Pass; entry 126.00 kB gzip, initial-route JS 131.11 kB gzip.   |
+| pnpm check:no-dev-routes                               | Pass; production output has no gallery marker.                 |
+| pnpm test:headers                                      | Pass; 3/3 tests.                                               |
+| pnpm knip                                              | Pass; no unused files, exports, or dependencies.               |
+| pnpm dependency-cruiser                                | Pass; 171 modules and 263 dependencies, no violations.         |
+| pnpm test:e2e — run 1                                  | Pass; 4/4 scenarios, E2E_EXIT_CODE=0.                          |
+| pnpm test:e2e — run 2                                  | Pass; 4/4 scenarios, E2E_EXIT_CODE=0.                          |
+| pnpm audit:prod and pnpm audit:full                    | Not run and unchanged; owner runs outside sandbox per request. |
 
-No install, cleanup, or modification of `node_modules` was performed. The F0 screenshot accidentally overwritten during gallery smoke was restored from the committed F0 artifact.
+The E2E runner builds a test-only production bundle with the dev gallery enabled, launches Vite preview directly with Node on port 4174, and starts Playwright with list and JSON reporters. The JSON report provides the result if Playwright remains alive after reporting. On Windows, taskkill was denied for the Playwright child; direct child termination fallback allowed both commands to exit with code 0. The preview port was no longer listening after each run. Playwright workers printed Node NO_COLOR/FORCE_COLOR warnings only.
 
 ## 5. Test results and coverage
 
-- UI: 14 tests passed. Coverage was 100% statements, 100% branches, 100% functions, and 100% lines for `packages/ui`.
-- API: 8 tests passed. Coverage was 87.61% statements, 81.81% branches, 84% functions, and 88.23% lines.
-- Header generator: 3/3 Node tests passed.
-- Portal unit tests: no test files exist; Vitest exited successfully with that notice.
-- E2E: the browser reported 4/4 scenarios passed: portal/auth redirect, language and direction switch, both gallery directions, and Arabic/English gallery at 375px and 1280px. The runner hang means the suite's command exit status remains unverified.
-- The E2E output included an MSW warning for an unhandled `GET /student` during the anonymous redirect scenario; the redirect assertion passed, but the warning remains visible in the output.
-- Screenshots generated:
-  - Arabic 375px: `docs/reports/f1a-gallery-ar-375.png`
-  - Arabic 1280px: `docs/reports/f1a-gallery-ar-1280.png`
-  - English 375px: `docs/reports/f1a-gallery-en-375.png`
-  - English 1280px: `docs/reports/f1a-gallery-en-1280.png`
+- UI: 14 passed; 100% statements, branches, functions, and lines.
+- API: 8 passed; 87.61% statements, 81.81% branches, 84% functions, 88.23% lines.
+- Header generation: 3/3 passed.
+- Portal unit tests: none currently exist; Vitest reports no test files and exits 0.
+- E2E: two passes, each 4/4: portal/auth redirect, language and direction switch, gallery in both directions, and Arabic/English gallery at 375px and 1280px.
+- The anonymous redirect scenario now uses client-side navigation after login so it does not issue a document GET /student. MSW mock mode configures onUnhandledFrame: "error". Neither E2E run printed an unhandled-request warning.
+- Gallery screenshots were generated at 375px and 1280px in Arabic and English.
+
+| Component     | Render/variants | axe | Keyboard                       | RTL                | States                                           |
+| ------------- | --------------- | --- | ------------------------------ | ------------------ | ------------------------------------------------ |
+| Select        | ✓               | ✓   | ✓ ArrowDown/Enter              | Gallery in RTL/LTR | options, placeholder, disabled, error            |
+| Checkbox      | ✓               | ✓   | ✓ Space                        | Gallery in RTL/LTR | checked, unchecked, controlled, disabled         |
+| RadioGroup    | ✓               | ✓   | ✓ ArrowDown                    | Gallery in RTL/LTR | selected, controlled, disabled, orientation      |
+| Switch        | ✓               | ✓   | ✓ Space                        | Gallery in RTL/LTR | checked, unchecked, controlled, disabled         |
+| Stars input   | ✓               | ✓   | ✓ Enter                        | Gallery in RTL/LTR | read-only and selected rating                    |
+| PasswordField | ✓               | ✓   | ✓ Enter                        | Gallery in RTL/LTR | masked, visible, error, required                 |
+| FileDropzone  | ✓               | ✓   | ✓ Space                        | Gallery in RTL/LTR | empty, selected, progress, error, disabled, drag |
+| DataTable     | ✓               | ✓   | Not applicable; presentational | Gallery in RTL/LTR | rows, loading, empty, error, responsive gallery  |
 
 ## 6. Lint-rule proofs
 
-`pnpm lint:rules` passed all 17 fixtures. The F1A additions prove rejection of a literal user-facing string in `packages/ui`, a direct Lucide import outside the icon registry, and an anchor element in a feature. Existing fixtures cover the F0 architectural rules. The portal test task declares empty Turbo outputs because it has no unit test artifacts; E2E outputs are declared separately.
+pnpm lint:rules passed all 17 fixture proofs, including literal user-facing text in packages/ui, a direct Lucide import outside the registry, and a feature anchor. Existing fixtures cover the F0 architecture rules. pnpm lint passed with zero warnings.
 
 ## 7. Bundle sizes
 
-The production build emitted a 404.70 kB entry chunk (127.48 kB gzip), a 10.42 kB lazy glyph chunk (3.76 kB gzip), and an 11.18 kB PortalFrame chunk (4.95 kB gzip). Summing emitted JavaScript chunks gives approximately 428.32 kB (137.71 kB gzip).
+Absolute budgets: entry JavaScript <=150 kB gzip and total initial-route JavaScript <=250 kB gzip. The checker reads the production Vite manifest, follows the portal entry plus lazy AuthLayout route, gzip-compresses the emitted JS with Node, and fails if either limit is exceeded.
 
-F0 recorded a 344.06 kB entry (108.92 kB gzip) and 408.97 kB across JavaScript chunks (131.60 kB gzip). Compared with F0, the entry grew about 17.6% (18.6% gzip), above the approximately 15% entry limit. Total emitted JavaScript grew about 4.7% (4.6% gzip), within 15%. The required entry-size target is therefore not met; this is a deviation for review, not a claimed pass.
+| Measurement                 | Before API sideEffects change |     After |   Budget | Result |
+| --------------------------- | ----------------------------: | --------: | -------: | ------ |
+| Entry JS gzip               |                     126.00 kB | 126.00 kB | <=150 kB | Pass   |
+| Total initial-route JS gzip |                     131.11 kB | 131.11 kB | <=250 kB | Pass   |
+
+The API metadata change produced no measurable size change because the entry currently imports no API implementation code. UI already declares only CSS files as side-effectful, so its JavaScript remains tree-shakeable. Import scan found named workspace imports and no whole-library or namespace imports. The production entry is 404.70 kB raw / 127.48 kB gzip as reported by Vite; the initial AuthLayout closure measured by the gate is 131.11 kB gzip and includes PortalFrame. Production excludes the gallery; the separate E2E build includes it.
+
+No visualizer package exists in the installed dependency store. Adding dependencies and reinstalling were prohibited for this fix, so I inspected the Vite manifest and emitted chunk graph once instead. The production entry declares lazy AuthLayout, StudentLayout, TeacherLayout, AdminLayout, NotFound, and gallery route chunks. No third-party treemap is claimed.
 
 ## 8. Deviations from this spec and why
 
-- The Playwright process did not exit cleanly even though it reported all four tests as passed. The command is marked incomplete and needs a clean rerun.
-- Both audit commands were blocked by the environment's denied network access to npm's advisory endpoint. No vulnerability-free claim is made.
-- Initial entry JavaScript grew 17.6% versus F0, exceeding the approximately 15% target. Total emitted JavaScript remains under that threshold.
-- Production build requires `VITE_API_ORIGIN`; the unconfigured command correctly fails, and the configured build passed.
-- No install/peer-warning check was rerun, honoring the owner's prohibition on install operations and touching `node_modules`.
+- No third-party visualizer was run because the dependency is absent and this fix does not authorize adding dependencies or reinstalling. Manifest/chunk graph analysis was used.
+- Audit scripts were intentionally left unchanged and not run per owner instruction; vulnerability status is not updated here.
+- Windows denied taskkill for the Playwright CLI child. The script uses direct child termination as a fallback; both runs exited zero and the preview port closed.
+- E2E creates a test-only production build with gallery enabled. The ordinary production build and bundle gate remain gallery-free.
+- Install and peer-warning checks were not rerun, honoring the no-install/no-node_modules rule.
 
 ## 9. Assumptions
 
-- The owner's manually installed `node_modules` is the intended dependency state for this validation pass.
-- `https://api.example.invalid` is a build-only documented placeholder used to test CSP generation; it is not a real service endpoint or secret.
-- The reported F0 bundle sizes are taken from `docs/reports/F0-report.md`.
+- The owner's manually installed node_modules is the intended dependency state.
+- https://api.example.invalid is a build-only CSP placeholder, not a service endpoint or secret.
+- F0 bundle figures are taken from docs/reports/F0-report.md.
 
 ## 10. Questions
 
-- Can the audit commands be rerun in an environment permitted to reach npm's security endpoint?
-- Can the Playwright hang be investigated on the owner's machine or in CI to obtain a clean process exit?
-- Should the portal entry's 17.6% increase be reduced below the F1A threshold before acceptance?
+- Can the owner run pnpm audit:prod and pnpm audit:full outside the sandbox and attach the results?
+- Is Vite manifest/chunk-graph analysis sufficient, or should a visualizer dependency be approved in a later step?
 
 ## 11. Risks and technical debt
 
-- Audit status is unknown until the registry endpoint is reachable. The recorded moderate development-only `minimatch` advisory remains in `docs/security-exceptions.md`.
-- The e2e test process hang prevents a fully clean end-to-end gate result.
-- The portal entry-size budget is exceeded; emitted total JavaScript remains within the requested growth budget.
-- Existing temporary sessionStorage auth fallback and missing backend refresh endpoint remain documented F0 technical debt.
+- Audit state was not checked in this fix. The documented development-only minimatch advisory remains in docs/security-exceptions.md.
+- Windows denied taskkill for the Playwright child in this sandbox; direct child termination worked twice and the preview port was closed after both runs.
+- No third-party module treemap is available without adding a dependency.
+- The temporary sessionStorage auth fallback and missing backend refresh endpoint remain documented F0 technical debt.
 
 ## 12. Commits
 
-F1A commits before this report:
+F1A commits before this fix:
 
-- `8cbb6ae docs(f1a): record design decisions and rules`
-- `d0a3d88 chore(tooling): enforce F1A validation and security rules`
-- `0e4006b refactor(ui): split gallery examples and tests`
-- `94b76be feat(portal): expand the development UI gallery`
-- `5808396 feat(ui): add F1A shared design system`
+- 8cbb6ae docs(f1a): record design decisions and rules
+- d0a3d88 chore(tooling): enforce F1A validation and security rules
+- 0e4006b refactor(ui): split gallery examples and tests
+- 94b76be feat(portal): expand the development UI gallery
+- 5808396 feat(ui): add F1A shared design system
 
-Earlier history: `aab5296 docs(f0): add foundation verification report`, `7832185 feat(f0): establish frontend foundation`, `4d00558 chore: initialize repository`. The complete final `git log --oneline` is included in the chat summary.
+Earlier history: aab5296 docs(f0): add foundation verification report; 7832185 feat(f0): establish frontend foundation; 4d00558 chore: initialize repository. F1A-FIX implementation commits:
+
+- ee96404 fix(portal): exit Windows E2E runs cleanly
+- 59bc402 build(portal): enforce initial bundle gzip budgets
+- 1429102 test(ui): cover keyboard and accessibility interactions
+
+Earlier history: aab5296 docs(f0): add foundation verification report; 7832185 feat(f0): establish frontend foundation; 4d00558 chore: initialize repository. This report and CONTEXT are committed in a separate docs commit; its own hash is included in the final chat git log because a commit cannot contain its own hash.
 
 ## 13. What I should review first
 
-1. Inspect the four gallery screenshots and the 17.6% portal entry-size increase.
-2. Re-run `pnpm test:e2e` where the runner can exit normally.
-3. Re-run `pnpm audit:prod` and `pnpm audit:full` with registry access.
-4. Review `docs/security-exceptions.md`, then the F1A component and tooling changes.
+1. Inspect the four gallery screenshots and verify the 150/250 kB gzip budgets.
+2. Review the Windows E2E runner, teardown fallback, and strict mock behavior.
+3. Run both audit commands outside the sandbox.
+4. Review the component coverage matrix and docs/security-exceptions.md, then the F1A/F1A-FIX changes.

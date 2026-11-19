@@ -37,6 +37,13 @@ it("supports RTL code entry, paste, advance and backspace with an accessible OTP
   expect(firstField).toHaveFocus();
   fireEvent.paste(firstField, { clipboardData: { getData: () => "١٢٣٤٥٦" } });
   expect(onChange).toHaveBeenLastCalledWith("123456");
+  const lastField = fields.at(-1);
+  if (!lastField) throw new Error("OTP input must render six fields.");
+  await user.type(lastField, "7");
+  expect(lastField).toHaveFocus();
+  const changeCount = onChange.mock.calls.length;
+  fireEvent.paste(secondField, { clipboardData: { getData: () => "" } });
+  expect(onChange).toHaveBeenCalledTimes(changeCount);
   expect((await axe(container)).violations).toHaveLength(0);
 });
 
@@ -71,5 +78,15 @@ it("renders the shared topbar slots, identity, and logout action accessibly", as
   await user.keyboard("{Enter}");
   expect(onLogout).toHaveBeenCalledOnce();
   expect(screen.getByText("Mona Ali")).toBeVisible();
+  expect((await axe(container)).violations).toHaveLength(0);
+});
+
+it("allows the topbar identity, menu, and logout actions to be omitted", async () => {
+  const { container } = render(
+    <Topbar logoAlt="Noldg Academy" userMenuSlot={<span>Profile menu</span>} />,
+  );
+  expect(screen.getByText("Profile menu")).toBeVisible();
+  expect(screen.queryByText("Mona Ali")).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Log out" })).not.toBeInTheDocument();
   expect((await axe(container)).violations).toHaveLength(0);
 });

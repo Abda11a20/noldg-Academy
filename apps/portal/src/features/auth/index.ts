@@ -1,0 +1,11 @@
+export { LoginPage } from "./pages/LoginPage";
+export { RegisterChoicePage } from "./pages/RegisterChoicePage";
+export { StudentRegistrationPage } from "./pages/StudentRegistrationPage";
+export { TeacherRegistrationPage } from "./pages/TeacherRegistrationPage";
+export { VerifyEmailPage } from "./pages/VerifyEmailPage";
+export { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
+export { ResetPasswordPage } from "./pages/ResetPasswordPage";
+export { DeviceBlockedPage } from "./pages/DeviceBlockedPage";
+export { TeacherPendingPage } from "./pages/TeacherPendingPage";
+export { AccountSuspendedPage } from "./pages/AccountSuspendedPage";
+export { RoleLandingPage } from "./pages/RoleLandingPage";

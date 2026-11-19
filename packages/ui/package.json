@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": "./src/index.ts",
     "./tokens.css": "./src/tokens/index.css"
@@ -13,20 +16,22 @@
   },
   "dependencies": {
     "class-variance-authority": "catalog:",
+    "lucide-react": "catalog:",
+    "radix-ui": "catalog:",
     "react": "catalog:"
   },
   "devDependencies": {
     "@noldg/config": "workspace:*",
-    "@types/react": "catalog:",
     "@testing-library/dom": "catalog:",
-    "@vitest/coverage-v8": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
-    "vitest": "catalog:",
-    "jsdom": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@testing-library/user-event": "catalog:",
-    "@testing-library/jest-dom": "catalog:",
-    "jest-axe": "catalog:"
+    "@types/react": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "jest-axe": "catalog:",
+    "jsdom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

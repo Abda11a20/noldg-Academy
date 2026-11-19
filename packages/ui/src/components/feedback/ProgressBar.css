@@ -1,0 +1,45 @@
+.progress-bar {
+  appearance: none;
+  background: var(--color-surface-muted);
+  border: 0;
+  border-radius: var(--radius-full);
+  color: var(--color-primary);
+  height: var(--space-2);
+  inline-size: 100%;
+  overflow: hidden;
+}
+
+.progress-bar::-webkit-progress-bar {
+  background: var(--color-surface-muted);
+}
+
+.progress-bar::-webkit-progress-value {
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: inline-size var(--duration-normal) var(--ease-standard);
+}
+
+.progress-bar::-moz-progress-bar {
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+
+.progress-bar:not([value])::-webkit-progress-value {
+  animation: progress-indeterminate var(--duration-slow) var(--ease-standard) infinite alternate;
+  inline-size: 35%;
+}
+
+@keyframes progress-indeterminate {
+  to {
+    transform: translateX(185%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar::-webkit-progress-value {
+    transition: none;
+  }
+  .progress-bar:not([value])::-webkit-progress-value {
+    animation: none;
+  }
+}

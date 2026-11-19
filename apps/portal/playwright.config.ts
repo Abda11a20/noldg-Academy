@@ -1,22 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
-
-const PORTAL_TEST_PORT = 4174;
+import { E2E_BASE_URL } from "./scripts/e2e-constants.mjs";
 
 export default defineConfig({
   testDir: "./e2e",
   testIgnore: ["**/referencebackend/**", "**/node_modules/**"],
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
-  reporter: "list",
+  reporter: [["list"], ["json", { outputFile: "test-results/e2e-results.json" }]],
   use: {
-    baseURL: `http://127.0.0.1:${PORTAL_TEST_PORT}`,
+    baseURL: process.env.PORTAL_E2E_BASE_URL ?? E2E_BASE_URL,
     trace: "retain-on-failure",
     ...devices["Desktop Chrome"],
-  },
-  webServer: {
-    command: `node ./node_modules/vite/bin/vite.js --host 127.0.0.1 --port ${PORTAL_TEST_PORT} --strictPort`,
-    url: `http://127.0.0.1:${PORTAL_TEST_PORT}`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
   },
 });

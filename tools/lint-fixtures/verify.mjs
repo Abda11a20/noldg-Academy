@@ -17,6 +17,9 @@ const fixtures = new Map([
   ["max-lines.tsx", "max-lines"],
   ["max-lines-per-function.tsx", "max-lines-per-function"],
   ["complexity.tsx", "complexity"],
+  [path.join("packages-ui", "literal-user-text.tsx"), "noldg/no-literal-user-text-in-jsx"],
+  ["external-lucide.tsx", "noldg/no-icon-library-outside-registry"],
+  [path.join("features", "alpha", "native-anchor.tsx"), "noldg/no-native-ui-elements"],
 ]);
 
 const eslint = new ESLint({ cwd: process.cwd() });

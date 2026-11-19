@@ -1,0 +1,15 @@
+.star-rating-0 > span {
+  inline-size: 0;
+}
+.star-rating-1 > span {
+  inline-size: 25%;
+}
+.star-rating-2 > span {
+  inline-size: 50%;
+}
+.star-rating-3 > span {
+  inline-size: 75%;
+}
+.star-rating-4 > span {
+  inline-size: 100%;
+}

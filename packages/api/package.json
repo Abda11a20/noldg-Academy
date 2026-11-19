@@ -7,6 +7,10 @@
   "exports": {
     "./http": "./src/http/client.ts",
     "./auth/token-store": "./src/auth/token-store.ts",
+    "./config/capabilities": "./src/config/capabilities.ts",
+    "./constants/auth": "./src/constants/auth.ts",
+    "./contracts/auth": "./src/contracts/auth.ts",
+    "./endpoints/auth": "./src/endpoints/auth/index.ts",
     "./auth/events": "./src/constants/http.ts",
     "./errors": "./src/errors/app-error.ts",
     "./contracts/common": "./src/contracts/common.ts",

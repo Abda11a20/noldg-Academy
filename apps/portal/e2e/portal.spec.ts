@@ -23,7 +23,7 @@ test("portal loads and anonymous student routes redirect to login", async ({ pag
     window.history.pushState({}, "", "/student");
     window.dispatchEvent(new PopStateEvent("popstate"));
   });
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page).toHaveURL(/\/login\?returnTo=%2Fstudent$/);
 });
 
 test("language switch updates document language and direction", async ({ page }) => {

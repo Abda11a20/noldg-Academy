@@ -1,6 +1,6 @@
 # Noldg Academy Frontend Foundation
 
-Arabic-first tutoring platform frontend for the Egypt market. F0 provides the monorepo and API foundation; F1A provides the shared design system; F2 adds authentication screens and session handling. Student, teacher, and admin home routes remain placeholders for their later modules.
+Arabic-first tutoring platform frontend for the Egypt market. F0 provides the monorepo and API foundation; F1A provides the shared design system; F2 adds authentication screens and session handling; F3 adds the shared application shell and first administrative modules for academic structure and teacher applications. Student and teacher homes remain placeholders for later modules.
 
 ## Requirements
 
@@ -45,4 +45,4 @@ pnpm audit:prod
 pnpm audit:full
 ```
 
-The UI gallery is available only in development at `/__ui` and is excluded from production builds. Production builds require `VITE_API_ORIGIN` to generate the static hosting security headers; `.env.example` shows the public configuration format. Run `pnpm test:e2e` with the installed Playwright browser to exercise the auth flows and gallery in Arabic and English. Mock mode supports the target auth contract. Live mode adapts the routes and payloads currently implemented by `referencebackend/`; missing OTP, public catalog, refresh-cookie, student-profile, and device-change capabilities are shown as unavailable where needed. See [the auth target contract](docs/api-target-auth.md) and [the verified backend differences](docs/contract-differences.md).
+The UI gallery is available only in development at `/__ui` and is excluded from production builds. Production builds require `VITE_API_ORIGIN` to generate static hosting security headers; `.env.example` shows the public configuration format. `pnpm test:e2e` exercises the auth flows, admin academic and teacher screens, and gallery in Arabic and English. Mock mode supports the target auth and administration contracts. Live mode adapts only the routes and payloads currently implemented by `referencebackend/`; missing OTP, public catalog, refresh-cookie, student-profile, device-change, admin academic access, teacher detail/review, and admin search/pagination capabilities show a localized unavailable state. See [the auth target contract](docs/api-target-auth.md), [the admin target contract](docs/api-target-admin.md), and [the verified backend differences](docs/contract-differences.md).

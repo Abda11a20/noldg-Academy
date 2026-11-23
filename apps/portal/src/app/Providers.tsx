@@ -3,7 +3,7 @@ import type { ComponentType, ReactNode } from "react";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { useDocumentLanguage } from "../shared/i18n/useDocumentLanguage";
 import { Link as RouterLink } from "react-router";
-import { UiProvider, type UiLinkProps } from "@noldg/ui";
+import { ToastProvider, UiProvider, type UiLinkProps } from "@noldg/ui";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { AUTH_LOGOUT_EVENT } from "@noldg/api/auth/events";
@@ -41,7 +41,7 @@ function PortalUiProvider({ children }: { children: ReactNode }) {
   const linkComponent: ComponentType<UiLinkProps> = PortalRouterLink;
   return (
     <UiProvider direction={direction} linkComponent={linkComponent}>
-      {children}
+      <ToastProvider dismissLabel={i18n.t("common:toastDismiss")}>{children}</ToastProvider>
     </UiProvider>
   );
 }

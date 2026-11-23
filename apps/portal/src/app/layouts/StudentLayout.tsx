@@ -15,6 +15,7 @@ export function StudentLayout() {
     <RequireAuth>
       <RequireRole roles={["student"]}>
         <PortalFrame
+          userRole="student"
           {...(user?.name ? { userName: user.name } : {})}
           roleLabel={t("roles.student")}
           logoutLabel={t("logout")}

@@ -90,15 +90,16 @@ export function useStudentRegistration() {
         },
       );
     } catch (error) {
-      state.onFailure(error);
-      if (error instanceof AppError && error.code === "CAPABILITY_UNAVAILABLE") {
-        state.setErrorKey("auth:student.catalogUnavailable");
-      }
+      // Reset sensitive values before mapping server errors so field errors remain visible.
       form.reset({
         ...values,
         password: "",
         passwordConfirmation: "",
       });
+      state.onFailure(error);
+      if (error instanceof AppError && error.code === "CAPABILITY_UNAVAILABLE") {
+        state.setErrorKey("auth:student.catalogUnavailable");
+      }
     } finally {
       state.setPending(false);
     }
@@ -223,8 +224,8 @@ export function useTeacherRegistration() {
         { replace: true, state: { email: values.email, teacherRegistrationReceived: true } },
       );
     } catch (error) {
-      state.onFailure(error);
       form.reset({ ...values, password: "", passwordConfirmation: "" });
+      state.onFailure(error);
     } finally {
       state.setPending(false);
     }

@@ -64,7 +64,7 @@ export function useLoginForm() {
         state,
         cooldown,
         navigate,
-        clearPassword: () => form.resetField("password"),
+        clearPassword: () => form.setValue("password", "", { shouldValidate: false }),
       });
     } finally {
       state.setPending(false);

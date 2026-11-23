@@ -76,5 +76,36 @@
   "sampleTableGrade": "الصف",
   "sampleTableValue": "منى",
   "sampleLoading": "جارٍ تحميل المحتوى",
-  "sampleAction": "فتح"
+  "sampleAction": "فتح",
+  "toastDismiss": "إغلاق الإشعار",
+  "pagination": {
+    "label": "التنقل بين الصفحات",
+    "pageSize": "عدد الصفوف في الصفحة",
+    "previous": "السابق",
+    "next": "التالي"
+  },
+  "navigation": {
+    "label": "التنقل الرئيسي",
+    "open": "فتح قائمة التنقل",
+    "close": "إغلاق قائمة التنقل",
+    "studentHome": "الرئيسية للطالب",
+    "teacherHome": "الرئيسية للمعلم",
+    "adminHome": "الرئيسية للإدارة",
+    "academic": "الهيكل الدراسي",
+    "teachers": "المعلمون"
+  },
+  "galleryToastTitle": "تم الحفظ",
+  "galleryToastBody": "تغييراتك جاهزة.",
+  "galleryToastTrigger": "عرض الإشعار",
+  "galleryDialogTrigger": "فتح الحوار",
+  "galleryDialogTitle": "تأكيد الإجراء",
+  "galleryDialogBody": "مثال لحوار يسهل الوصول إليه.",
+  "galleryMenuLabel": "إجراءات إضافية",
+  "galleryFirstTab": "نظرة عامة",
+  "gallerySecondTab": "التفاصيل",
+  "galleryFirstPanel": "لوحة نظرة عامة",
+  "gallerySecondPanel": "لوحة التفاصيل",
+  "galleryTabsLabel": "تبويبات المعرض",
+  "galleryBreadcrumbLabel": "مسار التنقل",
+  "galleryCurrentPage": "الصفحة الحالية"
 }

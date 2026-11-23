@@ -15,6 +15,7 @@ export function AdminLayout() {
     <RequireAuth>
       <RequireRole roles={["admin", "super_admin"]}>
         <PortalFrame
+          userRole={user?.role ?? "admin"}
           {...(user?.name ? { userName: user.name } : {})}
           roleLabel={t("roles.admin")}
           logoutLabel={t("logout")}

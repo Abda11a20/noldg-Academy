@@ -7,10 +7,12 @@ import arAuth from "./locales/ar/auth.json";
 import enCommon from "./locales/en/common.json";
 import enErrors from "./locales/en/errors.json";
 import enAuth from "./locales/en/auth.json";
+import arAdmin from "./locales/ar/admin.json";
+import enAdmin from "./locales/en/admin.json";
 
 const resources = {
-  ar: { common: arCommon, errors: arErrors, auth: arAuth },
-  en: { common: enCommon, errors: enErrors, auth: enAuth },
+  ar: { common: arCommon, errors: arErrors, auth: arAuth, admin: arAdmin },
+  en: { common: enCommon, errors: enErrors, auth: enAuth, admin: enAdmin },
 } as const;
 
 void i18next.use(initReactI18next).init({
@@ -19,7 +21,7 @@ void i18next.use(initReactI18next).init({
   fallbackLng: brand.defaultLanguage,
   supportedLngs: [...brand.supportedLanguages],
   defaultNS: "common",
-  ns: ["common", "errors", "auth"],
+  ns: ["common", "errors", "auth", "admin"],
   interpolation: { escapeValue: false },
   returnNull: false,
 });

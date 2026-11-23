@@ -1,9 +1,11 @@
 import { useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Alert, Button, Text } from "@noldg/ui";
+import { Button } from "@noldg/ui";
 import { useAuthSnapshot } from "../../../shared/auth/auth-store";
 import { AuthPanel } from "../components/AuthPanel";
 import { useLogout } from "../hooks/useLogout";
+import { useTeacherPending } from "../hooks/useTeacherPending";
+import { TeacherPendingBody } from "../components/TeacherPendingBody";
 
 interface PendingPageState {
   teacherRegistrationReceived?: boolean;
@@ -16,18 +18,22 @@ export function TeacherPendingPage() {
   const location = useLocation();
   const state = location.state as PendingPageState | null;
   const logout = useLogout();
+  const application = useTeacherPending(user);
   const rejected = user?.applicationStatus === "rejected";
   return (
     <AuthPanel
       title={t("pending.title")}
       subtitle={t(rejected ? "pending.rejected" : "pending.body")}
     >
-      {state?.teacherRegistrationReceived ? (
-        <Alert tone="success" title={t("teacher.applicationReceived")}>
-          {t("teacher.applicationReceivedBody")}
-        </Alert>
-      ) : null}
-      {rejected && user?.rejectionReason ? <Text>{user.rejectionReason}</Text> : null}
+      <TeacherPendingBody
+        registrationReceived={Boolean(state?.teacherRegistrationReceived)}
+        rejected={rejected}
+        {...(user?.rejectionReason ? { rejectionReason: user.rejectionReason } : {})}
+        {...(application.profile ? { application: application.profile } : {})}
+        {...(application.catalog ? { catalog: application.catalog } : {})}
+        unavailable={Boolean(application.error)}
+        onResubmit={application.refresh}
+      />
       {user ? (
         <Button
           loading={logout.loggingOut}

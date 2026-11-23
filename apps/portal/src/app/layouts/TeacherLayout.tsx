@@ -19,6 +19,7 @@ export function TeacherLayout() {
     <RequireAuth>
       <RequireRole roles={["teacher"]}>
         <PortalFrame
+          userRole="teacher"
           {...(user?.name ? { userName: user.name } : {})}
           roleLabel={t("roles.teacher")}
           logoutLabel={t("logout")}

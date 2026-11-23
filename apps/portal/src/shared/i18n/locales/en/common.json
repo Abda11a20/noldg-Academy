@@ -76,5 +76,36 @@
   "sampleTableGrade": "Grade",
   "sampleTableValue": "Mona",
   "sampleLoading": "Loading content",
-  "sampleAction": "Open"
+  "sampleAction": "Open",
+  "toastDismiss": "Dismiss notification",
+  "pagination": {
+    "label": "Pagination",
+    "pageSize": "Rows per page",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "navigation": {
+    "label": "Main navigation",
+    "open": "Open navigation",
+    "close": "Close navigation",
+    "studentHome": "Student home",
+    "teacherHome": "Teacher home",
+    "adminHome": "Admin home",
+    "academic": "Academic structure",
+    "teachers": "Teachers"
+  },
+  "galleryToastTitle": "Saved",
+  "galleryToastBody": "Your changes are ready.",
+  "galleryToastTrigger": "Show toast",
+  "galleryDialogTrigger": "Open dialog",
+  "galleryDialogTitle": "Confirm action",
+  "galleryDialogBody": "This is an accessible dialog sample.",
+  "galleryMenuLabel": "More actions",
+  "galleryFirstTab": "Overview",
+  "gallerySecondTab": "Details",
+  "galleryFirstPanel": "Overview panel",
+  "gallerySecondPanel": "Details panel",
+  "galleryTabsLabel": "Gallery tabs",
+  "galleryBreadcrumbLabel": "Breadcrumbs",
+  "galleryCurrentPage": "Current page"
 }

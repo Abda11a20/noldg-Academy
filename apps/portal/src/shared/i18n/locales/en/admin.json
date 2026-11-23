@@ -1,0 +1,130 @@
+{
+  "academic": {
+    "title": "Academic structure",
+    "description": "Manage education systems, grades, subjects, and their links.",
+    "tabs": { "tracks": "Tracks", "subjects": "Subjects", "mapping": "Track subjects" },
+    "filters": {
+      "system": "Education system",
+      "stage": "Stage",
+      "active": "Availability",
+      "all": "All",
+      "search": "Search"
+    },
+    "fields": {
+      "name": "Name",
+      "system": "System",
+      "stage": "Stage",
+      "grade": "Grade",
+      "active": "Active",
+      "subject": "Subject",
+      "track": "Track"
+    },
+    "actions": {
+      "createTrack": "Add track",
+      "edit": "Edit",
+      "createSubject": "Add subject",
+      "save": "Save",
+      "cancel": "Cancel",
+      "disable": "Disable",
+      "enable": "Enable",
+      "addSubject": "Link subject",
+      "removeSubject": "Remove link"
+    },
+    "states": {
+      "loading": "Loading academic data",
+      "empty": "No records match these filters.",
+      "forbiddenTitle": "You do not have permission",
+      "forbiddenBody": "Your account cannot manage this academic data.",
+      "unavailableTitle": "This feature is unavailable",
+      "unavailableBody": "The current server does not support this operation.",
+      "americanStage": "American Diploma is available only in secondary school."
+    },
+    "systems": {
+      "general": "General education",
+      "languages": "Languages",
+      "azhar": "Al-Azhar",
+      "egyptian_bacc": "Egyptian Baccalaureate",
+      "american_diploma": "American Diploma"
+    },
+    "stages": { "prep": "Preparatory", "secondary": "Secondary" }
+  },
+  "teachers": {
+    "title": "Teachers",
+    "description": "Review applications and manage teacher account status.",
+    "tabs": {
+      "applications": "Applications",
+      "active": "Active teachers",
+      "suspended": "Suspended"
+    },
+    "filters": { "status": "Application status", "search": "Search by name or email" },
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "status": "Status",
+      "submitted": "Submitted",
+      "bio": "Biography",
+      "offerings": "Teaching offerings",
+      "reason": "Reason"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "active": "Active",
+      "suspended": "Suspended",
+      "submitted": "Submitted",
+      "review": "Under review",
+      "decision": "Decision"
+    },
+    "actions": {
+      "view": "View application",
+      "approve": "Approve",
+      "reject": "Reject",
+      "suspend": "Suspend account",
+      "reactivate": "Reactivate account",
+      "save": "Save decision",
+      "retry": "Refresh list"
+    },
+    "states": {
+      "loading": "Loading teacher records",
+      "empty": "No teachers match this view.",
+      "forbiddenTitle": "You do not have permission",
+      "forbiddenBody": "Your account cannot manage teacher records.",
+      "unavailableTitle": "Teacher management is unavailable",
+      "unavailableBody": "The current server does not provide this operation.",
+      "detailUnavailable": "Application details are unavailable on this server.",
+      "alreadyReviewed": "This application was already reviewed. The list was refreshed.",
+      "reviewed": "The application decision was saved.",
+      "statusUpdated": "Teacher account status was updated."
+    },
+    "detail": {
+      "title": "Teacher application",
+      "approveTitle": "Approve application?",
+      "rejectTitle": "Reject application",
+      "suspendTitle": "Suspend teacher account?",
+      "reactivateTitle": "Reactivate teacher account?",
+      "reasonHint": "Enter at least {{count}} characters.",
+      "timelineTitle": "Application timeline",
+      "noReason": "No review reason was provided.",
+      "offering": "{{track}} · {{subject}}",
+      "timelineEntry": "{{label}}: {{date}}"
+    }
+  },
+  "list": {
+    "pageLabel": "List pagination",
+    "pageSize": "Rows per page",
+    "pageSizePlaceholder": "Choose page size",
+    "previous": "Previous",
+    "next": "Next",
+    "pageStatus": "Page {{page}} of {{count}}"
+  },
+  "common": {
+    "close": "Close",
+    "dismiss": "Dismiss",
+    "yes": "Confirm",
+    "no": "Cancel",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  }
+}

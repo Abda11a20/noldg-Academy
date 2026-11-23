@@ -9,6 +9,7 @@ export interface TopbarProps {
   userName?: string;
   roleLabel?: string;
   logoutLabel?: string;
+  mobileNavigationSlot?: ReactNode;
   onLogout?: () => void;
   loggingOut?: boolean;
 }
@@ -21,11 +22,13 @@ export function Topbar({
   userName,
   roleLabel,
   logoutLabel,
+  mobileNavigationSlot,
   onLogout,
   loggingOut = false,
 }: TopbarProps) {
   return (
     <header className="flex items-center gap-4 border-b border-border bg-surface px-4 py-3">
+      {mobileNavigationSlot}
       <Logo alt={logoAlt} className="w-40" />
       <div className="ms-auto flex items-center gap-3">
         {userName ? <span className="text-sm text-foreground">{userName}</span> : null}

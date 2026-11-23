@@ -5,6 +5,7 @@ export interface AvatarProps extends HTMLAttributes<HTMLSpanElement> {
   label: string;
   initials: string;
   asset?: ImageKey;
+  remoteSrc?: string;
   size?: "sm" | "md" | "lg";
 }
 const sizes = { sm: "size-8 text-xs", md: "size-10 text-sm", lg: "size-14 text-lg" } as const;
@@ -13,18 +14,28 @@ export function Avatar({
   label,
   initials,
   asset,
+  remoteSrc,
   size = "md",
   className = "",
   ...props
 }: AvatarProps) {
+  const hasImage = Boolean(asset || remoteSrc);
   return (
     <span
-      aria-label={label}
+      {...(!hasImage ? { "aria-label": label, role: "img" } : {})}
       className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-soft font-semibold text-primary ${sizes[size]} ${className}`.trim()}
-      role="img"
       {...props}
     >
-      {asset ? <Image alt={label} asset={asset} className="size-full object-cover" /> : initials}
+      {asset || remoteSrc ? (
+        <Image
+          alt={label}
+          {...(asset ? { asset } : {})}
+          {...(remoteSrc ? { remoteSrc } : {})}
+          className="size-full object-cover"
+        />
+      ) : (
+        initials
+      )}
     </span>
   );
 }

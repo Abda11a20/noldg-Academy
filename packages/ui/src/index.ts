@@ -16,6 +16,30 @@ export { Stack, type StackProps } from "./components/layout/Stack";
 export { Inline, type InlineProps } from "./components/layout/Inline";
 export { Grid, type GridProps } from "./components/layout/Grid";
 export { Topbar, type TopbarProps } from "./components/navigation/Topbar";
+export { Dialog, type DialogProps } from "./components/overlay/Dialog";
+export { ConfirmDialog, type ConfirmDialogProps } from "./components/overlay/ConfirmDialog";
+export { Tabs, type TabsProps, type TabItem } from "./components/navigation/Tabs";
+export {
+  Breadcrumbs,
+  type BreadcrumbsProps,
+  type BreadcrumbItem,
+} from "./components/navigation/Breadcrumbs";
+export {
+  DropdownMenu,
+  type DropdownMenuProps,
+  type DropdownMenuItem,
+} from "./components/navigation/DropdownMenu";
+export { Pagination, type PaginationProps } from "./components/navigation/Pagination";
+export {
+  ToastProvider,
+  useToast,
+  type ToastInput,
+  type ToastTone,
+} from "./components/feedback/ToastProvider";
+export { AppShell, type AppShellProps } from "./components/layout/AppShell";
+export { Sidebar, type SidebarProps } from "./components/navigation/Sidebar";
+export { MobileNav, type MobileNavProps } from "./components/navigation/MobileNav";
+export { NavItem, type NavItemProps } from "./components/navigation/NavItem";
 export { Divider, type DividerProps } from "./components/layout/Divider";
 export { Heading, type HeadingProps } from "./components/typography/Heading";
 export { Text, type TextProps } from "./components/typography/Text";

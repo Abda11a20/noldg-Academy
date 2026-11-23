@@ -20,6 +20,7 @@ import {
   textScaleClasses,
 } from "./gallery-constants";
 import { GalleryShowcase } from "./GalleryShowcase";
+import { GalleryInfrastructure } from "./GalleryInfrastructure";
 
 export interface GalleryDirectionProps {
   direction: "rtl" | "ltr";
@@ -87,6 +88,7 @@ export function GalleryDirection({ direction }: GalleryDirectionProps) {
         <Button disabled>{t("sampleAction")}</Button>
         <Button aria-label={t("sampleSearch")} iconOnly iconStart="search" variant="secondary" />
         <GalleryShowcase direction={direction} />
+        <GalleryInfrastructure />
       </section>
     </UiProvider>
   );

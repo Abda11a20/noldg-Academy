@@ -9,6 +9,8 @@ const PORTAL_DIST_DIRECTORY = resolve(REPOSITORY_DIRECTORY, "apps/portal/dist");
 const MANIFEST_PATH = resolve(PORTAL_DIST_DIRECTORY, ".vite/manifest.json");
 const HTML_ENTRY_KEY = "index.html";
 const INITIAL_ROUTE_KEY = "src/app/layouts/AuthLayout.tsx";
+const STARTUP_KEY = "src/startPortal.tsx";
+const LOGIN_FEATURE_KEY = "src/features/auth/index.ts";
 const MAX_ENTRY_GZIP_BYTES = 150_000;
 const MAX_INITIAL_GZIP_BYTES = 250_000;
 
@@ -64,7 +66,9 @@ if (!manifest[INITIAL_ROUTE_KEY])
 
 const entryGzipBytes = compressedSize(entry.file);
 const initialScripts = collectStaticScripts(manifest, HTML_ENTRY_KEY);
+collectStaticScripts(manifest, STARTUP_KEY, initialScripts);
 collectRouteScripts(manifest, INITIAL_ROUTE_KEY, initialScripts);
+collectStaticScripts(manifest, LOGIN_FEATURE_KEY, initialScripts);
 const initialGzipBytes = [...initialScripts].reduce(
   (total, file) => total + compressedSize(file),
   0,

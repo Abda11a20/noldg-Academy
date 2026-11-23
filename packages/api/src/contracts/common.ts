@@ -30,6 +30,13 @@ export const ErrorEnvelopeSchema = z.object({
   message_key: z.string().optional(),
   message: z.string().optional(),
   details: z.unknown().optional(),
+  error: z
+    .object({
+      code: z.string().optional(),
+      message: z.string().optional(),
+      details: z.unknown().optional(),
+    })
+    .optional(),
 });
 
 export type Pagination = z.infer<typeof PaginationSchema>;

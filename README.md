@@ -1,6 +1,6 @@
 # Noldg Academy Frontend Foundation
 
-Arabic-first tutoring platform frontend foundation for the Egypt market. F0 provides the monorepo, API foundation and portal shell; F1A adds the shared design system and component gallery. Product pages are out of scope.
+Arabic-first tutoring platform frontend for the Egypt market. F0 provides the monorepo and API foundation; F1A provides the shared design system; F2 adds authentication screens and session handling. Student, teacher, and admin home routes remain placeholders for their later modules.
 
 ## Requirements
 
@@ -37,6 +37,7 @@ pnpm test
 pnpm build
 pnpm test:e2e
 pnpm test:headers
+pnpm check:bundle-size
 pnpm check:no-dev-routes
 pnpm knip
 pnpm dependency-cruiser
@@ -44,4 +45,4 @@ pnpm audit:prod
 pnpm audit:full
 ```
 
-The UI gallery is available only in development at `/__ui` and is excluded from production builds. Production builds require `VITE_API_ORIGIN` to generate the static hosting security headers; `.env.example` shows the public configuration format. Run `pnpm test:e2e` with the installed Playwright browser to exercise the portal and gallery at mobile and desktop widths in Arabic and English.
+The UI gallery is available only in development at `/__ui` and is excluded from production builds. Production builds require `VITE_API_ORIGIN` to generate the static hosting security headers; `.env.example` shows the public configuration format. Run `pnpm test:e2e` with the installed Playwright browser to exercise the auth flows and gallery in Arabic and English. Mock mode supports the target auth contract. Live mode adapts the routes and payloads currently implemented by `referencebackend/`; missing OTP, public catalog, refresh-cookie, student-profile, and device-change capabilities are shown as unavailable where needed. See [the auth target contract](docs/api-target-auth.md) and [the verified backend differences](docs/contract-differences.md).

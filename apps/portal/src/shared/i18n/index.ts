@@ -3,12 +3,14 @@ import { initReactI18next } from "react-i18next";
 import { brand } from "@noldg/ui";
 import arCommon from "./locales/ar/common.json";
 import arErrors from "./locales/ar/errors.json";
+import arAuth from "./locales/ar/auth.json";
 import enCommon from "./locales/en/common.json";
 import enErrors from "./locales/en/errors.json";
+import enAuth from "./locales/en/auth.json";
 
 const resources = {
-  ar: { common: arCommon, errors: arErrors },
-  en: { common: enCommon, errors: enErrors },
+  ar: { common: arCommon, errors: arErrors, auth: arAuth },
+  en: { common: enCommon, errors: enErrors, auth: enAuth },
 } as const;
 
 void i18next.use(initReactI18next).init({
@@ -17,7 +19,7 @@ void i18next.use(initReactI18next).init({
   fallbackLng: brand.defaultLanguage,
   supportedLngs: [...brand.supportedLanguages],
   defaultNS: "common",
-  ns: ["common", "errors"],
+  ns: ["common", "errors", "auth"],
   interpolation: { escapeValue: false },
   returnNull: false,
 });

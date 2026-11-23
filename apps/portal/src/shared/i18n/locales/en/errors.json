@@ -5,5 +5,23 @@
   "requestCancelled": "The request was cancelled.",
   "invalidResponse": "We received an invalid response. Try again.",
   "unauthorized": "Sign in to continue.",
-  "forbidden": "You do not have access to this page."
+  "forbidden": "You do not have access to this page.",
+  "fieldInvalid": "Check this field and try again.",
+  "auth": {
+    "INVALID_CREDENTIALS": "The email or password is incorrect.",
+    "EMAIL_TAKEN": "An account already uses this email address.",
+    "PHONE_TAKEN": "An account already uses this phone number.",
+    "VALIDATION_ERROR": "Check the information and try again.",
+    "OTP_INVALID": "The code is incorrect.",
+    "OTP_EXPIRED": "The code has expired. Request a new one.",
+    "OTP_RATE_LIMITED": "Too many code attempts. Wait before trying again.",
+    "EMAIL_NOT_VERIFIED": "Verify your email before signing in.",
+    "ACCOUNT_PENDING_REVIEW": "Your teacher application is waiting for approval.",
+    "ACCOUNT_REJECTED": "Your teacher application was declined.",
+    "ACCOUNT_SUSPENDED": "This account is suspended. Contact support for help.",
+    "DEVICE_NOT_REGISTERED": "This account is linked to another device.",
+    "RATE_LIMITED": "Too many attempts. Wait before trying again.",
+    "UNAUTHORIZED": "Sign in to continue.",
+    "FORBIDDEN": "You do not have access to this page."
+  }
 }

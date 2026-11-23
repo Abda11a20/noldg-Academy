@@ -9,6 +9,7 @@ import {
   AUTH_OTP_SCENARIOS,
   AUTH_SCENARIO_EMAILS,
 } from "../fixtures/auth";
+import { mockPendingTeacherState } from "../state";
 
 let activeUserEmail: string | undefined;
 let registrationEmail: string | undefined;
@@ -47,16 +48,24 @@ function userForEmail(email: string) {
       applicationStatus: "pending" as const,
     };
   }
-  return (
-    MOCK_AUTH_USERS[email] ?? {
-      id: "registered-student-id",
-      name: "New Student",
-      role: "student" as const,
-      status: "active" as const,
-      email,
-      emailVerified: true,
-    }
-  );
+  const user = MOCK_AUTH_USERS[email] ?? {
+    id: "registered-student-id",
+    name: "New Student",
+    role: "student" as const,
+    status: "active" as const,
+    email,
+    emailVerified: true,
+  };
+  if (email === AUTH_SCENARIO_EMAILS.teacher) {
+    return {
+      ...user,
+      applicationStatus: mockPendingTeacherState.status,
+      ...(mockPendingTeacherState.rejectionReason
+        ? { rejectionReason: mockPendingTeacherState.rejectionReason }
+        : {}),
+    };
+  }
+  return user;
 }
 
 export const authHandlers = [
@@ -86,6 +95,9 @@ export const authHandlers = [
     const body = (await request.json()) as { email?: string; phone?: string; name?: string };
     if (body.email === AUTH_SCENARIO_EMAILS.emailTaken) return authError("EMAIL_TAKEN", 409);
     if (body.phone === AUTH_SCENARIO_EMAILS.phoneTaken) return authError("PHONE_TAKEN", 409);
+    if (body.email === AUTH_SCENARIO_EMAILS.validationError) {
+      return authError("VALIDATION_ERROR", 400, { email: "invalid", phone: "invalid" });
+    }
     if (!body.name || !body.email || !body.phone) {
       return authError("VALIDATION_ERROR", 400, {
         name: "required",

@@ -19,6 +19,9 @@ describe("live backend capability overrides", () => {
       studentProfileFields: true,
       publicCatalog: false,
       deviceChangeRequest: false,
+      adminAcademicAccess: false,
+      teacherApplicationsApi: false,
+      adminSearchAndPagination: false,
     });
   });
 });

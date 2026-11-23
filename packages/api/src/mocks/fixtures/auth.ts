@@ -11,6 +11,7 @@ export const AUTH_SCENARIO_EMAILS = {
   deviceBlocked: "device-blocked@example.test",
   rateLimited: "rate-limited@example.test",
   emailTaken: "email-taken@example.test",
+  validationError: "validation-error@example.test",
   phoneTaken: "+201000000000",
   networkFailure: "network-failure@example.test",
   sessionExpired: "expired-session@example.test",

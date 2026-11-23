@@ -9,12 +9,16 @@
     "./auth/token-store": "./src/auth/token-store.ts",
     "./config/capabilities": "./src/config/capabilities.ts",
     "./constants/auth": "./src/constants/auth.ts",
+    "./constants/admin": "./src/constants/admin.ts",
     "./contracts/auth": "./src/contracts/auth.ts",
+    "./contracts/admin": "./src/contracts/admin.ts",
     "./endpoints/auth": "./src/endpoints/auth/index.ts",
+    "./endpoints/admin": "./src/endpoints/admin/index.ts",
     "./auth/events": "./src/constants/http.ts",
     "./errors": "./src/errors/app-error.ts",
     "./contracts/common": "./src/contracts/common.ts",
     "./mocks/mode": "./src/mocks/mode.ts",
+    "./mocks/fixtures/auth": "./src/mocks/fixtures/auth.ts",
     "./mocks/browser": "./src/mocks/browser.ts"
   },
   "scripts": {

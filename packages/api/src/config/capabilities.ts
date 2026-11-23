@@ -6,6 +6,9 @@ export interface AuthCapabilities {
   studentProfileFields: boolean;
   publicCatalog: boolean;
   deviceChangeRequest: boolean;
+  adminAcademicAccess: boolean;
+  teacherApplicationsApi: boolean;
+  adminSearchAndPagination: boolean;
 }
 
 function resolveCapability(value: string | undefined, defaultValue: boolean): boolean {
@@ -27,6 +30,15 @@ export const capabilities: AuthCapabilities = {
   publicCatalog: resolveCapability(import.meta.env.VITE_AUTH_CAP_PUBLIC_CATALOG, modeDefault),
   deviceChangeRequest: resolveCapability(
     import.meta.env.VITE_AUTH_CAP_DEVICE_CHANGE_REQUEST,
+    modeDefault,
+  ),
+  adminAcademicAccess: resolveCapability(import.meta.env.VITE_ADMIN_ACADEMIC_ACCESS, modeDefault),
+  teacherApplicationsApi: resolveCapability(
+    import.meta.env.VITE_TEACHER_APPLICATIONS_API,
+    modeDefault,
+  ),
+  adminSearchAndPagination: resolveCapability(
+    import.meta.env.VITE_ADMIN_SEARCH_PAGINATION,
     modeDefault,
   ),
 };

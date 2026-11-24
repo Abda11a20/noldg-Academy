@@ -28,6 +28,7 @@ Records referenced by courses, offerings, orders, or learning history must be di
 - `POST /teachers/applications/:applicationId/reject` accepts `{ reason }`; reason is required and validated by the server.
 - Concurrent reviews return `409 ALREADY_REVIEWED`.
 - A rejected teacher resubmits with multipart `PUT /teachers/me/application` using the same profile fields as signup.
+- Resubmission changes the current application status to `pending` immediately. Preserve prior rejection decisions and reasons in `statusHistory`; append the new pending submission event instead of deleting history.
 
 ## Teacher account status
 

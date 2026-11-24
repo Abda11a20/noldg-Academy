@@ -79,16 +79,16 @@ The full E2E browser build intentionally includes the development gallery for it
 
 Component test matrix (F3 additions):
 
-| Component/group                                            | Render/states | axe | Keyboard | RTL     | Notes                                                                                                                         |
-| ---------------------------------------------------------- | ------------- | --- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Dialog / ConfirmDialog                                     | Yes           | Yes | Yes      | Partial | Focus behavior, Escape, required reason and cancellation tested. Return-focus assertion is not explicitly covered.            |
-| ToastProvider / toast                                      | Yes           | Yes | Partial  | Partial | Queue limit, dismiss, timed removal and hover pause covered; focus pause and direction placement are not separately asserted. |
-| Tabs                                                       | Yes           | Yes | Yes      | Partial | Arrow-key navigation and accessible rendering covered.                                                                        |
-| DropdownMenu                                               | Yes           | Yes | Yes      | No      | Keyboard opening and accessible menu covered.                                                                                 |
-| Pagination                                                 | Yes           | Yes | Yes      | Partial | Page and page-size events and disabled boundaries covered.                                                                    |
-| Breadcrumbs, Sidebar, NavItem, AppShell, Topbar, MobileNav | Yes           | Yes | Yes      | Yes     | Combined accessible-shell test and Playwright mobile drawer/direction checks.                                                 |
-| DataTable                                                  | Yes           | Yes | Yes      | Yes     | Loading/empty/error and responsive layout covered by existing display suite; sorting and action header covered.               |
-| Chip, Avatar, Image                                        | Yes           | Yes | N/A      | Partial | Image and alt/initials behavior covered.                                                                                      |
+| Component/group                                            | Render/states | axe | Keyboard | RTL     | Notes                                                                                                           |
+| ---------------------------------------------------------- | ------------- | --- | -------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| Dialog / ConfirmDialog                                     | Yes           | Yes | Yes      | Yes     | Focus behavior, Escape, return-focus, required reason and cancellation tested.                                  |
+| ToastProvider / toast                                      | Yes           | Yes | Yes      | Yes     | Queue limit, dismiss, timed removal, focus pause, hover pause, and logical RTL placement tested.                |
+| Tabs                                                       | Yes           | Yes | Yes      | Partial | Arrow-key navigation and accessible rendering covered.                                                          |
+| DropdownMenu                                               | Yes           | Yes | Yes      | Yes     | Keyboard opening, accessible menu, and RTL UI context covered.                                                  |
+| Pagination                                                 | Yes           | Yes | Yes      | Yes     | Page and page-size events and disabled boundaries covered.                                                      |
+| Breadcrumbs, Sidebar, NavItem, AppShell, Topbar, MobileNav | Yes           | Yes | Yes      | Yes     | Combined accessible-shell test and Playwright mobile drawer/direction checks.                                   |
+| DataTable                                                  | Yes           | Yes | Yes      | Yes     | Loading/empty/error and responsive layout covered by existing display suite; sorting and action header covered. |
+| Chip, Avatar, Image                                        | Yes           | Yes | N/A      | Partial | Image and alt/initials behavior covered.                                                                        |
 
 The detailed academic error/empty/loading/403 states, application race/validation failures, and suspend/reactivate flows do not yet have full page-level test coverage. See section 8.
 

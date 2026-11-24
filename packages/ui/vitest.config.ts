@@ -10,6 +10,7 @@ export default defineConfig({
     coverage: {
       ...vitestPreset.coverage,
       exclude: ["src/**/*.css", "src/assets/**"],
+      thresholds: { statements: 100, branches: 100, functions: 100, lines: 100 },
     },
     setupFiles: ["./test/setup.ts"],
   },

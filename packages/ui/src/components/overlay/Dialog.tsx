@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { Dialog as Primitive } from "radix-ui";
 import { Button } from "../button/Button";
 
@@ -24,11 +24,23 @@ export function Dialog({
   children,
   footer,
 }: DialogProps) {
+  const opener = useRef<HTMLElement | null>(null);
   return (
     <Primitive.Root open={open} onOpenChange={onOpenChange}>
       <Primitive.Portal>
         <Primitive.Overlay className="fixed inset-0 z-modal bg-overlay" />
-        <Primitive.Content className="fixed start-1/2 top-1/2 z-modal w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-surface p-6 text-foreground shadow-md focus:outline-none">
+        <Primitive.Content
+          className="fixed start-1/2 top-1/2 z-modal w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-surface p-6 text-foreground shadow-md focus:outline-none"
+          onOpenAutoFocus={() => {
+            opener.current =
+              document.activeElement instanceof HTMLElement ? document.activeElement : null;
+          }}
+          onCloseAutoFocus={(event) => {
+            if (!opener.current?.isConnected) return;
+            event.preventDefault();
+            opener.current.focus();
+          }}
+        >
           <Primitive.Title className="text-xl font-semibold">{title}</Primitive.Title>
           {description ? (
             <Primitive.Description className="mt-2 text-foreground-muted">

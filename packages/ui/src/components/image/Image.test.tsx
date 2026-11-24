@@ -22,3 +22,8 @@ it("does not render remote images with unsafe or invalid protocols", () => {
   rerender(<Image remoteSrc="not a valid URL" alt="Malformed image" />);
   expect(container.querySelector("img")).toBeNull();
 });
+
+it("renders nothing when no registered or remote image is supplied", () => {
+  const { container } = render(<Image alt="Missing image" />);
+  expect(container.querySelector("img")).toBeNull();
+});

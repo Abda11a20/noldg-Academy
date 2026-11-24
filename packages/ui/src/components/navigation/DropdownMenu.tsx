@@ -1,5 +1,6 @@
 import { DropdownMenu as Primitive } from "radix-ui";
 import type { ReactNode } from "react";
+import { useUiContext } from "../../providers/UiProvider";
 
 export interface DropdownMenuItem {
   id: string;
@@ -18,8 +19,9 @@ export interface DropdownMenuProps {
  * @param props Trigger content and action entries.
  */
 export function DropdownMenu({ trigger, triggerLabel, items }: DropdownMenuProps) {
+  const { direction } = useUiContext();
   return (
-    <Primitive.Root>
+    <Primitive.Root dir={direction === "rtl" ? "rtl" : "ltr"}>
       <Primitive.Trigger
         aria-label={triggerLabel}
         className="inline-flex rounded-md p-2 text-foreground hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-focus-ring"

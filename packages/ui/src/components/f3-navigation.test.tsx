@@ -101,3 +101,17 @@ it("renders a registered image avatar and an icon-free chip", () => {
   expect(screen.getByRole("img", { name: "Academy avatar" })).toBeInTheDocument();
   expect(screen.getByText("Mathematics")).toBeInTheDocument();
 });
+
+it("renders a secure remote avatar and intermediate breadcrumb labels as text", () => {
+  render(
+    <UiProvider direction="ltr" linkComponent={TestLink}>
+      <Breadcrumbs
+        label="Breadcrumbs"
+        items={[{ label: "Home", to: "/home" }, { label: "Section" }, { label: "Current" }]}
+      />
+      <Avatar label="Remote avatar" initials="RA" remoteSrc="https://cdn.example.test/avatar.png" />
+    </UiProvider>,
+  );
+  expect(screen.getByText("Section")).not.toHaveAttribute("aria-current");
+  expect(screen.getByRole("img", { name: "Remote avatar" })).toBeInTheDocument();
+});

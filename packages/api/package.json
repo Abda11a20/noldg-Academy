@@ -9,6 +9,7 @@
     "./auth/token-store": "./src/auth/token-store.ts",
     "./config/capabilities": "./src/config/capabilities.ts",
     "./constants/auth": "./src/constants/auth.ts",
+    "./constants/http": "./src/constants/http.ts",
     "./constants/admin": "./src/constants/admin.ts",
     "./contracts/auth": "./src/contracts/auth.ts",
     "./contracts/admin": "./src/contracts/admin.ts",
@@ -19,7 +20,9 @@
     "./contracts/common": "./src/contracts/common.ts",
     "./mocks/mode": "./src/mocks/mode.ts",
     "./mocks/fixtures/auth": "./src/mocks/fixtures/auth.ts",
-    "./mocks/browser": "./src/mocks/browser.ts"
+    "./mocks/browser": "./src/mocks/browser.ts",
+    "./mocks/testing": "./src/mocks/testing.ts",
+    "./mocks/node": "./src/mocks/node.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

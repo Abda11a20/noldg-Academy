@@ -6,4 +6,3 @@ coverage/
 .turbo/
 pnpm-lock.yaml
 apps/portal/public/mockServiceWorker.js
-tools/lint-fixtures/

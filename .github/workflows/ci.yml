@@ -25,6 +25,7 @@ jobs:
       - run: node --version
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+      - run: pnpm format:check
       - run: pnpm lint:rules
       - run: pnpm typecheck
       - run: pnpm test

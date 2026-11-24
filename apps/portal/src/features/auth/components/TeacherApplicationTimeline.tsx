@@ -29,12 +29,24 @@ export function TeacherApplicationTimeline({
       </CardHeader>
       <CardBody>
         <ol className="space-y-2">
-          <li>
-            {t("pending.submitted")}
-            {submittedAt}
-          </li>
-          <li>{t("pending.underReview")}</li>
-          <li>{t(decisionKey)}</li>
+          {(application?.statusHistory ?? []).length > 0 ? (
+            application?.statusHistory.map((event, index) => (
+              <li key={`${event.status}-${event.occurredAt}-${index}`}>
+                {t(`pending.history.${event.status}`)}
+                {t("pending.timelineDate", { date: formatDate(event.occurredAt) })}
+                {event.reason ? `: ${event.reason}` : ""}
+              </li>
+            ))
+          ) : (
+            <>
+              <li>
+                {t("pending.submitted")}
+                {submittedAt}
+              </li>
+              <li>{t("pending.underReview")}</li>
+              <li>{t(decisionKey)}</li>
+            </>
+          )}
         </ol>
       </CardBody>
     </Card>

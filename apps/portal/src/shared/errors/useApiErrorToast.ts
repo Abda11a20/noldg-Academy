@@ -12,7 +12,11 @@ export function useApiErrorToast() {
   return useCallback(
     (error: unknown) => {
       const key =
-        error instanceof AppError ? error.message_key.replace("errors:", "") : "requestFailed";
+        error instanceof AppError && error.code === "DUPLICATE_TRACK"
+          ? "duplicateTrack"
+          : error instanceof AppError
+            ? error.message_key.replace("errors:", "")
+            : "requestFailed";
       notify({
         title: t(`errors:${key}`, { defaultValue: t("errors:requestFailed") }),
         tone: "danger",

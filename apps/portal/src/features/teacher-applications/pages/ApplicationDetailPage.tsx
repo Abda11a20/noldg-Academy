@@ -37,6 +37,7 @@ export function ApplicationDetailPage() {
         onError: (error) => {
           if (error instanceof AppError && error.status === 409) {
             notify({ title: t("admin:teachers.states.alreadyReviewed"), tone: "warning" });
+            setDecision(null);
             void application.refetch();
           }
         },

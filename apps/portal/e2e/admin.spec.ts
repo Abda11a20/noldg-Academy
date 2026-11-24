@@ -1,7 +1,9 @@
 import { expect, test } from "./fixtures";
+import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
-const REPORTS = resolve(process.cwd(), "../../docs/reports");
+const REPORTS = resolve(process.cwd(), "../../docs/reports/screenshots");
+mkdirSync(REPORTS, { recursive: true });
 
 test("admin opens academic and teacher administration at mobile and desktop widths", async ({
   page,
@@ -103,10 +105,17 @@ test("admin rejects a teacher application and the same teacher resubmits", async
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/teacher\/pending$/);
   await expect(
-    page.getByText("Needs more evidence of relevant classroom experience."),
+    page.getByText("Needs more evidence of relevant classroom experience.", { exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Edit and resubmit" }).click();
   await expect(page).toHaveURL(/\/teacher\/pending$/);
+  await expect(page.getByText("Application submitted for review").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Edit and resubmit" })).toHaveCount(0);
+  await expect(
+    page.getByRole("listitem").filter({
+      hasText: "Needs more evidence of relevant classroom experience.",
+    }),
+  ).toBeVisible();
   await page.screenshot({
     path: resolve(REPORTS, "f3-resubmitted-teacher-en-1280.png"),
     fullPage: true,

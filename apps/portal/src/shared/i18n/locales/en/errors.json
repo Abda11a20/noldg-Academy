@@ -7,6 +7,7 @@
   "unauthorized": "Sign in to continue.",
   "forbidden": "You do not have access to this page.",
   "fieldInvalid": "Check this field and try again.",
+  "duplicateTrack": "A track already exists for this system, stage, and grade.",
   "auth": {
     "INVALID_CREDENTIALS": "The email or password is incorrect.",
     "EMAIL_TAKEN": "An account already uses this email address.",

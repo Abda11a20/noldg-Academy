@@ -98,6 +98,15 @@ export const adminHandlers = [
     }).safeParse(await request.json());
     if (!parsed.success)
       return HttpResponse.json({ error: { code: "VALIDATION_ERROR" } }, { status: 400 });
+    if (
+      tracks.some(
+        (track) =>
+          track.system === parsed.data.system &&
+          track.stage === parsed.data.stage &&
+          track.grade === parsed.data.grade,
+      )
+    )
+      return HttpResponse.json({ error: { code: "DUPLICATE_TRACK" } }, { status: 409 });
     const created = AcademicTrackSchema.parse({
       ...parsed.data,
       id: `track-${tracks.length + 1}`,
@@ -208,11 +217,14 @@ export const adminHandlers = [
       application.offerings = parsed.map((offering) => ({ ...offering }));
     }
     application.status = "pending";
-    application.rejectionReason = undefined;
-    application.submittedAt = new Date().toISOString();
+    const submittedAt = new Date().toISOString();
+    application.statusHistory = [
+      ...application.statusHistory,
+      { status: "pending", occurredAt: submittedAt },
+    ];
+    application.submittedAt = submittedAt;
     application.reviewedAt = undefined;
     mockPendingTeacherState.status = "pending";
-    delete mockPendingTeacherState.rejectionReason;
     return HttpResponse.json(application, { status: 201 });
   }),
   http.post(`${API_BASE_URL}/teachers/applications/:applicationId/approve`, ({ params }) => {
@@ -221,6 +233,10 @@ export const adminHandlers = [
       return HttpResponse.json({ error: { code: "ALREADY_REVIEWED" } }, { status: 409 });
     application.status = "approved";
     application.reviewedAt = new Date().toISOString();
+    application.statusHistory = [
+      ...application.statusHistory,
+      { status: "approved", occurredAt: application.reviewedAt },
+    ];
     mockPendingTeacherState.status = "approved";
     return HttpResponse.json(application);
   }),
@@ -236,6 +252,10 @@ export const adminHandlers = [
       application.status = "rejected";
       application.rejectionReason = body.reason;
       application.reviewedAt = new Date().toISOString();
+      application.statusHistory = [
+        ...application.statusHistory,
+        { status: "rejected", occurredAt: application.reviewedAt, reason: body.reason },
+      ];
       mockPendingTeacherState.status = "rejected";
       mockPendingTeacherState.rejectionReason = body.reason;
       return HttpResponse.json(application);

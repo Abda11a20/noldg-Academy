@@ -12,14 +12,15 @@ import {
 export const AcademicSystemSchema = z.enum(ACADEMIC_SYSTEMS);
 export const AcademicStageSchema = z.enum(ACADEMIC_STAGES);
 export const AccountStatusSchema = z.enum(["active", "suspended"]);
+const AcademicGradeSchema = z
+  .number()
+  .int()
+  .refine((grade) => ACADEMIC_GRADES.includes(grade as (typeof ACADEMIC_GRADES)[number]));
 export const AcademicTrackSchema = z.object({
   id: IdSchema,
   system: AcademicSystemSchema,
   stage: AcademicStageSchema,
-  grade: z
-    .number()
-    .int()
-    .refine((grade) => ACADEMIC_GRADES.includes(grade as (typeof ACADEMIC_GRADES)[number])),
+  grade: AcademicGradeSchema,
   name: z.string().min(1),
   active: z.boolean(),
 });
@@ -107,6 +108,15 @@ export const TeacherApplicationSchema = z.object({
   rejectionReason: z.string().optional(),
   submittedAt: z.string(),
   reviewedAt: z.string().optional(),
+  statusHistory: z
+    .array(
+      z.object({
+        status: z.enum(["pending", "approved", "rejected"]),
+        occurredAt: z.string(),
+        reason: z.string().optional(),
+      }),
+    )
+    .default([]),
   offerings: z.array(OfferingSchema),
 });
 export const TeacherApplicationListSchema = ListEnvelopeSchema(TeacherApplicationSchema);

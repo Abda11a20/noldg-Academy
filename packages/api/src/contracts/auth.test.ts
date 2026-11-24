@@ -17,6 +17,15 @@ describe("auth contract schemas", () => {
     expect(LoginPasswordSchema.safeParse("legacy-pass").success).toBe(true);
   });
 
+  it.each([
+    ["uppercase", "example!123"],
+    ["lowercase", "EXAMPLE!123"],
+    ["number", "Example!abc"],
+    ["symbol", "Example123"],
+  ])("rejects a password without the required %s character", (_rule, password) => {
+    expect(AuthPasswordSchema.safeParse(password).success).toBe(false);
+  });
+
   it("validates target login and student registration fields", () => {
     expect(
       LoginRequestSchema.safeParse({ email: "student@example.test", password: validPassword })

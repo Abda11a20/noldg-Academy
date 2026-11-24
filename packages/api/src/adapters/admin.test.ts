@@ -103,6 +103,39 @@ describe("administrative adapters", () => {
     });
   });
 
+  it("uses the provided owner for sparse legacy applications and primitive offerings", () => {
+    const adapted = adaptTeacherApplication(
+      {
+        id: "sparse-application",
+        approvalStatus: "pending",
+        createdAt: "2026-11-20T12:00:00.000Z",
+        profileImage: {},
+        offerings: [{ trackId: "track-1", subjectId: "subject-1" }],
+      },
+      "live",
+      { id: "owner-id", name: "Owner", email: "owner@example.test" },
+    );
+
+    expect(adapted).toMatchObject({
+      userId: { id: "owner-id", phone: "" },
+      name: "Owner",
+      bio: "",
+      status: "pending",
+      statusHistory: [{ status: "pending", occurredAt: "2026-11-20T12:00:00.000Z" }],
+      offerings: [{ trackId: "track-1", subjectId: "subject-1" }],
+    });
+    expect(adapted.imageUrl).toBeUndefined();
+  });
+
+  it("rejects a legacy application without an owner or fallback identity", () => {
+    expect(() =>
+      adaptTeacherApplication(
+        { id: "ownerless", approvalStatus: "pending", createdAt: "2026-11-20" },
+        "live",
+      ),
+    ).toThrow("Teacher profile owner is required to normalize the current response.");
+  });
+
   it("unwraps the legacy response envelope and rejects invalid contracts", () => {
     expect(unwrapAdminData({ data: [{ id: 1 }] })).toEqual([{ id: 1 }]);
     expect(unwrapAdminData({ items: [] })).toEqual({ items: [] });

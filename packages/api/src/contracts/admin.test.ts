@@ -22,6 +22,17 @@ describe("administrative contracts", () => {
     ).toBe(true);
   });
 
+  it.each([0, 4, 1.5])("rejects a track outside the supported grade range (%s)", (grade) => {
+    expect(
+      TrackInputSchema.safeParse({
+        system: "general",
+        stage: "secondary",
+        grade,
+        name: "Track",
+      }).success,
+    ).toBe(false);
+  });
+
   it("requires a minimum reason when a reviewer rejects an application", () => {
     expect(TeacherReviewSchema.safeParse({ status: "rejected", reason: "short" }).success).toBe(
       false,

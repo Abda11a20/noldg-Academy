@@ -89,6 +89,14 @@ function normalizeLegacyApplication(
   const user = applicationOwner(profile, fallback);
   const profileImage = nestedRecord(profile.profileImage);
   const phone = typeof user.phone === "string" ? user.phone : "";
+  const status = profile.approvalStatus;
+  const statusHistory = [
+    {
+      status,
+      occurredAt: profile.reviewedAt ?? profile.createdAt,
+      ...(typeof profile.rejectionReason === "string" ? { reason: profile.rejectionReason } : {}),
+    },
+  ];
   return {
     id: profile.id,
     userId: { id: user.id, name: user.name, email: user.email, phone },
@@ -97,10 +105,11 @@ function normalizeLegacyApplication(
     phone,
     bio: profile.bio ?? "",
     ...(typeof profileImage?.url === "string" ? { imageUrl: profileImage.url } : {}),
-    status: profile.approvalStatus,
+    status,
     rejectionReason: profile.rejectionReason,
     submittedAt: profile.createdAt,
     reviewedAt: profile.reviewedAt,
+    statusHistory,
     offerings: applicationOfferings(profile),
   };
 }

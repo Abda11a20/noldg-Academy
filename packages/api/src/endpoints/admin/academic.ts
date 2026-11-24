@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { AppError } from "../../errors/app-error";
 import { apiMode } from "../../mocks/mode";
+import { capabilities } from "../../config/capabilities";
 import { request } from "../../http/client";
 import { adaptAcademicSubject, adaptAcademicTrack, unwrapAdminData } from "../../adapters/admin";
 import {
@@ -19,12 +21,22 @@ import { legacyStages, legacySystems, listPath, parseTargetList } from "./common
 
 const dataSchema = z.unknown();
 
+function requireAcademicAccess(): void {
+  if (apiMode === "mock" || capabilities.adminAcademicAccess) return;
+  throw new AppError({
+    code: "FORBIDDEN",
+    status: 403,
+    message_key: "errors:forbidden",
+  });
+}
+
 /** Lists academic tracks with target pagination and legacy field adaptation.
  * @param state Validated URL list state.
  * @param filters Active system, stage, and status filters.
  * @returns Normalized track page.
  */
 export async function listTracks(state: ListUrlState, filters: Record<string, string> = {}) {
+  requireAcademicAccess();
   const { active, ...trackFilters } = filters;
   const baseFilters = {
     ...trackFilters,
@@ -75,6 +87,7 @@ export async function listTracks(state: ListUrlState, filters: Record<string, st
 export async function createTrack(
   input: Pick<AcademicTrack, "system" | "stage" | "grade" | "name">,
 ) {
+  requireAcademicAccess();
   const values = TrackInputSchema.parse(input);
   const body =
     apiMode === "mock"
@@ -94,6 +107,7 @@ export async function createTrack(
  * @returns Updated track.
  */
 export async function updateTrack(trackId: string, input: Partial<AcademicTrack>) {
+  requireAcademicAccess();
   const values = TrackUpdateSchema.parse(input);
   const body =
     apiMode === "mock"
@@ -114,6 +128,7 @@ export async function updateTrack(trackId: string, input: Partial<AcademicTrack>
  * @returns Normalized subject page.
  */
 export async function listSubjects(state: ListUrlState) {
+  requireAcademicAccess();
   const filters = state.filters.active
     ? { [apiMode === "mock" ? "active" : "isActive"]: state.filters.active }
     : {};
@@ -157,6 +172,7 @@ export async function listSubjects(state: ListUrlState) {
  * @returns Created subject.
  */
 export async function createSubject(name: string) {
+  requireAcademicAccess();
   const values = SubjectInputSchema.parse({ name });
   const payload = await request("academic/subjects", dataSchema, { method: "POST", body: values });
   return apiMode === "mock"
@@ -170,6 +186,7 @@ export async function createSubject(name: string) {
  * @returns Updated subject.
  */
 export async function updateSubject(subjectId: string, fields: Partial<AcademicSubject>) {
+  requireAcademicAccess();
   const values = SubjectUpdateSchema.parse(fields);
   const body =
     apiMode === "mock"
@@ -192,6 +209,7 @@ export async function updateSubject(subjectId: string, fields: Partial<AcademicS
  * @returns Mapped subjects.
  */
 export async function listTrackSubjects(trackId: string) {
+  requireAcademicAccess();
   const payload = await request(`academic/tracks/${trackId}/subjects`, dataSchema);
   const data = unwrapAdminData(payload);
   return z
@@ -205,6 +223,7 @@ export async function listTrackSubjects(trackId: string) {
  * @returns Resolves after the mapping is created.
  */
 export async function addTrackSubject(trackId: string, subjectId: string): Promise<void> {
+  requireAcademicAccess();
   await request(`academic/tracks/${trackId}/subjects`, z.unknown(), {
     method: "POST",
     body: { subjectId },
@@ -217,6 +236,7 @@ export async function addTrackSubject(trackId: string, subjectId: string): Promi
  * @returns Resolves after unlinking.
  */
 export async function removeTrackSubject(trackId: string, subjectId: string): Promise<void> {
+  requireAcademicAccess();
   await request(`academic/tracks/${trackId}/subjects/${subjectId}`, z.unknown(), {
     method: "DELETE",
   });

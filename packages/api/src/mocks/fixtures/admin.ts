@@ -37,6 +37,7 @@ export const MOCK_APPLICATIONS: TeacherApplication[] = [
     bio: "Experienced mathematics teacher",
     status: "pending",
     submittedAt: "2026-11-20T12:00:00.000Z",
+    statusHistory: [{ status: "pending", occurredAt: "2026-11-20T12:00:00.000Z" }],
     offerings: [
       {
         trackId: "track-1",

@@ -3,23 +3,10 @@ import { http, HttpResponse } from "msw";
 import { API_BASE_URL } from "../constants/http";
 import { nodeServer } from "../mocks/node";
 import {
-  addTrackSubject,
-  createSubject,
-  createTrack,
-  getMyTeacherApplication,
-  getTeacherApplication,
-  getTeacherOfferingCatalog,
-  listSubjects,
-  listTeacherAccounts,
-  listTeacherApplications,
-  listTrackSubjects,
-  listTracks,
-  removeTrackSubject,
-  resubmitTeacherApplication,
-  reviewTeacherApplication,
-  updateSubject,
-  updateTeacherAccountStatus,
-  updateTrack,
+  addTrackSubject, createSubject, createTrack, getMyTeacherApplication, getTeacherApplication,
+  getTeacherOfferingCatalog, listSubjects, listTeacherAccounts, listTeacherApplications,
+  listTrackSubjects, listTracks, removeTrackSubject, resubmitTeacherApplication,
+  reviewTeacherApplication, updateSubject, updateTeacherAccountStatus, updateTrack,
 } from "./admin";
 
 const defaultListState = { page: 1, pageSize: 10, search: "", filters: {} };
@@ -103,6 +90,7 @@ function installLegacyAdminHandlers(
   legacySubject: Record<string, unknown>,
   legacyApplication: Record<string, unknown>,
 ): void {
+  let applicationStatus = String(legacyApplication.approvalStatus);
   nodeServer.use(
     http.get(`${API_BASE_URL}/academic/tracks`, () => HttpResponse.json({ data: [legacyTrack] })),
     http.post(`${API_BASE_URL}/academic/tracks`, async ({ request }) => {
@@ -112,57 +100,34 @@ function installLegacyAdminHandlers(
       return HttpResponse.json({ data: { ...legacyTrack, name: "Created track" } });
     }),
     http.patch(`${API_BASE_URL}/academic/tracks/:trackId`, async ({ request }) => {
-      const body = (await request.json()) as Record<string, unknown>;
-      expect(body.isActive).toBe(false);
+      expect((await request.json() as Record<string, unknown>).isActive).toBe(false);
       return HttpResponse.json({ data: { ...legacyTrack, isActive: false } });
     }),
-    http.get(`${API_BASE_URL}/academic/subjects`, () =>
-      HttpResponse.json({ data: [legacySubject] }),
-    ),
-    http.post(`${API_BASE_URL}/academic/subjects`, () =>
-      HttpResponse.json({ data: legacySubject }),
-    ),
+    http.get(`${API_BASE_URL}/academic/subjects`, () => HttpResponse.json({ data: [legacySubject] })),
+    http.post(`${API_BASE_URL}/academic/subjects`, () => HttpResponse.json({ data: legacySubject })),
     http.patch(`${API_BASE_URL}/academic/subjects/:subjectId`, () =>
       HttpResponse.json({ data: { ...legacySubject, isActive: false } }),
     ),
-    http.get(`${API_BASE_URL}/academic/tracks/:trackId/subjects`, () =>
-      HttpResponse.json({ data: [legacySubject] }),
-    ),
-    http.post(`${API_BASE_URL}/academic/tracks/:trackId/subjects`, () =>
-      HttpResponse.json({ success: true }),
-    ),
-    http.delete(`${API_BASE_URL}/academic/tracks/:trackId/subjects/:subjectId`, () =>
-      HttpResponse.json({ success: true }),
-    ),
-    http.get(`${API_BASE_URL}/teachers/applications`, () =>
-      HttpResponse.json({
-        data: [legacyApplication],
-        pagination: { page: 1, limit: 10, total: 1 },
-      }),
-    ),
-    http.get(`${API_BASE_URL}/teachers/applications/:applicationId`, () =>
-      HttpResponse.json({ data: legacyApplication }),
-    ),
-    http.get(`${API_BASE_URL}/teachers/me/application`, () =>
-      HttpResponse.json({ data: legacyApplication }),
-    ),
+    http.get(`${API_BASE_URL}/academic/tracks/:trackId/subjects`, () => HttpResponse.json({ data: [legacySubject] })),
+    http.post(`${API_BASE_URL}/academic/tracks/:trackId/subjects`, () => HttpResponse.json({ success: true })),
+    http.delete(`${API_BASE_URL}/academic/tracks/:trackId/subjects/:subjectId`, () => HttpResponse.json({ success: true })),
+    http.get(`${API_BASE_URL}/teachers/applications`, ({ request }) => {
+      const url = new URL(request.url);
+      const page = Number(url.searchParams.get("page") ?? 1);
+      const matchesStatus = url.searchParams.get("status") === applicationStatus;
+      const pageItems = matchesStatus
+        ? [{ ...legacyApplication, id: page === 1 ? "other-application" : legacyApplication.id, approvalStatus: applicationStatus }]
+        : [];
+      return HttpResponse.json({ data: pageItems, pagination: { page, limit: 1, total: matchesStatus ? 2 : 0 } });
+    }),
+    http.get(`${API_BASE_URL}/teachers/me/application`, () => HttpResponse.json({ data: legacyApplication })),
     http.get(`${API_BASE_URL}/academic/catalog`, () => HttpResponse.json({ data: [] })),
-    http.patch(`${API_BASE_URL}/teachers/applications/:applicationId/review`, () =>
-      HttpResponse.json({ data: legacyApplication }),
-    ),
-    http.get(`${API_BASE_URL}/users`, () =>
-      HttpResponse.json({
-        data: [
-          {
-            id: "legacy-teacher",
-            name: "Salma Hassan",
-            email: "salma@example.test",
-            status: "ACTIVE",
-          },
-        ],
-        pagination: { page: 1, limit: 10, total: 1 },
-      }),
-    ),
+    http.patch(`${API_BASE_URL}/teachers/applications/:applicationId/review`, async ({ request }) => {
+      const body = (await request.json()) as { status: string };
+      applicationStatus = body.status;
+      return HttpResponse.json({ data: { ...legacyApplication, userId: "legacy-teacher", approvalStatus: body.status, offerings: [{ trackId: "legacy-track", subjectId: "legacy-subject" }] } });
+    }),
+    http.get(`${API_BASE_URL}/users`, () => HttpResponse.json({ data: [{ id: "legacy-teacher", name: "Salma Hassan", email: "salma@example.test", status: "ACTIVE" }], pagination: { page: 1, limit: 10, total: 1 } })),
     http.patch(`${API_BASE_URL}/users/:userId/status`, async ({ request }) => {
       expect(await request.json()).toEqual({ status: "suspended" });
       return HttpResponse.json({ success: true });
@@ -182,7 +147,6 @@ it("normalizes the current admin endpoints when live capabilities are enabled", 
   vi.stubEnv("VITE_API_MODE", "live");
   vi.stubEnv("VITE_ADMIN_ACADEMIC_ACCESS", "true");
   vi.stubEnv("VITE_ADMIN_SEARCH_PAGINATION", "true");
-  vi.stubEnv("VITE_TEACHER_APPLICATIONS_API", "true");
   vi.resetModules();
 
   const legacyTrack = {
@@ -233,9 +197,23 @@ it("normalizes the current admin endpoints when live capabilities are enabled", 
     expect((await adminApi.listTeacherApplications(listState, "pending")).items[0]?.status).toBe(
       "pending",
     );
+    nodeServer.use(
+      http.get(`${API_BASE_URL}/teachers/applications`, () =>
+        HttpResponse.json({
+          data: [legacyApplication],
+          pagination: { page: 2, limit: 2, total: 3 },
+        }),
+      ),
+    );
+    const pageTwo = await adminApi.listTeacherApplications({ ...listState, page: 2 }, "pending");
+    expect([pageTwo.items[0]?.id, pageTwo.page, pageTwo.pageSize, pageTwo.total]).toEqual([
+      "legacy-application", 2, 2, 3,
+    ]);
+    nodeServer.resetHandlers(); installLegacyAdminHandlers(legacyTrack, legacySubject, legacyApplication);
     expect((await adminApi.getTeacherApplication("legacy-application")).id).toBe(
       "legacy-application",
     );
+    await expect(adminApi.getTeacherApplication("missing-application")).rejects.toMatchObject({ status: 404 });
     expect(
       (
         await adminApi.getMyTeacherApplication({
@@ -246,9 +224,7 @@ it("normalizes the current admin endpoints when live capabilities are enabled", 
       ).id,
     ).toBe("legacy-application");
     expect((await adminApi.getTeacherOfferingCatalog()).tracks).toHaveLength(2);
-    expect((await adminApi.reviewTeacherApplication("legacy-application", "approved")).id).toBe(
-      "legacy-application",
-    );
+    expect((await adminApi.reviewTeacherApplication("legacy-application", "approved")).status).toBe("approved");
     expect((await adminApi.listTeacherAccounts(listState, "active")).items[0]?.status).toBe(
       "active",
     );
@@ -279,5 +255,33 @@ it("normalizes the current admin endpoints when live capabilities are enabled", 
     nodeServer.resetHandlers();
     vi.unstubAllEnvs();
     vi.resetModules();
+  }
+});
+
+it("preserves the live review conflict status", async () => {
+  vi.stubEnv("VITE_API_MODE", "live"); vi.resetModules();
+  nodeServer.use(
+    http.patch(`${API_BASE_URL}/teachers/applications/:applicationId/review`, () =>
+      HttpResponse.json({ error: { code: "ALREADY_REVIEWED", message: "Already reviewed" } }, { status: 409 }),
+    ),
+  );
+  try {
+    const api = await import("./admin");
+    await expect(api.reviewTeacherApplication("application-1", "approved")).rejects.toMatchObject({ status: 409 });
+  } finally {
+    nodeServer.resetHandlers(); vi.unstubAllEnvs(); vi.resetModules();
+  }
+});
+
+it("uses server pagination when normalizing a paginated academic list", async () => {
+  vi.stubEnv("VITE_API_MODE", "live"); vi.stubEnv("VITE_ADMIN_ACADEMIC_ACCESS", "true"); vi.resetModules();
+  const legacyTrack = { id: "legacy-track-page-two", system: "al_azhar", stage: "preparatory", grade: 2, name: "Second preparatory", isActive: true };
+  nodeServer.use(http.get(`${API_BASE_URL}/academic/tracks`, () => HttpResponse.json({ data: [legacyTrack], pagination: { page: 2, limit: 2, total: 3 } })));
+  try {
+    const adminApi = await import("./admin");
+    const result = await adminApi.listTracks({ ...defaultListState, page: 2, pageSize: 2 }, { active: "true" });
+    expect(result).toMatchObject({ items: [expect.objectContaining({ id: "legacy-track-page-two" })], page: 2, pageSize: 2, total: 3 });
+  } finally {
+    nodeServer.resetHandlers(); vi.unstubAllEnvs(); vi.resetModules();
   }
 });

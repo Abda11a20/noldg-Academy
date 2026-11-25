@@ -53,9 +53,21 @@ export function parseTargetList<T>(
 ) {
   if (apiMode === "mock")
     return payload as { items: T[]; page: number; pageSize: number; total: number };
-  const response = payload as { data?: unknown };
+  const response = payload as {
+    data?: unknown;
+    pagination?: { page: number; limit: number; total: number };
+  };
   const data = Array.isArray(response.data) ? response.data : [];
   const records = data.map(parser);
+  if (response.pagination) {
+    return {
+      items: records,
+      page: response.pagination.page,
+      pageSize: response.pagination.limit,
+      total: response.pagination.total,
+    };
+  }
+  // Legacy callers request complete lists; slicing is valid only when the server did not paginate.
   const start = (state.page - 1) * state.pageSize;
   return {
     items: records.slice(start, start + state.pageSize),

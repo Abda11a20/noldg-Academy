@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AppError } from "../../errors/app-error";
 import { apiMode } from "../../mocks/mode";
 import { request } from "../../http/client";
 import { capabilities } from "../../config/capabilities";
@@ -17,6 +18,31 @@ import { listPath, requireCapability } from "./common";
 import { listTrackSubjects, listTracks } from "./academic";
 
 const dataSchema = z.unknown();
+const LIVE_APPLICATION_PAGE_SIZE = 100;
+
+async function findLiveApplication(
+  applicationId: string,
+  statuses: readonly ("pending" | "rejected" | "approved")[],
+): Promise<TeacherApplication> {
+  for (const status of statuses) {
+    for (let page = 1; ; page += 1) {
+      const payload = await request(listPath("teachers/applications", {
+        page, pageSize: LIVE_APPLICATION_PAGE_SIZE, search: "", filters: {},
+      }, { status }, true, false), dataSchema);
+      const raw = payload as {
+        data: unknown[];
+        pagination: { page: number; limit: number; total: number };
+      };
+      const items = raw.data.map((value) => adaptTeacherApplication(value, "live"));
+      const match = items.find((item) => item.id === applicationId);
+      if (match) return match;
+      if (items.length === 0 || raw.pagination.page * raw.pagination.limit >= raw.pagination.total)
+        break;
+      page = raw.pagination.page;
+    }
+  }
+  throw new AppError({ code: "NOT_FOUND", status: 404, message_key: "errors:requestFailed" });
+}
 
 /** Lists teacher applications, mapping backend pagination and profile fields.
  * @param state Validated URL state.
@@ -37,14 +63,11 @@ export async function listTeacherApplications(state: ListUrlState, status: strin
     ? raw.data.map((value) => adaptTeacherApplication(value, apiMode))
     : [];
   const pagination = raw.pagination;
-  const total = pagination?.total ?? items.length;
-  const pageSize = pagination?.limit ?? state.pageSize;
-  const start = (state.page - 1) * pageSize;
   return TeacherApplicationListSchema.parse({
-    items: items.slice(start, start + pageSize),
-    page: state.page,
-    pageSize,
-    total,
+    items,
+    page: pagination?.page ?? state.page,
+    pageSize: pagination?.limit ?? state.pageSize,
+    total: pagination?.total ?? items.length,
   });
 }
 
@@ -57,9 +80,7 @@ export async function getTeacherApplication(applicationId: string): Promise<Teac
     const payload = await request(`teachers/applications/${applicationId}`, dataSchema);
     return TeacherApplicationSchema.parse(payload);
   }
-  requireCapability(capabilities.teacherApplicationsApi);
-  const payload = await request(`teachers/applications/${applicationId}`, dataSchema);
-  return adaptTeacherApplication(unwrapAdminData(payload), apiMode);
+  return findLiveApplication(applicationId, ["pending", "rejected", "approved"]);
 }
 
 /** Loads the current teacher's submitted application profile.
@@ -91,7 +112,6 @@ export async function getTeacherOfferingCatalog(): Promise<AcademicCatalog> {
         },
       ],
     });
-  await request("academic/catalog", dataSchema);
   const state: ListUrlState = { page: 1, pageSize: 100, search: "", filters: {} };
   const trackPage = await listTracks(state);
   const tracks = await Promise.all(
@@ -136,7 +156,7 @@ export async function reviewTeacherApplication(
   });
   return apiMode === "mock"
     ? adaptTeacherApplication(unwrapAdminData(payload), apiMode)
-    : getTeacherApplication(id);
+    : findLiveApplication(id, [status]);
 }
 
 /** Lists user accounts using target list params and current page/limit response.

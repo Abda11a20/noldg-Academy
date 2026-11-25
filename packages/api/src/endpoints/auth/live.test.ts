@@ -63,7 +63,7 @@ it("maps current login, profile, teacher application, and logout response shapes
   expect(tokenStore.getAccessToken()).toBeNull();
 });
 
-it("drops unsupported student profile fields and adapts the legacy signup response", async () => {
+it("accepts only supported student fields and adapts the legacy signup response", async () => {
   let body: Record<string, unknown> = {};
   nodeServer.use(
     http.post(`${API_BASE_URL}/auth/register`, async ({ request }) => {
@@ -75,10 +75,7 @@ it("drops unsupported student profile fields and adapts the legacy signup respon
     name: "Mona Ali",
     email: "mona@example.test",
     phone: "+201001234567",
-    parentPhone: "+201009876543",
     password: validPassword,
-    trackId: "track-1",
-    acceptTerms: true,
   });
   expect(result).toEqual({ emailVerificationRequired: false, userId: "new-student-id" });
   expect(body).toEqual({
@@ -175,11 +172,14 @@ it("maps legacy profile, application, logout, and catalog transport failures saf
   );
   await expect(authApi.getMe()).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   await expect(authApi.logout()).rejects.toMatchObject({ code: "UNAUTHORIZED" });
-  await expect(authApi.getPublicCatalog()).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  await expect(authApi.getPublicCatalog()).rejects.toMatchObject({
+    code: "AUTH_REQUEST_FAILED",
+    status: 503,
+  });
   expect(tokenStore.getAccessToken()).toBeNull();
 });
 
-it("continues to show a teacher profile when the legacy application endpoint is absent", async () => {
+it("surfaces a teacher application status failure instead of hiding the failure", async () => {
   nodeServer.use(
     http.get(`${API_BASE_URL}/auth/`, () =>
       HttpResponse.json({
@@ -195,10 +195,13 @@ it("continues to show a teacher profile when the legacy application endpoint is 
       }),
     ),
     http.get(`${API_BASE_URL}/teachers/me/application`, () =>
-      HttpResponse.json({ success: false, message: "Not found" }, { status: 404 }),
+      HttpResponse.json({ success: false, message: "Service unavailable" }, { status: 500 }),
     ),
   );
-  await expect(authApi.getMe()).resolves.toMatchObject({ role: "teacher", emailVerified: true });
+  await expect(authApi.getMe()).rejects.toMatchObject({
+    code: "AUTH_REQUEST_FAILED",
+    status: 500,
+  });
 });
 
 it("maps a recognizable legacy credential error into the target error code", async () => {

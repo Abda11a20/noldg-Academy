@@ -63,10 +63,19 @@ describe("auth contract adapters", () => {
       status: 400,
       message_key: "errors:requestFailed",
     });
+    const serverFailure = new AppError({
+      code: "HTTP_ERROR",
+      status: 503,
+      message_key: "errors:requestFailed",
+    });
     expect(adaptCurrentAuthError(invalidCredentials, "login").code).toBe("INVALID_CREDENTIALS");
     expect(adaptCurrentAuthError(deviceMismatch, "login").code).toBe("DEVICE_NOT_REGISTERED");
     expect(adaptCurrentAuthError(rateLimited, "login").code).toBe("RATE_LIMITED");
     expect(adaptCurrentAuthError(badRequest, "login").code).toBe("VALIDATION_ERROR");
+    expect(adaptCurrentAuthError(serverFailure, "login")).toMatchObject({
+      code: "AUTH_REQUEST_FAILED",
+      message_key: "errors:auth.AUTH_REQUEST_FAILED",
+    });
     expect(adaptCurrentAuthError(new Error("network"), "login").code).toBe("AUTH_REQUEST_FAILED");
     expect(
       adaptCurrentAuthError(

@@ -20,7 +20,7 @@ export function StudentRegistrationFields({
   onSystemChange,
 }: StudentRegistrationFieldsProps) {
   const { t } = useTranslation("auth");
-  const { form, pending, unavailable, loading } = registration;
+  const { form, pending, unavailable, loading, supportsStudentProfileFields } = registration;
   const selectedTrack = form.watch("trackId");
 
   return (
@@ -48,14 +48,16 @@ export function StudentRegistrationFields({
         label={t("student.phone")}
         {...form.register("phone")}
       />
-      <TextField
-        autoComplete="tel"
-        {...fieldErrorProps(form.formState.errors.parentPhone)}
-        id="student-parent-phone"
-        inputMode="tel"
-        label={t("student.parentPhone")}
-        {...form.register("parentPhone")}
-      />
+      {supportsStudentProfileFields ? (
+        <TextField
+          autoComplete="tel"
+          {...fieldErrorProps(form.formState.errors.parentPhone)}
+          id="student-parent-phone"
+          inputMode="tel"
+          label={t("student.parentPhone")}
+          {...form.register("parentPhone")}
+        />
+      ) : null}
       <PasswordField
         autoComplete="new-password"
         {...fieldErrorProps(form.formState.errors.password)}
@@ -75,35 +77,39 @@ export function StudentRegistrationFields({
         showLabel={t("login.showPassword")}
         {...form.register("passwordConfirmation")}
       />
-      <CatalogSystemSelect
-        id="student-system"
-        label={t("student.system")}
-        onChange={onSystemChange}
-        systems={registration.catalog?.systems ?? []}
-        value={system}
-      />
-      <Select
-        disabled={!system || loading || unavailable}
-        {...fieldErrorProps(form.formState.errors.trackId)}
-        id="student-track"
-        label={t("student.track")}
-        onValueChange={(value) => form.setValue("trackId", value, { shouldValidate: true })}
-        options={tracks.map((track) => ({ value: track.id, label: track.name }))}
-        placeholder={t("selectPlaceholder")}
-        {...(selectedTrack ? { value: selectedTrack } : {})}
-      />
-      {loading ? <Text tone="muted">{t("student.catalogLoading")}</Text> : null}
-      <Checkbox
-        checked={form.watch("acceptTerms") === true}
-        id="student-terms"
-        label={t("student.terms")}
-        onCheckedChange={(checked) => {
-          if (checked === true) form.setValue("acceptTerms", true, { shouldValidate: true });
-          else form.resetField("acceptTerms");
-        }}
-      />
-      {form.formState.errors.acceptTerms ? (
-        <Text tone="danger">{t("validation.terms")}</Text>
+      {supportsStudentProfileFields ? (
+        <>
+          <CatalogSystemSelect
+            id="student-system"
+            label={t("student.system")}
+            onChange={onSystemChange}
+            systems={registration.catalog?.systems ?? []}
+            value={system}
+          />
+          <Select
+            disabled={!system || loading || unavailable}
+            {...fieldErrorProps(form.formState.errors.trackId)}
+            id="student-track"
+            label={t("student.track")}
+            onValueChange={(value) => form.setValue("trackId", value, { shouldValidate: true })}
+            options={tracks.map((track) => ({ value: track.id, label: track.name }))}
+            placeholder={t("selectPlaceholder")}
+            value={selectedTrack}
+          />
+          {loading ? <Text tone="muted">{t("student.catalogLoading")}</Text> : null}
+          <Checkbox
+            checked={form.watch("acceptTerms") === true}
+            id="student-terms"
+            label={t("student.terms")}
+            onCheckedChange={(checked) => {
+              if (checked === true) form.setValue("acceptTerms", true, { shouldValidate: true });
+              else form.resetField("acceptTerms");
+            }}
+          />
+          {form.formState.errors.acceptTerms ? (
+            <Text tone="danger">{t("validation.terms")}</Text>
+          ) : null}
+        </>
       ) : null}
       <Button disabled={pending || unavailable} loading={pending} type="submit" fullWidth>
         {t("student.submit")}

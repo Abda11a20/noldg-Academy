@@ -46,6 +46,13 @@ const LegacyRegistrationResponseSchema = z.object({
     .optional(),
 });
 const AccessTokenResponseSchema = z.object({ accessToken: z.string().min(1) });
+const LegacyStudentRegistrationRequestSchema = StudentRegistrationRequestSchema.pick({
+  name: true,
+  email: true,
+  phone: true,
+  password: true,
+});
+type LegacyStudentRegistrationRequest = z.infer<typeof LegacyStudentRegistrationRequestSchema>;
 
 function safeParse<T>(schema: z.ZodType<T>, value: unknown): T {
   return schema.parse(value);
@@ -62,6 +69,21 @@ function createTeacherBody(input: TeacherRegistrationRequest, includeTerms: bool
   if (input.image) form.set("image", input.image);
   if (includeTerms) form.set("acceptTerms", String(input.acceptTerms));
   return form;
+}
+
+async function registerLegacyStudent(values: LegacyStudentRegistrationRequest) {
+  try {
+    const result = await request("/auth/register", LegacyRegistrationResponseSchema, {
+      method: "POST",
+      body: values,
+    });
+    return StudentRegistrationResponseSchema.parse({
+      emailVerificationRequired: false,
+      ...(result.data?.id || result.data?._id ? { userId: result.data.id ?? result.data._id } : {}),
+    });
+  } catch (error) {
+    throw adaptCurrentAuthError(error, "register");
+  }
 }
 
 /** Logs in against the target or legacy auth route and stores the returned access token. */
@@ -94,31 +116,17 @@ export async function login(input: LoginRequest): Promise<LoginResponse> {
 }
 
 /** Registers a student with the full target fields; the legacy adapter drops unsupported fields. */
-export async function registerStudent(input: StudentRegistrationRequest) {
+export async function registerStudent(
+  input: StudentRegistrationRequest | LegacyStudentRegistrationRequest,
+) {
+  if (apiMode === "live" && !capabilities.studentProfileFields) {
+    return registerLegacyStudent(safeParse(LegacyStudentRegistrationRequestSchema, input));
+  }
   const values = safeParse(StudentRegistrationRequestSchema, input);
-  if (apiMode === "mock" || capabilities.studentProfileFields) {
-    return request("/auth/register/student", StudentRegistrationResponseSchema, {
-      method: "POST",
-      body: values,
-    });
-  }
-  try {
-    const result = await request("/auth/register", LegacyRegistrationResponseSchema, {
-      method: "POST",
-      body: {
-        name: values.name,
-        email: values.email,
-        phone: values.phone,
-        password: values.password,
-      },
-    });
-    return StudentRegistrationResponseSchema.parse({
-      emailVerificationRequired: false,
-      ...(result.data?.id || result.data?._id ? { userId: result.data.id ?? result.data._id } : {}),
-    });
-  } catch (error) {
-    throw adaptCurrentAuthError(error, "register");
-  }
+  return request("/auth/register/student", StudentRegistrationResponseSchema, {
+    method: "POST",
+    body: values,
+  });
 }
 
 /** Submits teacher details and offerings as multipart data for both API contracts. */
@@ -226,14 +234,10 @@ export async function getMe(): Promise<AuthUser> {
     let application: unknown;
     const role = profile.data.roles ?? profile.data.role;
     if (role === "teacher") {
-      try {
-        application = await request(
-          "/teachers/me/application",
-          LegacyTeacherApplicationResponseSchema,
-        );
-      } catch {
-        application = undefined;
-      }
+      application = await request(
+        "/teachers/me/application",
+        LegacyTeacherApplicationResponseSchema,
+      );
     }
     return adaptLegacyUser(profile.data, application);
   } catch (error) {

@@ -36,16 +36,22 @@ function identifyLegacyMessage(message: string): AuthErrorCode | undefined {
   return undefined;
 }
 
-function identifyStatus(error: AppError, operation: AuthOperation): AuthErrorCode {
+function identifyStatus(
+  error: AppError,
+  operation: AuthOperation,
+): AuthErrorCode | "AUTH_REQUEST_FAILED" {
   if (error.status === 401) return operation === "login" ? "INVALID_CREDENTIALS" : "UNAUTHORIZED";
   if (error.status === 403) return "FORBIDDEN";
   if (error.status === 409) return "EMAIL_TAKEN";
   if (error.status === 429) return "RATE_LIMITED";
   if (error.status === 400) return "VALIDATION_ERROR";
-  return "UNAUTHORIZED";
+  return "AUTH_REQUEST_FAILED";
 }
 
-function identifyCurrentError(error: AppError, operation: AuthOperation): AuthErrorCode {
+function identifyCurrentError(
+  error: AppError,
+  operation: AuthOperation,
+): AuthErrorCode | "AUTH_REQUEST_FAILED" {
   const directCode = currentErrorCodes[error.code];
   if (directCode) return directCode;
   const messageCode = identifyLegacyMessage(legacyMessage(error));

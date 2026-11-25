@@ -1,7 +1,10 @@
 import { act, type PropsWithChildren } from "react";
+import { cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { renderHook } from "../../../shared/testing/render-hook";
+import { renderPage } from "../../../shared/testing/render-page";
 import { useStudentRegistration, useTeacherRegistration } from "./useRegistration";
+import { StudentRegistrationFields } from "../components/StudentRegistrationFields";
 import { describe, expect, it } from "vitest";
 
 function RouterWrapper({ children }: PropsWithChildren) {
@@ -9,6 +12,25 @@ function RouterWrapper({ children }: PropsWithChildren) {
 }
 
 describe("registration hooks", () => {
+  it("hides legacy student fields that the live adapter cannot save", () => {
+    const hook = renderHook(() => useStudentRegistration(), { wrapper: RouterWrapper });
+    const registration = { ...hook.result, supportsStudentProfileFields: false, unavailable: true };
+    renderPage(
+      <StudentRegistrationFields
+        onSystemChange={() => undefined}
+        registration={registration}
+        system=""
+        tracks={[]}
+      />,
+    );
+    expect(document.getElementById("student-parent-phone")).toBeNull();
+    expect(document.getElementById("student-system")).toBeNull();
+    expect(document.getElementById("student-track")).toBeNull();
+    expect(document.getElementById("student-terms")).toBeNull();
+    cleanup();
+    hook.unmount();
+  });
+
   it("loads the catalog and submits student fields while clearing the password", async () => {
     const hook = renderHook(() => useStudentRegistration(), { wrapper: RouterWrapper });
     await act(async () => hook.result.loadCatalog());

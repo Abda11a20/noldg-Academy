@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resolver } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { getPublicCatalog, registerStudent, registerTeacher } from "@noldg/api/endpoints/auth";
+import { capabilities } from "@noldg/api/config/capabilities";
 import { AppError } from "@noldg/api/errors";
 import type { AcademicCatalog } from "@noldg/api/contracts/auth";
 import { StudentRegistrationFormSchema, TeacherRegistrationFormSchema } from "../schemas/forms";
@@ -43,6 +44,7 @@ function useRegistrationCatalog() {
 /** Manages student registration, catalog selections, and navigation to email verification. */
 export function useStudentRegistration() {
   const navigate = useNavigate();
+  const supportsStudentProfileFields = capabilities.studentProfileFields;
   const form = useForm<StudentRegistrationFormValues>({
     defaultValues: {
       name: "",
@@ -55,11 +57,21 @@ export function useStudentRegistration() {
     },
     // Extra confirmation input is validated in the submit handler; the API schema checks request fields.
     resolver: zodResolver(
-      StudentRegistrationFormSchema,
+      supportsStudentProfileFields
+        ? StudentRegistrationFormSchema
+        : StudentRegistrationFormSchema.omit({
+            parentPhone: true,
+            trackId: true,
+            acceptTerms: true,
+          }),
     ) as unknown as Resolver<StudentRegistrationFormValues>,
   });
   const state = useAuthForm(form.setError);
   const catalog = useRegistrationCatalog();
+  const loadCatalog = catalog.loadCatalog;
+  const loadStudentCatalog = useCallback(async () => {
+    if (supportsStudentProfileFields) await loadCatalog();
+  }, [loadCatalog, supportsStudentProfileFields]);
   const submit = form.handleSubmit(async (values) => {
     if (state.pending) return;
     if (values.password !== form.getValues("passwordConfirmation")) {
@@ -69,15 +81,22 @@ export function useStudentRegistration() {
     state.setPending(true);
     state.setErrorKey(null);
     try {
-      const result = await registerStudent({
+      const identity = {
         name: values.name,
         email: values.email,
         phone: normalizeArabicDigits(values.phone),
-        parentPhone: normalizeArabicDigits(values.parentPhone),
         password: values.password,
-        trackId: values.trackId,
-        acceptTerms: true,
-      });
+      };
+      const result = await registerStudent(
+        supportsStudentProfileFields
+          ? {
+              ...identity,
+              parentPhone: normalizeArabicDigits(values.parentPhone),
+              trackId: values.trackId,
+              acceptTerms: values.acceptTerms,
+            }
+          : identity,
+      );
       form.reset();
       await navigate(
         result.emailVerificationRequired ? ROUTE_PATHS.verifyEmail : ROUTE_PATHS.login,
@@ -104,7 +123,15 @@ export function useStudentRegistration() {
       state.setPending(false);
     }
   });
-  return { form, submit, ...state, ...catalog };
+  return {
+    form,
+    submit,
+    ...state,
+    ...catalog,
+    loadCatalog: loadStudentCatalog,
+    unavailable: !supportsStudentProfileFields || catalog.unavailable,
+    supportsStudentProfileFields,
+  };
 }
 
 export interface TeacherOfferingSelection {

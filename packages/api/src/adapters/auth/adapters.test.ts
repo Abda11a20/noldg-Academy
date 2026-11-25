@@ -73,7 +73,13 @@ describe("auth contract adapters", () => {
         new AppError({ code: "LEGACY", status: 503, message_key: "raw" }),
         "login",
       ).code,
-    ).toBe("UNAUTHORIZED");
+    ).toBe("AUTH_REQUEST_FAILED");
+    expect(
+      adaptCurrentAuthError(
+        new AppError({ code: "LEGACY", status: 404, message_key: "raw" }),
+        "login",
+      ).code,
+    ).toBe("AUTH_REQUEST_FAILED");
     expect(adaptCurrentAuthError(new Error("private transport detail"), "login")).toMatchObject({
       code: "AUTH_REQUEST_FAILED",
       message_key: "errors:requestFailed",

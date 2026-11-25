@@ -33,4 +33,6 @@ jobs:
         with:
           languages: javascript-typescript
       - run: pnpm build
+        env:
+          VITE_API_ORIGIN: https://api.example.invalid
       - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066

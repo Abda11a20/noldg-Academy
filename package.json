@@ -12,7 +12,7 @@
     "prepare": "husky",
     "dev": "pnpm --filter @noldg/portal dev",
     "build": "turbo run build",
-    "lint": "eslint . --max-warnings 0 --ignore-pattern tools/lint-fixtures/**",
+    "lint": "eslint . --max-warnings 0 --ignore-pattern \"tools/lint-fixtures/**\"",
     "lint:rules": "node tools/lint-fixtures/verify.mjs",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
@@ -55,7 +55,7 @@
   },
   "msw": {
     "workerDirectory": [
-      "apps\\portal\\public"
+      "apps/portal/public"
     ]
   }
 }

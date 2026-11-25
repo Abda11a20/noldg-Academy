@@ -22,6 +22,7 @@
     "ACCOUNT_SUSPENDED": "This account is suspended. Contact support for help.",
     "DEVICE_NOT_REGISTERED": "This account is linked to another device.",
     "RATE_LIMITED": "Too many attempts. Wait before trying again.",
+    "AUTH_REQUEST_FAILED": "We could not complete the request. Please try again.",
     "UNAUTHORIZED": "Sign in to continue.",
     "FORBIDDEN": "You do not have access to this page."
   }

@@ -9,6 +9,11 @@ export interface AuthCapabilities {
   adminAcademicAccess: boolean;
   teacherApplicationsApi: boolean;
   adminSearchAndPagination: boolean;
+  bundleLessons: boolean;
+  liveLessons: boolean;
+  lessonWindowRules: boolean;
+  lessonDrafts: boolean;
+  lessonVideoProcessing: boolean;
 }
 
 function resolveCapability(value: string | undefined, defaultValue: boolean): boolean {
@@ -39,6 +44,17 @@ export const capabilities: AuthCapabilities = {
   ),
   adminSearchAndPagination: resolveCapability(
     import.meta.env.VITE_ADMIN_SEARCH_PAGINATION,
+    modeDefault,
+  ),
+  bundleLessons: resolveCapability(import.meta.env.VITE_CATALOG_CAP_BUNDLE_LESSONS, modeDefault),
+  liveLessons: resolveCapability(import.meta.env.VITE_CATALOG_CAP_LIVE_LESSONS, false),
+  lessonWindowRules: resolveCapability(
+    import.meta.env.VITE_CATALOG_CAP_LESSON_WINDOW_RULES,
+    modeDefault,
+  ),
+  lessonDrafts: resolveCapability(import.meta.env.VITE_CATALOG_CAP_LESSON_DRAFTS, modeDefault),
+  lessonVideoProcessing: resolveCapability(
+    import.meta.env.VITE_CATALOG_CAP_VIDEO_PROCESSING,
     modeDefault,
   ),
 };

@@ -22,6 +22,27 @@ describe("live backend capability overrides", () => {
       adminAcademicAccess: false,
       teacherApplicationsApi: false,
       adminSearchAndPagination: false,
+      bundleLessons: false,
+      liveLessons: false,
+      lessonWindowRules: false,
+      lessonDrafts: false,
+      lessonVideoProcessing: false,
+    });
+  });
+});
+
+describe("mock catalog capability defaults", () => {
+  it("enables target catalog behavior except live lessons by default", async () => {
+    vi.resetModules();
+    vi.stubEnv("VITE_API_MODE", "mock");
+    vi.stubEnv("VITE_CATALOG_CAP_BUNDLE_LESSONS", "");
+    const { capabilities } = await import("./capabilities");
+    expect(capabilities).toMatchObject({
+      bundleLessons: true,
+      liveLessons: false,
+      lessonWindowRules: true,
+      lessonDrafts: true,
+      lessonVideoProcessing: true,
     });
   });
 });

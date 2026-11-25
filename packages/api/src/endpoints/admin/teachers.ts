@@ -26,9 +26,21 @@ async function findLiveApplication(
 ): Promise<TeacherApplication> {
   for (const status of statuses) {
     for (let page = 1; ; page += 1) {
-      const payload = await request(listPath("teachers/applications", {
-        page, pageSize: LIVE_APPLICATION_PAGE_SIZE, search: "", filters: {},
-      }, { status }, true, false), dataSchema);
+      const payload = await request(
+        listPath(
+          "teachers/applications",
+          {
+            page,
+            pageSize: LIVE_APPLICATION_PAGE_SIZE,
+            search: "",
+            filters: {},
+          },
+          { status },
+          true,
+          false,
+        ),
+        dataSchema,
+      );
       const raw = payload as {
         data: unknown[];
         pagination: { page: number; limit: number; total: number };

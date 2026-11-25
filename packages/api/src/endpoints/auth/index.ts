@@ -234,10 +234,14 @@ export async function getMe(): Promise<AuthUser> {
     let application: unknown;
     const role = profile.data.roles ?? profile.data.role;
     if (role === "teacher") {
-      application = await request(
-        "/teachers/me/application",
-        LegacyTeacherApplicationResponseSchema,
-      );
+      try {
+        application = await request(
+          "/teachers/me/application",
+          LegacyTeacherApplicationResponseSchema,
+        );
+      } catch {
+        application = undefined;
+      }
     }
     return adaptLegacyUser(profile.data, application);
   } catch (error) {

@@ -179,7 +179,7 @@ it("maps legacy profile, application, logout, and catalog transport failures saf
   expect(tokenStore.getAccessToken()).toBeNull();
 });
 
-it("surfaces a teacher application status failure instead of hiding the failure", async () => {
+it("allows a teacher profile when no legacy application exists", async () => {
   nodeServer.use(
     http.get(`${API_BASE_URL}/auth/`, () =>
       HttpResponse.json({
@@ -195,13 +195,16 @@ it("surfaces a teacher application status failure instead of hiding the failure"
       }),
     ),
     http.get(`${API_BASE_URL}/teachers/me/application`, () =>
-      HttpResponse.json({ success: false, message: "Service unavailable" }, { status: 500 }),
+      HttpResponse.json({ success: false, message: "Not found" }, { status: 404 }),
     ),
   );
-  await expect(authApi.getMe()).rejects.toMatchObject({
-    code: "AUTH_REQUEST_FAILED",
-    status: 500,
+  const user = await authApi.getMe();
+  expect(user).toMatchObject({
+    id: "teacher-id",
+    role: "teacher",
+    emailVerified: true,
   });
+  expect(user).not.toHaveProperty("applicationStatus");
 });
 
 it("maps a recognizable legacy credential error into the target error code", async () => {

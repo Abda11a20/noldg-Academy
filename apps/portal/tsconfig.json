@@ -1,11 +1,7 @@
 {
   "extends": "../../packages/config/tsconfig.base.json",
   "compilerOptions": {
-    "types": ["vite/client", "vitest/globals"],
-    "paths": {
-      "@testing-library/react": ["../../packages/ui/node_modules/@testing-library/react"],
-      "@testing-library/user-event": ["../../packages/ui/node_modules/@testing-library/user-event"]
-    }
+    "types": ["vite/client", "vitest/globals"]
   },
   "include": ["src", "vite.config.ts", "vitest.config.ts"]
 }

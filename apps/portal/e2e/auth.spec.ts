@@ -36,8 +36,7 @@ async function enterOtp(page: Page) {
 }
 
 async function expectAccessible(page: Page) {
-  const uiRequire = createRequire(resolve(process.cwd(), "../../packages/ui/package.json"));
-  const jestAxePath = uiRequire.resolve("jest-axe");
+  const jestAxePath = createRequire(import.meta.url).resolve("jest-axe");
   const axeScriptPath = createRequire(jestAxePath).resolve("axe-core/axe.min.js");
   await page.addScriptTag({ path: axeScriptPath });
   const violations = await page.evaluate(async () => {

@@ -2,9 +2,7 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreFiles": ["tools/lint-fixtures/**", "apps/portal/public/mockServiceWorker.js"],
   "ignoreDependencies": [
-    "@fontsource/ibm-plex-sans-arabic",
-    "@testing-library/react",
-    "@testing-library/user-event"
+    "@fontsource/ibm-plex-sans-arabic"
   ],
   "workspaces": {
     "apps/portal": { "entry": ["src/shared/i18n/formatting.ts"] },

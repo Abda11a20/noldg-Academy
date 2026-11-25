@@ -1,10 +1,12 @@
 import { expect, test } from "./fixtures";
 import type { Page } from "@playwright/test";
 import { createRequire } from "node:module";
+import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const password = "Aa1!pass";
-const screenshots = resolve(process.cwd(), "../../docs/reports");
+const screenshots = resolve(process.cwd(), "../../docs/reports/screenshots");
+mkdirSync(screenshots, { recursive: true });
 
 async function switchToEnglish(page: Page) {
   await navigateClient(page, "/login");

@@ -24,12 +24,13 @@ function makeLessonInput(
   values: LessonFormValues,
   status: "draft" | "published",
   attachmentTokens: string[],
+  includeStatus: boolean,
 ): LessonInput {
   return {
     title: values.title,
     description: values.description,
     kind: "recorded",
-    status,
+    ...(includeStatus ? { status } : {}),
     availableFrom: cairoLocalToIso(values.availableFromLocal),
     availableUntil: cairoLocalToIso(values.availableUntilLocal),
     access: values.access,
@@ -42,7 +43,7 @@ function makeLessonInput(
 export function useLessonEditorSave(args: LessonEditorSaveArguments) {
   const submit = useCallback(
     async (values: LessonFormValues, status: "draft" | "published") => {
-      const input = makeLessonInput(values, status, args.attachmentUploadTokens);
+      const input = makeLessonInput(values, status, args.attachmentUploadTokens, !args.lessonId);
       const persist = (token?: string) =>
         args.saveLesson(
           {

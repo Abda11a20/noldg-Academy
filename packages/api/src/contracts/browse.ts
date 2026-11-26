@@ -18,11 +18,23 @@ export const BrowseTrackSchema = z.object({
   grade: z.number().int(),
 });
 
+const HttpsUrlOrEmptySchema = z.string().refine(
+  (value) => {
+    if (value === "") return true;
+    try {
+      return new URL(value).protocol === "https:";
+    } catch {
+      return false;
+    }
+  },
+  { message: "must be an https URL" },
+);
+
 export const BrowseTeacherSchema = z.object({
   id: IdSchema,
   name: z.string(),
   nameAr: z.string().optional(),
-  photoUrl: z.string().url().nullable(),
+  photoUrl: HttpsUrlOrEmptySchema.nullable(),
   bioExcerpt: z.string(),
   bioExcerptAr: z.string().optional(),
   subjects: z.array(BrowseSubjectSchema),

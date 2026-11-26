@@ -57,7 +57,7 @@ function matchesLesson(lesson: CatalogLesson, state: ListUrlState, now: number):
     (!filters.status || lesson.status === filters.status) &&
     (!filters.access || lesson.access === filters.access) &&
     matchesAvailability(lesson, filters.availability, now) &&
-    (!state.search || lesson.title.toLocaleLowerCase().includes(state.search.toLocaleLowerCase()))
+    (!state.search || lesson.title.toLowerCase().includes(state.search.toLowerCase()))
   );
 }
 

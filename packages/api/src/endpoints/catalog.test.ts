@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   createCourseLesson,
   createLessonProduct,
@@ -27,6 +27,21 @@ describe("teacher catalog endpoints", () => {
         search: "missing",
       }),
     ).toMatchObject({ items: [], total: 0 });
+  });
+
+  it("searches lesson titles without consulting the host locale", async () => {
+    const localeLowerCase = vi
+      .spyOn(String.prototype, "toLocaleLowerCase")
+      .mockImplementation(() => {
+        throw new Error("Locale-dependent casing must not be used for search.");
+      });
+    try {
+      await expect(
+        listCourseLessons("course-general-secondary-1", { ...state, search: "INTRODUCTION" }),
+      ).resolves.toMatchObject({ items: [{ title: "Introduction" }], total: 1 });
+    } finally {
+      localeLowerCase.mockRestore();
+    }
   });
 
   it("creates and updates lessons and maps status changes", async () => {

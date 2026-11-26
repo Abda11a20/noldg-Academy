@@ -32,6 +32,7 @@ jobs:
       - run: pnpm build
         env:
           VITE_API_ORIGIN: https://api.example.invalid
+          VITE_UPLOAD_ORIGINS: https://api.cloudinary.com
       - run: pnpm check:bundle-size
       - run: pnpm check:no-dev-routes
       - run: pnpm test:headers

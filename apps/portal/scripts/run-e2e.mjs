@@ -81,6 +81,7 @@ async function prepareE2EBuild() {
   const environment = {
     ...process.env,
     VITE_API_ORIGIN: process.env.VITE_API_ORIGIN ?? "https://api.example.invalid",
+    VITE_UPLOAD_ORIGINS: process.env.VITE_UPLOAD_ORIGINS ?? "https://api.cloudinary.com",
     VITE_API_MODE: "mock",
     VITE_E2E_MOCKS: "true",
     VITE_INCLUDE_UI_GALLERY: "true",

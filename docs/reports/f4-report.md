@@ -48,7 +48,7 @@ No F4 runtime dependency was added. The four test packages were explicitly requi
 | Initial `pnpm format:check` before correcting this report                                               | FAIL — only this report needed formatting; corrected it and reran the repository check successfully.                |
 | `pnpm test:headers`                                                                                     | PASS — 4 tests, 0 failures.                                                                                         |
 | `pnpm knip`                                                                                             | PASS — exit 0.                                                                                                      |
-| `pnpm dependency-cruiser`                                                                               | PASS — no violations; 503 modules and 1,525 dependencies examined.                                                  |
+| `pnpm dependency-cruiser`                                                                               | PASS — no violations; 402 modules and 934 dependencies examined.                                                    |
 | `VITE_API_ORIGIN=https://api.example.invalid VITE_UPLOAD_ORIGINS=https://api.cloudinary.com pnpm build` | PASS — production build completed; 2,667 modules transformed.                                                       |
 | `pnpm check:bundle-size`                                                                                | PASS — within all configured gzip budgets.                                                                          |
 | `pnpm check:no-dev-routes`                                                                              | PASS — no development gallery marker in the production output.                                                      |
@@ -125,6 +125,7 @@ The `/login` chunk report contains no student-registration or teacher-registrati
 
 | Commit    | Message                                                        |
 | --------- | -------------------------------------------------------------- |
+| `cb07fd8` | `chore: declare test dependencies`                             |
 | `5117b01` | `chore(deps): sync testing dependency lockfile`                |
 | `cb1a852` | `feat(api): add teacher catalog contracts and endpoints`       |
 | `d9b8640` | `feat(api): add direct upload transport and catalog mocks`     |
@@ -132,6 +133,7 @@ The `/login` chunk report contains no student-registration or teacher-registrati
 | `aed4b36` | `feat(portal): add teacher course lesson and bundle flows`     |
 | `dfc1219` | `test(e2e): verify teacher catalog workflows`                  |
 | `af7ea11` | `build(security): allow configured upload origins in CSP`      |
+| `73b2280` | `chore: untrack screenshots`                                   |
 | `a214600` | `docs(catalog): document target contract and upload decisions` |
 
 All commits are local on `feat/f3-foundation`; nothing was pushed or merged. This report is committed separately after the implementation commits.

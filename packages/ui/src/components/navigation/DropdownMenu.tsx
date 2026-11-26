@@ -13,15 +13,27 @@ export interface DropdownMenuProps {
   trigger: ReactNode;
   triggerLabel: string;
   items: readonly DropdownMenuItem[];
+  open?: boolean | undefined;
+  onOpenChange?: ((open: boolean) => void) | undefined;
 }
 
 /** Renders an accessible action menu with keyboard and focus handling.
  * @param props Trigger content and action entries.
  */
-export function DropdownMenu({ trigger, triggerLabel, items }: DropdownMenuProps) {
+export function DropdownMenu({
+  trigger,
+  triggerLabel,
+  items,
+  open,
+  onOpenChange,
+}: DropdownMenuProps) {
   const { direction } = useUiContext();
   return (
-    <Primitive.Root dir={direction === "rtl" ? "rtl" : "ltr"}>
+    <Primitive.Root
+      dir={direction === "rtl" ? "rtl" : "ltr"}
+      {...(open === undefined ? {} : { open })}
+      {...(onOpenChange ? { onOpenChange } : {})}
+    >
       <Primitive.Trigger
         aria-label={triggerLabel}
         className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md p-2 text-foreground hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-focus-ring"

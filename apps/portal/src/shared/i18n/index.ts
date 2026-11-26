@@ -7,33 +7,17 @@ import arAuth from "./locales/ar/auth.json";
 import enCommon from "./locales/en/common.json";
 import enErrors from "./locales/en/errors.json";
 import enAuth from "./locales/en/auth.json";
-import arAdmin from "./locales/ar/admin.json";
-import enAdmin from "./locales/en/admin.json";
-import arCatalog from "./locales/ar/catalog.json";
-import enCatalog from "./locales/en/catalog.json";
-import arBrowse from "./locales/ar/browse.json";
-import enBrowse from "./locales/en/browse.json";
-import arOrders from "./locales/ar/orders.json";
-import enOrders from "./locales/en/orders.json";
 
 const resources = {
   ar: {
     common: arCommon,
     errors: arErrors,
     auth: arAuth,
-    admin: arAdmin,
-    catalog: arCatalog,
-    browse: arBrowse,
-    orders: arOrders,
   },
   en: {
     common: enCommon,
     errors: enErrors,
     auth: enAuth,
-    admin: enAdmin,
-    catalog: enCatalog,
-    browse: enBrowse,
-    orders: enOrders,
   },
 } as const;
 
@@ -43,7 +27,7 @@ void i18next.use(initReactI18next).init({
   fallbackLng: brand.defaultLanguage,
   supportedLngs: [...brand.supportedLanguages],
   defaultNS: "common",
-  ns: ["common", "errors", "auth", "admin", "catalog", "browse", "orders"],
+  ns: ["common", "errors", "auth"],
   interpolation: { escapeValue: false },
   returnNull: false,
 });
@@ -53,7 +37,12 @@ export default i18next;
 declare module "i18next" {
   interface CustomTypeOptions {
     defaultNS: "common";
-    resources: typeof resources.en;
+    resources: typeof resources.en & {
+      admin: typeof import("./locales/en/admin.json");
+      browse: typeof import("./locales/en/browse.json");
+      catalog: typeof import("./locales/en/catalog.json");
+      orders: typeof import("./locales/en/orders.json");
+    };
     returnNull: false;
   }
 }

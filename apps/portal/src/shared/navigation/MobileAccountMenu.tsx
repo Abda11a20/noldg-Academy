@@ -3,9 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useLanguageSwitcher } from "../i18n/useLanguageSwitcher";
 
 export interface MobileAccountMenuProps {
-  logoutLabel?: string;
-  onLogout?: () => void;
-  loggingOut?: boolean;
+  logoutLabel?: string | undefined;
+  onLogout?: (() => void) | undefined;
+  loggingOut?: boolean | undefined;
+  open?: boolean | undefined;
+  onOpenChange?: ((open: boolean) => void) | undefined;
 }
 
 /** Combines language and session actions in the compact mobile account menu.
@@ -15,6 +17,8 @@ export function MobileAccountMenu({
   logoutLabel,
   onLogout,
   loggingOut = false,
+  open,
+  onOpenChange,
 }: MobileAccountMenuProps) {
   const { t } = useTranslation("common");
   const { label, changeLanguage } = useLanguageSwitcher();
@@ -36,6 +40,8 @@ export function MobileAccountMenu({
   return (
     <DropdownMenu
       items={items}
+      open={open}
+      onOpenChange={onOpenChange}
       trigger={<Icon name="user" />}
       triggerLabel={t("mobileAccountMenu")}
     />

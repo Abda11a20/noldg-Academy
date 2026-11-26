@@ -32,11 +32,14 @@ function isErrorNamed(error: unknown, name: string): boolean {
 function fromEnvelope(error: unknown, status: number): AppError | null {
   const envelope = ErrorEnvelopeSchema.safeParse(error);
   if (!envelope.success || status < HTTP_STATUS.badRequest) return null;
+  const source = envelope.data.error ?? envelope.data;
+  const details =
+    source.details ?? (source.message ? { legacyMessage: source.message } : undefined);
   return new AppError({
-    code: envelope.data.code ?? "HTTP_ERROR",
+    code: source.code ?? "HTTP_ERROR",
     status,
     message_key: "errors:requestFailed",
-    ...(envelope.data.details === undefined ? {} : { details: envelope.data.details }),
+    ...(details === undefined ? {} : { details }),
   });
 }
 

@@ -86,14 +86,26 @@ export default defineConfig(
     plugins: { boundaries },
     settings: {
       "boundaries/elements": [
-        { type: "feature", pattern: "apps/*/src/features/*" },
-        { type: "shared", pattern: "apps/*/src/shared/*" },
-        { type: "app", pattern: "apps/*/src/*" },
-        { type: "package", pattern: "packages/*" },
+        { type: "feature", pattern: "apps/*/src/features/**/*" },
+        { type: "shared", pattern: "apps/*/src/shared/**/*" },
+        { type: "app", pattern: "apps/*/src/**/*" },
+        { type: "package", pattern: "packages/**/*" },
       ],
     },
     rules: {
-      "boundaries/no-unknown-dependencies": "error",
+      "boundaries/dependencies": [
+        "error",
+        {
+          checkUnknownLocals: true,
+          default: "allow",
+          policies: [
+            {
+              from: { element: { type: "feature" } },
+              allow: { to: { element: { type: ["feature", "shared", "package"] } } },
+            },
+          ],
+        },
+      ],
       "noldg/feature-public-imports-only": "error",
     },
   },

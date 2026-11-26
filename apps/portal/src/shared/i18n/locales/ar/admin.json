@@ -1,0 +1,126 @@
+{
+  "academic": {
+    "title": "الهيكل الدراسي",
+    "description": "إدارة الأنظمة التعليمية والصفوف والمواد والروابط بينها.",
+    "tabs": { "tracks": "الصفوف", "subjects": "المواد", "mapping": "مواد الصفوف" },
+    "filters": {
+      "system": "النظام التعليمي",
+      "stage": "المرحلة",
+      "active": "حالة الإتاحة",
+      "all": "الكل",
+      "search": "بحث"
+    },
+    "fields": {
+      "name": "الاسم",
+      "system": "النظام",
+      "stage": "المرحلة",
+      "grade": "الصف",
+      "active": "متاح",
+      "subject": "المادة",
+      "track": "الصف"
+    },
+    "actions": {
+      "createTrack": "إضافة صف",
+      "edit": "تعديل",
+      "createSubject": "إضافة مادة",
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "disable": "تعطيل",
+      "enable": "تفعيل",
+      "addSubject": "ربط المادة",
+      "removeSubject": "إزالة الربط"
+    },
+    "states": {
+      "loading": "جارٍ تحميل البيانات الدراسية",
+      "empty": "لا توجد نتائج تطابق عوامل التصفية.",
+      "forbiddenTitle": "ليست لديك صلاحية",
+      "forbiddenBody": "لا يملك حسابك صلاحية إدارة هذه البيانات الدراسية.",
+      "unavailableTitle": "الميزة غير متاحة",
+      "unavailableBody": "الخادم الحالي لا يدعم هذه العملية.",
+      "americanStage": "الدبلومة الأمريكية متاحة في المرحلة الثانوية فقط."
+    },
+    "systems": {
+      "general": "التعليم العام",
+      "languages": "اللغات",
+      "azhar": "الأزهر",
+      "egyptian_bacc": "البكالوريا المصرية",
+      "american_diploma": "الدبلومة الأمريكية"
+    },
+    "stages": { "prep": "إعدادي", "secondary": "ثانوي" }
+  },
+  "teachers": {
+    "title": "المعلمون",
+    "description": "مراجعة الطلبات وإدارة حالة حسابات المعلمين.",
+    "tabs": { "applications": "الطلبات", "active": "المعلمون النشطون", "suspended": "الموقوفون" },
+    "filters": { "status": "حالة الطلب", "search": "البحث بالاسم أو البريد" },
+    "fields": {
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "status": "الحالة",
+      "submitted": "تاريخ التقديم",
+      "bio": "نبذة",
+      "offerings": "المواد والصفوف",
+      "reason": "السبب"
+    },
+    "statuses": {
+      "pending": "قيد المراجعة",
+      "approved": "مقبول",
+      "rejected": "مرفوض",
+      "active": "نشط",
+      "suspended": "موقوف",
+      "submitted": "تم التقديم",
+      "review": "قيد المراجعة",
+      "decision": "القرار"
+    },
+    "actions": {
+      "view": "عرض الطلب",
+      "approve": "قبول",
+      "reject": "رفض",
+      "suspend": "إيقاف الحساب",
+      "reactivate": "إعادة تفعيل الحساب",
+      "save": "حفظ القرار",
+      "retry": "تحديث القائمة"
+    },
+    "states": {
+      "loading": "جارٍ تحميل سجلات المعلمين",
+      "empty": "لا يوجد معلمون في هذا العرض.",
+      "forbiddenTitle": "ليست لديك صلاحية",
+      "forbiddenBody": "لا يملك حسابك صلاحية إدارة سجلات المعلمين.",
+      "unavailableTitle": "إدارة المعلمين غير متاحة",
+      "unavailableBody": "الخادم الحالي لا يوفر هذه العملية.",
+      "detailUnavailable": "تفاصيل الطلب غير متاحة على هذا الخادم.",
+      "alreadyReviewed": "تمت مراجعة هذا الطلب بالفعل. جرى تحديث القائمة.",
+      "reviewed": "تم حفظ قرار الطلب.",
+      "statusUpdated": "تم تحديث حالة حساب المعلم."
+    },
+    "detail": {
+      "title": "طلب انضمام معلم",
+      "approveTitle": "قبول الطلب؟",
+      "rejectTitle": "رفض الطلب",
+      "suspendTitle": "إيقاف حساب المعلم؟",
+      "reactivateTitle": "إعادة تفعيل حساب المعلم؟",
+      "reasonHint": "اكتب {{count}} أحرف على الأقل.",
+      "timelineTitle": "سجل الطلب",
+      "noReason": "لم يُذكر سبب للمراجعة.",
+      "offering": "{{track}} · {{subject}}",
+      "timelineEntry": "{{label}}: {{date}}"
+    }
+  },
+  "list": {
+    "pageLabel": "التنقل بين صفحات القائمة",
+    "pageSize": "عدد الصفوف في الصفحة",
+    "pageSizePlaceholder": "اختر حجم الصفحة",
+    "previous": "السابق",
+    "next": "التالي",
+    "pageStatus": "الصفحة {{page}} من {{count}}"
+  },
+  "common": {
+    "close": "إغلاق",
+    "dismiss": "إخفاء",
+    "yes": "تأكيد",
+    "no": "إلغاء",
+    "enabled": "متاح",
+    "disabled": "معطل"
+  }
+}

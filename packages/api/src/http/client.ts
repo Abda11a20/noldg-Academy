@@ -1,6 +1,7 @@
 import { z, type ZodType } from "zod";
 import {
   AUTH_LOGOUT_EVENT,
+  API_BASE_URL,
   HTTP_DEFAULT_TIMEOUT_MS,
   HTTP_REFRESH_PATH,
   HTTP_REFRESH_TIMEOUT_MS,
@@ -9,14 +10,15 @@ import {
 import { tokenStore, setRefreshHandler } from "../auth/token-store";
 import { createAuthHeaders } from "../auth/header-strategy";
 import { AppError, normalizeAppError } from "../errors/app-error";
+import { capabilities } from "../config/capabilities";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000/api";
 const refreshResponseSchema = z.object({ accessToken: z.string().min(1) });
 let refreshFlight: Promise<string | null> | undefined;
 
 interface RequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
   timeoutMs?: number;
+  preserveSessionOnUnauthorized?: boolean;
 }
 
 function combineSignals(signal: AbortSignal | null | undefined, timeoutMs: number): AbortSignal {
@@ -25,7 +27,7 @@ function combineSignals(signal: AbortSignal | null | undefined, timeoutMs: numbe
 }
 
 function createRequestUrl(path: string): string {
-  return new URL(path.replace(/^\//, ""), `${baseUrl.replace(/\/$/, "")}/`).toString();
+  return new URL(path.replace(/^\//, ""), `${API_BASE_URL.replace(/\/$/, "")}/`).toString();
 }
 
 function signalLogout(): void {
@@ -50,16 +52,63 @@ async function refreshAccessToken(): Promise<string | null> {
   return refreshFlight;
 }
 
-async function retryAfterUnauthorized(status: number, retried: boolean): Promise<boolean> {
-  if (status !== HTTP_STATUS.unauthorized || retried) return false;
+async function retryAfterUnauthorized(
+  status: number,
+  retried: boolean,
+  preserveSessionOnUnauthorized: boolean,
+): Promise<boolean> {
+  if (status !== HTTP_STATUS.unauthorized || retried || preserveSessionOnUnauthorized) return false;
+  if (!tokenStore.getAccessToken()) return false;
   const refreshedToken = await refreshAccessToken();
   if (refreshedToken) return true;
   signalLogout();
   return false;
 }
 
+function buildRequestHeaders(requestBody: unknown, initialHeaders?: HeadersInit): Headers {
+  const headers = new Headers(initialHeaders);
+  headers.set("accept", "application/json");
+  const isFormData = typeof FormData !== "undefined" && requestBody instanceof FormData;
+  if (!isFormData && requestBody !== undefined) headers.set("content-type", "application/json");
+  const accessToken = tokenStore.getAccessToken();
+  if (accessToken) {
+    for (const [key, value] of Object.entries(createAuthHeaders(accessToken)))
+      headers.set(key, value);
+  }
+  return headers;
+}
+
+async function sendRequest(path: string, options: RequestOptions): Promise<Response> {
+  const { timeoutMs, body: requestBody, ...requestOptions } = options;
+  const isFormData = typeof FormData !== "undefined" && requestBody instanceof FormData;
+  const headers = buildRequestHeaders(requestBody, options.headers);
+  return fetch(createRequestUrl(path), {
+    ...requestOptions,
+    ...(requestBody === undefined
+      ? {}
+      : { body: isFormData ? requestBody : JSON.stringify(requestBody) }),
+    credentials: capabilities.refreshCookie ? "include" : "same-origin",
+    headers,
+    signal: combineSignals(options.signal, timeoutMs ?? HTTP_DEFAULT_TIMEOUT_MS),
+  });
+}
+
 function validateResponse<T>(response: Response, schema: ZodType<T>, body: unknown): T {
-  if (!response.ok) throw normalizeAppError(body, response.status);
+  if (!response.ok) {
+    const error = normalizeAppError(body, response.status);
+    const retryAfter = Number(response.headers.get("retry-after"));
+    if (response.status === 429 && Number.isFinite(retryAfter) && retryAfter > 0) {
+      throw new AppError({
+        ...error,
+        details: {
+          ...(typeof error.details === "object" && error.details ? error.details : {}),
+          retryAfterSeconds: retryAfter,
+        },
+      });
+    }
+    throw error;
+  }
+  if (response.status === 204) return undefined as T;
   const parsed = schema.safeParse(body);
   if (parsed.success) return parsed.data;
   throw new AppError({
@@ -71,6 +120,7 @@ function validateResponse<T>(response: Response, schema: ZodType<T>, body: unkno
 }
 
 setRefreshHandler(async () => {
+  if (!capabilities.refreshCookie) return null;
   try {
     const response = await fetch(createRequestUrl(HTTP_REFRESH_PATH), {
       method: "POST",
@@ -94,25 +144,16 @@ async function executeRequest<T>(
   options: RequestOptions,
   retried: boolean,
 ): Promise<T> {
-  const { timeoutMs, body: requestBody, ...requestOptions } = options;
-  const headers = new Headers(options.headers);
-  headers.set("accept", "application/json");
-  headers.set("content-type", "application/json");
-  const accessToken = tokenStore.getAccessToken();
-  if (accessToken) {
-    for (const [key, value] of Object.entries(createAuthHeaders(accessToken)))
-      headers.set(key, value);
-  }
-
   try {
-    const response = await fetch(createRequestUrl(path), {
-      ...requestOptions,
-      ...(requestBody === undefined ? {} : { body: JSON.stringify(requestBody) }),
-      headers,
-      signal: combineSignals(options.signal, timeoutMs ?? HTTP_DEFAULT_TIMEOUT_MS),
-    });
+    const response = await sendRequest(path, options);
     const body = await readJson(response);
-    if (await retryAfterUnauthorized(response.status, retried))
+    if (
+      await retryAfterUnauthorized(
+        response.status,
+        retried,
+        options.preserveSessionOnUnauthorized === true,
+      )
+    )
       return executeRequest(path, schema, options, true);
     return validateResponse(response, schema, body);
   } catch (error) {

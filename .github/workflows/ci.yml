@@ -25,14 +25,17 @@ jobs:
       - run: node --version
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+      - run: pnpm format:check
       - run: pnpm lint:rules
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
         env:
           VITE_API_ORIGIN: https://api.example.invalid
+          VITE_UPLOAD_ORIGINS: https://api.cloudinary.com
       - run: pnpm check:bundle-size
       - run: pnpm check:no-dev-routes
+      - run: pnpm test:headers
       - run: pnpm --filter @noldg/portal exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - run: pnpm knip

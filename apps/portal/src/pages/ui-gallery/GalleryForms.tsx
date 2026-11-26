@@ -1,9 +1,12 @@
 import { useTranslation } from "react-i18next";
 import {
   Checkbox,
+  DateTimeField,
   FileDropzone,
+  FileRow,
   Grid,
   Heading,
+  MoneyField,
   PasswordField,
   RadioGroup,
   SearchField,
@@ -46,6 +49,14 @@ export function GalleryForms({ direction }: GalleryFormsProps) {
           hideLabel={t("hidePassword")}
         />
         <SearchField label={t("sampleSearch")} />
+        <DateTimeField id={`${prefix}-date-time`} label={t("sampleDateTime")} />
+        <MoneyField
+          id={`${prefix}-money`}
+          label={t("sampleMoney")}
+          value={120}
+          formattedLabel={t("sampleCurrentPrice")}
+          formattedValue={t("sampleFormattedMoney")}
+        />
         <Textarea
           id={`${prefix}-message`}
           label={t("sampleMessage")}
@@ -79,6 +90,17 @@ export function GalleryForms({ direction }: GalleryFormsProps) {
           files={[]}
           label={t("sampleDropzone")}
           maximumSize={t("sampleFileSize")}
+        />
+        <FileRow
+          name={t("sampleFileName")}
+          sizeLabel={t("sampleFileSize")}
+          statusLabel={t("sampleFileStatus")}
+          progressLabel={t("sampleProgress")}
+          progress={45}
+          removeLabel={t("sampleRemoveFile")}
+          retryLabel={t("sampleRetry")}
+          onRemove={() => undefined}
+          onRetry={() => undefined}
         />
       </Grid>
     </section>

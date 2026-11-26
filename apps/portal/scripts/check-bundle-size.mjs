@@ -9,8 +9,22 @@ const PORTAL_DIST_DIRECTORY = resolve(REPOSITORY_DIRECTORY, "apps/portal/dist");
 const MANIFEST_PATH = resolve(PORTAL_DIST_DIRECTORY, ".vite/manifest.json");
 const HTML_ENTRY_KEY = "index.html";
 const INITIAL_ROUTE_KEY = "src/app/layouts/AuthLayout.tsx";
-const MAX_ENTRY_GZIP_BYTES = 150_000;
+const STARTUP_KEY = "src/startPortal.tsx";
+const LOGIN_ROUTE_KEY = "src/features/auth/pages/LoginPage.tsx";
+const LOGIN_EXCLUDED_ROUTE_KEYS = [
+  "src/features/auth/pages/RegisterChoicePage.tsx",
+  "src/features/auth/pages/StudentRegistrationPage.tsx",
+  "src/features/auth/pages/TeacherRegistrationPage.tsx",
+];
+const LOGIN_EXCLUDED_CHUNK_PATTERNS = [
+  /RegisterChoicePage-/,
+  /StudentRegistrationPage-/,
+  /TeacherRegistrationPage-/,
+  /CatalogSystemSelect-/,
+];
+const MAX_LAZY_ROUTE_GZIP_BYTES = 80_000;
 const MAX_INITIAL_GZIP_BYTES = 250_000;
+const LARGEST_ROUTE_CHUNK_COUNT = 5;
 
 function readManifest() {
   try {
@@ -52,6 +66,20 @@ function collectRouteScripts(manifest, routeKey, scripts = new Set()) {
   return scripts;
 }
 
+function lazyChunks(manifest) {
+  return Object.entries(manifest)
+    .filter(
+      ([key, chunk]) =>
+        key !== STARTUP_KEY &&
+        chunk.isDynamicEntry === true &&
+        (key.startsWith("src/app/layouts/") ||
+          key.startsWith("src/pages/") ||
+          key.includes("/pages/")),
+    )
+    .map(([key, chunk]) => ({ key, file: chunk.file, gzipBytes: compressedSize(chunk.file) }))
+    .sort((left, right) => right.gzipBytes - left.gzipBytes);
+}
+
 function formatKilobytes(bytes) {
   return `${(bytes / 1000).toFixed(2)} kB gzip`;
 }
@@ -61,21 +89,50 @@ const entry = manifest[HTML_ENTRY_KEY];
 if (!entry) throw new Error("Production manifest has no entry chunk.");
 if (!manifest[INITIAL_ROUTE_KEY])
   throw new Error(`Initial route chunk missing: ${INITIAL_ROUTE_KEY}`);
+if (!manifest[LOGIN_ROUTE_KEY]) throw new Error(`Login route chunk missing: ${LOGIN_ROUTE_KEY}`);
 
 const entryGzipBytes = compressedSize(entry.file);
+const mainAppGzipBytes = compressedSize(manifest[STARTUP_KEY].file);
 const initialScripts = collectStaticScripts(manifest, HTML_ENTRY_KEY);
+collectStaticScripts(manifest, STARTUP_KEY, initialScripts);
 collectRouteScripts(manifest, INITIAL_ROUTE_KEY, initialScripts);
+collectRouteScripts(manifest, LOGIN_ROUTE_KEY, initialScripts);
+const loadedChunks = [...initialScripts].sort();
 const initialGzipBytes = [...initialScripts].reduce(
   (total, file) => total + compressedSize(file),
   0,
 );
-process.stdout.write(`Initial entry: ${formatKilobytes(entryGzipBytes)}\n`);
+const routes = lazyChunks(manifest);
+const largestRoutes = routes.slice(0, LARGEST_ROUTE_CHUNK_COUNT);
+process.stdout.write(`Portal entry: ${formatKilobytes(entryGzipBytes)}\n`);
+process.stdout.write(`Main app chunk: ${formatKilobytes(mainAppGzipBytes)}\n`);
 process.stdout.write(`Total initial JavaScript: ${formatKilobytes(initialGzipBytes)}\n`);
+process.stdout.write("JavaScript chunks loaded by /login:\n");
+loadedChunks.forEach((file) => {
+  process.stdout.write(`  ${file}: ${formatKilobytes(compressedSize(file))}\n`);
+});
+process.stdout.write("Largest lazy route chunks:\n");
+largestRoutes.forEach(({ key, gzipBytes }) => {
+  process.stdout.write(`  ${key}: ${formatKilobytes(gzipBytes)}\n`);
+});
 
 const violations = [];
-if (entryGzipBytes > MAX_ENTRY_GZIP_BYTES) violations.push("entry exceeds 150 kB gzip");
 if (initialGzipBytes > MAX_INITIAL_GZIP_BYTES)
   violations.push("initial JavaScript exceeds 250 kB gzip");
+LOGIN_EXCLUDED_ROUTE_KEYS.forEach((key) => {
+  const chunk = manifest[key];
+  if (chunk && initialScripts.has(chunk.file)) {
+    violations.push(`/login loads an excluded registration route chunk: ${key}`);
+  }
+});
+loadedChunks
+  .filter((file) => LOGIN_EXCLUDED_CHUNK_PATTERNS.some((pattern) => pattern.test(file)))
+  .forEach((file) => violations.push(`/login loads a registration-only chunk: ${file}`));
+routes
+  .filter(({ gzipBytes }) => gzipBytes > MAX_LAZY_ROUTE_GZIP_BYTES)
+  .forEach(({ key, gzipBytes }) => {
+    violations.push(`lazy route chunk ${key} exceeds 80 kB gzip (${formatKilobytes(gzipBytes)})`);
+  });
 if (violations.length) throw new Error(violations.join("; "));
 
 process.stdout.write("Portal JavaScript budgets passed.\n");

@@ -1,7 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreFiles": ["tools/lint-fixtures/**", "apps/portal/public/mockServiceWorker.js"],
-  "ignoreDependencies": ["@fontsource/ibm-plex-sans-arabic"],
+  "ignoreDependencies": ["@fontsource/ibm-plex-sans-arabic", "jest-axe"],
   "workspaces": {
     "apps/portal": { "entry": ["src/shared/i18n/formatting.ts"] },
     "packages/*": {}

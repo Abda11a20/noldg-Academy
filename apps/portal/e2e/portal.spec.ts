@@ -1,20 +1,9 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "./fixtures";
+import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
-const pageErrors = new WeakMap<Page, string[]>();
-
-test.beforeEach(({ page }) => {
-  const errors: string[] = [];
-  pageErrors.set(page, errors);
-  page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
-  });
-  page.on("pageerror", (error) => errors.push(error.message));
-});
-
-test.afterEach(({ page }) => {
-  expect(pageErrors.get(page) ?? []).toEqual([]);
-});
+const screenshots = resolve(process.cwd(), "../../docs/reports/screenshots");
+mkdirSync(screenshots, { recursive: true });
 
 test("portal loads and anonymous student routes redirect to login", async ({ page }) => {
   await page.goto("/login");
@@ -23,7 +12,7 @@ test("portal loads and anonymous student routes redirect to login", async ({ pag
     window.history.pushState({}, "", "/student");
     window.dispatchEvent(new PopStateEvent("popstate"));
   });
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page).toHaveURL(/\/login\?returnTo=%2Fstudent$/);
 });
 
 test("language switch updates document language and direction", async ({ page }) => {
@@ -39,7 +28,7 @@ test("development gallery renders both directions", async ({ page }) => {
   await expect(page.locator("section[dir='ltr']")).toBeVisible();
   await expect(page.getByRole("heading", { name: "معرض عناصر الواجهة" })).toBeVisible();
   await page.screenshot({
-    path: resolve(process.cwd(), "../../docs/reports/f1a-gallery-ar-1280.png"),
+    path: resolve(screenshots, "f1a-gallery-ar-1280.png"),
     fullPage: true,
   });
 });
@@ -60,7 +49,7 @@ test("development gallery covers Arabic and English at mobile and desktop widths
       page.getByRole("combobox", { name: /اختر مادة|Choose a subject/ }).first(),
     ).toBeVisible();
     await page.screenshot({
-      path: resolve(process.cwd(), `../../docs/reports/f1a-gallery-ar-${size.name}.png`),
+      path: resolve(screenshots, `f1a-gallery-ar-${size.name}.png`),
       fullPage: true,
     });
   }
@@ -71,7 +60,7 @@ test("development gallery covers Arabic and English at mobile and desktop widths
     await page.setViewportSize({ width: size.width, height: size.height });
     await expect(page.getByRole("heading", { name: "Form components" }).first()).toBeVisible();
     await page.screenshot({
-      path: resolve(process.cwd(), `../../docs/reports/f1a-gallery-en-${size.name}.png`),
+      path: resolve(screenshots, `f1a-gallery-en-${size.name}.png`),
       fullPage: true,
     });
   }

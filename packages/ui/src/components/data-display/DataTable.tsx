@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { Button } from "../button/Button";
 import { Table } from "./Table";
+
 export interface DataColumn<Row> {
   id: string;
   header: string;
@@ -15,8 +17,15 @@ export interface DataTableProps<Row> {
   loadingContent: ReactNode;
   emptyContent: ReactNode;
   errorContent?: ReactNode;
+  onSort?: (columnId: string) => void;
+  sortLabel?: (columnLabel: string) => string;
+  rowActions?: (row: Row) => ReactNode;
+  actionColumnLabel?: string;
 }
-/** Displays caller-supplied rows, state content, and sort indicators without data logic. @param props Columns, rows, identity, and state slots. */
+
+/** Displays supplied table rows, responsive cards, state slots, sorting and row actions.
+ * @param props Columns, rows, identity, optional sort/action renderers, and states.
+ */
 export function DataTable<Row>({
   label,
   columns,
@@ -26,6 +35,10 @@ export function DataTable<Row>({
   loadingContent,
   emptyContent,
   errorContent,
+  onSort,
+  sortLabel,
+  rowActions,
+  actionColumnLabel,
 }: DataTableProps<Row>) {
   if (errorContent) return <>{errorContent}</>;
   if (loading) return <>{loadingContent}</>;
@@ -43,9 +56,26 @@ export function DataTable<Row>({
                   key={column.id}
                   scope="col"
                 >
-                  {column.header}
+                  {onSort && sortLabel ? (
+                    <Button
+                      aria-label={sortLabel(column.header)}
+                      iconEnd="sort"
+                      onClick={() => onSort(column.id)}
+                      size="sm"
+                      variant="ghost"
+                    >
+                      {column.header}
+                    </Button>
+                  ) : (
+                    column.header
+                  )}
                 </th>
               ))}
+              {rowActions ? (
+                <th className="px-3 py-2 text-start font-semibold text-foreground" scope="col">
+                  <span className="sr-only">{actionColumnLabel ?? label}</span>
+                </th>
+              ) : null}
             </tr>
           </thead>
           <tbody>
@@ -56,6 +86,7 @@ export function DataTable<Row>({
                     {column.render(row)}
                   </td>
                 ))}
+                {rowActions ? <td className="px-3 py-3">{rowActions(row)}</td> : null}
               </tr>
             ))}
           </tbody>
@@ -76,6 +107,7 @@ export function DataTable<Row>({
                 </div>
               ))}
             </dl>
+            {rowActions ? <div className="mt-3">{rowActions(row)}</div> : null}
           </article>
         ))}
       </div>

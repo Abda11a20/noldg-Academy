@@ -1,4 +1,7 @@
 referencebackend/
+*.postman_collection.json
+*.postman_environment.json
+docs/reports/screenshots/
 node_modules/
 **/node_modules/
 .pnpm-store/
@@ -10,4 +13,5 @@ coverage/
 !.env.example
 playwright-report/
 test-results/
+docs/reports/*.png
 .DS_Store

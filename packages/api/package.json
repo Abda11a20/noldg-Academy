@@ -7,11 +7,26 @@
   "exports": {
     "./http": "./src/http/client.ts",
     "./auth/token-store": "./src/auth/token-store.ts",
+    "./config/capabilities": "./src/config/capabilities.ts",
+    "./constants/auth": "./src/constants/auth.ts",
+    "./constants/http": "./src/constants/http.ts",
+    "./constants/admin": "./src/constants/admin.ts",
+    "./contracts/auth": "./src/contracts/auth.ts",
+    "./contracts/admin": "./src/contracts/admin.ts",
+    "./endpoints/auth": "./src/endpoints/auth/index.ts",
+    "./endpoints/admin": "./src/endpoints/admin/index.ts",
     "./auth/events": "./src/constants/http.ts",
     "./errors": "./src/errors/app-error.ts",
     "./contracts/common": "./src/contracts/common.ts",
+    "./contracts/catalog": "./src/contracts/catalog.ts",
+    "./contracts/catalog-editor": "./src/contracts/catalog-editor.ts",
+    "./endpoints/catalog": "./src/endpoints/catalog/index.ts",
+    "./uploads": "./src/uploads/uploadFile.ts",
     "./mocks/mode": "./src/mocks/mode.ts",
-    "./mocks/browser": "./src/mocks/browser.ts"
+    "./mocks/fixtures/auth": "./src/mocks/fixtures/auth.ts",
+    "./mocks/browser": "./src/mocks/browser.ts",
+    "./mocks/testing": "./src/mocks/testing.ts",
+    "./mocks/node": "./src/mocks/node.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

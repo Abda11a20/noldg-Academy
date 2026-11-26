@@ -55,7 +55,8 @@ describe("request", () => {
         return HttpResponse.json({ accessToken: "new-access" });
       }),
       http.get(`${apiOrigin}/sample`, ({ request: incoming }) =>
-        incoming.headers.get("token") === "new-access"
+        incoming.headers.get("token") === "new-access" ||
+        incoming.headers.get("authorization") === "Bearer new-access"
           ? HttpResponse.json({ ok: true })
           : HttpResponse.json({ message: "unauthorized" }, { status: 401 }),
       ),
@@ -75,7 +76,8 @@ describe("request", () => {
         return HttpResponse.json({ accessToken: "new-access" });
       }),
       http.get(`${apiOrigin}/sample`, ({ request: incoming }) =>
-        incoming.headers.get("token") === "new-access"
+        incoming.headers.get("token") === "new-access" ||
+        incoming.headers.get("authorization") === "Bearer new-access"
           ? HttpResponse.json({ ok: true })
           : HttpResponse.json({ message: "unauthorized" }, { status: 401 }),
       ),

@@ -2,39 +2,48 @@
 
 ## Decisions
 
-- F0 builds the frontend foundation only; no product pages are in scope.
-- referencebackend/ is read-only backend reference material. It is excluded from source tooling and Git; backend observations belong in docs/contract-differences.md.
-- F0 is merged into main at aab5296. F1A work is on feat/f1a-design-system, based on that main commit. Do not merge or push this branch.
-- Node 24 and pnpm 11 are required. ESLint 9.39.5 is retained because configured plugins do not declare ESLint 10 support; see ADR-006. Revisit when every configured plugin supports ESLint 10.
-- Noldg Academy is a provisional brand name in both languages, marked for owner confirmation.
-- F1A uses lucide-react in the sole icon registry and Radix primitives for Select, Checkbox, RadioGroup, and Switch. See ADR-007 and ADR-008.
-- UI components live in packages/ui; API calls and auth token storage live in packages/api.
-- F1A-FIX uses absolute portal JS gzip budgets: entry <=150 kB and initial-route total <=250 kB.
-- E2E uses a Node script to build a test-only gallery and mock-worker bundle, launch Vite preview on port 4174, run Playwright, fail on browser console/page errors, and terminate the preview. The standard production build does not include the gallery or mock worker.
-- API access-token memory storage with refresh-cookie flow is the target. sessionStorage fallback is temporary while the backend lacks a refresh endpoint.
+- The project builds only the frontend. `referencebackend/` remains a read-only contract source, excluded from Git and every tool configuration. Backend evidence is recorded in `docs/contract-differences.md`.
+- F0, F1A, and F2 are the foundation for the current F3 work on `feat/f3-foundation`. Keep F3 commits on its feature branch; do not merge it without owner review.
+- Node 24 and pnpm 11 are required. ESLint 9.39.5 stays until every configured plugin declares ESLint 10 support; see ADR-006 and Renovate notes.
+- Noldg Academy is the provisional brand name in both languages and remains marked for owner confirmation.
+- Shared UI components live in `packages/ui`; HTTP, auth contracts, adapters, and mocks live in `packages/api`. Portal screens consume the target auth contract and do not branch on backend shape.
+- Portal JS gzip budgets: every lazy route chunk <=80 kB and total initial route <=250 kB. New routes are lazy loaded; `pnpm check:bundle-size` reports entry, main app and largest route chunks.
+- E2E enables strict MSW unhandled-frame errors and fails on browser console errors or uncaught page errors. Its runner builds the mock worker and development gallery, serves on port 4174, and terminates the child process tree.
+- In-memory access token plus refresh-cookie is the target. `VITE_AUTH_STORAGE=session` remains a temporary fallback for the current backend, which has no refresh endpoint.
+- The auth target contract is in `docs/api-target-auth.md`; verified live-backend differences and evidence are in `docs/contract-differences.md`.
+- F3 target administration contract is in `docs/api-target-admin.md`; ADR-010 documents URL-backed list state and ADR-011 documents navigation and permission-aware UI.
 
 ## Module status
 
-- Monorepo, dependency catalog, security policy, CI, and developer hooks: implemented in F0; F1A adds design-system dependencies and F1A-FIX adds the bundle gate.
-- UI tokens, brand assets, and shared components: implemented. Latest coverage is 100% statements, branches, functions, and lines across packages/ui; 14 UI tests pass.
-- API client, token stores, normalized errors, common contracts, and MSW setup: implemented; 8 tests pass.
-- Portal shell, Arabic/English direction switching, guards, layouts, error handling, and dev-only UI gallery: implemented. E2E passed twice with MSW strict mode active (4/4 each; exit code 0); screenshots are under docs/reports/.
-- ESLint architecture rules and fixture proofs: 17/17 pass.
-- Latest lint, typecheck, unit/component tests, build, bundle budget, no-dev-route check, header tests, knip, and dependency-cruiser passed.
-- F1A-FIX left audit scripts unchanged and did not run audit commands; owner runs them outside sandbox. Current recorded moderate development-only minimatch advisory remains in docs/security-exceptions.md.
+- F0 monorepo, tooling, API client, mock setup, portal shell, tokens, and shared primitives are implemented.
+- F1A design-system extensions and F1A-FIX absolute bundle budgets are integrated into `main`.
+- F2 dependencies were added and installed by the owner: `react-hook-form@7.92.0` and `@hookform/resolvers@7.0.6`. The next patch release of the resolver was less than seven days old at install time.
+- F2 implementation provides auth contracts, capability flags, adapters, MSW scenarios, auth state/guards, Arabic/English auth screens, shared UI, and tests.
+- F3-FIX adds page-level MSW coverage for the academic and teacher administration scenarios, completes UI/API coverage thresholds, records resubmission status history, and fixes DropdownMenu RTL direction. The test matrix is in `docs/reports/f3-fix-report.md`.
+- F4 is implemented on `feat/f3-foundation`: teacher course and lesson pages, upload flow, bundles and server pricing preview, Cairo time helpers including DST cases, catalog contracts/adapters/endpoints/mocks, UI fields, gallery examples, capability fallbacks, and target-contract documentation. The owner installed the declared test dependencies; no install command was run in this step.
+- F4 validation passed: lint, lint-rule fixtures (17/17), typecheck, all unit/component tests, format check, headers (4/4), knip, dependency-cruiser, production build, bundle budgets, no-dev-route check, and E2E (31/31). The E2E negative proof also returned exit code 1 for a temporary failing test and the file was removed.
+- F4 handover results and remaining backend dependencies are recorded in `docs/reports/f4-report.md`.
+- Latest F3-FIX verification before F4: UI coverage was 100% on all four metrics; API coverage was 95.00% statements, 83.05% branches, 98.71% functions, and 96.74% lines.
+- Latest F4 production bundle: entry 1.44 kB gzip, main app 96.54 kB gzip, and total initial JavaScript 224.90 kB gzip. The largest lazy route was 9.30 kB gzip; `/login` excludes registration and teacher-registration chunks. The gallery is absent from the standard production build.
+- Latest F4 Playwright passed 31/31, covering auth, administration, teacher catalog, lesson upload/publish, bundle creation, and direction switching. Screenshots are in the gitignored `docs/reports/screenshots/` folder.
+- F4 coverage: UI 100% statements/branches/functions/lines; API 94.50% statements, 83.20% branches, 99.18% functions, and 96.10% lines. Both packages pass their enforced thresholds.
+- Test-only `@testing-library/dom`, `@testing-library/react`, `@testing-library/user-event`, and `jest-axe` are declared through the workspace catalog for the packages that use them; the previous Knip ignore for the removed alias hack has been removed.
+- Current live backend limitations for F3 are documented in `docs/contract-differences.md`, including restricted academic roles, no admin detail/rejection reason/race code, and missing server pagination/search/status filtering.
+- Owner runs `pnpm audit:prod` and `pnpm audit:full` outside this environment; the latest owner-provided audit result is from before F4 and should be refreshed before accepting F4.
 
 ## How to run
 
-- Install (when authorized): corepack pnpm@11.28.11 install --frozen-lockfile
-- Mock mode: VITE_API_MODE=mock pnpm dev (PowerShell: $env:VITE_API_MODE='mock'; pnpm dev).
-- Live mode: set public VITE_API_BASE_URL and VITE_API_MODE=live, then run pnpm dev.
-- Standard checks: pnpm lint, pnpm lint:rules, pnpm typecheck, pnpm test, pnpm build, pnpm check:bundle-size, pnpm check:no-dev-routes, pnpm test:headers, pnpm test:e2e.
-- Additional checks: pnpm knip, pnpm dependency-cruiser, pnpm audit:prod, pnpm audit:full. Production build requires VITE_API_ORIGIN.
-- Browser installation for E2E: pnpm --filter @noldg/portal exec playwright install chromium.
+- Install only when authorized: `corepack pnpm@11.28.11 install --frozen-lockfile`.
+- Mock portal: `pnpm dev` (mock mode is the default in Vite development).
+- Live portal: set public `VITE_API_MODE=live` and `VITE_API_BASE_URL`, then run `pnpm dev`. Never put secrets in Vite variables.
+- Production build requires public `VITE_API_ORIGIN` and `VITE_UPLOAD_ORIGINS` for hosting headers.
+- Standard checks: `pnpm lint`, `pnpm lint:rules`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm check:bundle-size`, `pnpm check:no-dev-routes`, `pnpm test:headers`, `pnpm test:e2e`, `pnpm knip`, and `pnpm dependency-cruiser`.
 
 ## Open questions
 
 - Owner confirmation of the provisional brand name and logo.
-- Backend refresh endpoint and refresh-cookie contract are not available yet; differences are in docs/contract-differences.md.
-- Run pnpm audit:prod and pnpm audit:full outside sandbox; these were not run during F1A-FIX.
-- Third-party visualizer is not installed. F1A-FIX inspected the Vite manifest/chunk graph instead; consider a visualizer only if approved in a future step.
+- The target contract does not state an Egyptian phone-number pattern. Current backend only trims and caps phone values at 64 characters; frontend does not invent a stricter rule.
+- Backend team needs to confirm the target auth request and response examples in `docs/api-target-auth.md`.
+- The backend team must confirm the target catalog routes, multipart upload-ticket payloads, lesson-window enforcement, live-lesson support, and package lesson membership in `docs/api-target-catalog.md` before enabling unsupported live capabilities.
+- Backend owners must confirm the F3 target admin permissions, paginated list contracts, teacher detail/review payload, reasoned account status, and teacher resubmission route before enabling those capabilities in live mode.
+- The owner must run `pnpm audit:prod` and `pnpm audit:full` outside this environment before accepting F4; audits were intentionally not run here.

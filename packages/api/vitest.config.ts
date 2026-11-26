@@ -8,5 +8,9 @@ export default defineConfig({
     include: ["src/**/*.test.ts"],
     exclude: ["**/referencebackend/**", "**/node_modules/**", "**/dist/**"],
     setupFiles: ["./test/setup.ts"],
+    coverage: {
+      ...vitestPreset.coverage,
+      thresholds: { statements: 93, branches: 83, functions: 98, lines: 95 },
+    },
   },
 });

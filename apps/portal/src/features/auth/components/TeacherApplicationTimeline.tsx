@@ -1,7 +1,7 @@
 import { Card, CardBody, CardHeader, Heading } from "@noldg/ui";
 import type { TeacherApplication } from "@noldg/api/contracts/admin";
 import { useTranslation } from "react-i18next";
-import { formatDate } from "../../../shared/i18n/formatting";
+import { formatCairoDateTime } from "../../../shared/time/time";
 
 interface TeacherApplicationTimelineProps {
   application?: TeacherApplication | undefined;
@@ -17,7 +17,7 @@ export function TeacherApplicationTimeline({
 }: TeacherApplicationTimelineProps) {
   const { t } = useTranslation("auth");
   const submittedAt = application
-    ? t("pending.timelineDate", { date: formatDate(application.submittedAt) })
+    ? t("pending.timelineDate", { date: formatCairoDateTime(application.submittedAt) })
     : "";
   const decisionKey = rejected ? "pending.rejected" : "pending.decisionPending";
   return (
@@ -33,7 +33,7 @@ export function TeacherApplicationTimeline({
             application?.statusHistory.map((event, index) => (
               <li key={`${event.status}-${event.occurredAt}-${index}`}>
                 {t(`pending.history.${event.status}`)}
-                {t("pending.timelineDate", { date: formatDate(event.occurredAt) })}
+                {t("pending.timelineDate", { date: formatCairoDateTime(event.occurredAt) })}
                 {event.reason ? `: ${event.reason}` : ""}
               </li>
             ))

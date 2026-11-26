@@ -42,6 +42,14 @@
   "showPassword": "Show password",
   "hidePassword": "Hide password",
   "sampleSearch": "Search courses",
+  "sampleDateTime": "Available from",
+  "sampleMoney": "Price in EGP",
+  "sampleCurrentPrice": "Current price",
+  "sampleFormattedMoney": "EGP 120",
+  "sampleFileName": "lesson.mp4",
+  "sampleFileStatus": "Uploading",
+  "sampleRemoveFile": "Remove file",
+  "sampleRetry": "Retry",
   "sampleMessage": "Message",
   "sampleSelect": "Choose a subject",
   "sampleOptionMath": "Mathematics",
@@ -82,14 +90,15 @@
     "label": "Pagination",
     "pageSize": "Rows per page",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "status": "Page {{page}} of {{pageCount}}"
   },
   "navigation": {
     "label": "Main navigation",
     "open": "Open navigation",
     "close": "Close navigation",
     "studentHome": "Student home",
-    "teacherHome": "Teacher home",
+    "teacherHome": "My courses",
     "adminHome": "Admin home",
     "academic": "Academic structure",
     "teachers": "Teachers"

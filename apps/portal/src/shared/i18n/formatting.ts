@@ -1,26 +1,30 @@
 const NUMBER_LOCALE = "en-EG";
-const DATE_TIME_ZONE = "Africa/Cairo";
+const ARABIC_LOCALE = "ar-EG";
+const ENGLISH_LOCALE = "en-EG";
 const EGP_CURRENCY = "EGP";
+const BYTES_PER_KILOBYTE = 1024;
 
 /** Formats a number with Latin digits and Egyptian grouping. */
 export function formatNumber(value: number): string {
   return new Intl.NumberFormat(NUMBER_LOCALE, { maximumFractionDigits: 2 }).format(value);
 }
 
-/** Formats a timestamp in the configured Cairo time zone. */
-export function formatDate(value: Date | string): string {
-  return new Intl.DateTimeFormat(NUMBER_LOCALE, {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: DATE_TIME_ZONE,
-  }).format(value instanceof Date ? value : new Date(value));
+/** Selects a formatting locale from the active translation language. */
+export function getFormattingLocale(language: string | undefined): string {
+  return language?.startsWith("ar") ? ARABIC_LOCALE : ENGLISH_LOCALE;
 }
 
-/** Formats an integer or decimal amount as Egyptian pounds using Latin digits. */
-export function formatCurrency(value: number | string): string {
+/** Formats a server-supplied integer or decimal amount as Egyptian pounds using Latin digits. */
+export function formatMoney(value: number | string): string {
   return new Intl.NumberFormat(NUMBER_LOCALE, {
     style: "currency",
     currency: EGP_CURRENCY,
     maximumFractionDigits: 2,
   }).format(Number(value));
+}
+
+/** Formats a file size with localized grouping and a binary megabyte unit. */
+export function formatFileSize(bytes: number): string {
+  const megabytes = bytes / (BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE);
+  return `${formatNumber(megabytes)} MB`;
 }

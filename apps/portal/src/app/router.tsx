@@ -105,8 +105,33 @@ const routes: RouteObject[] = [
       {
         index: true,
         lazy: async () => ({
-          Component: (await import("../features/auth/pages/RoleLandingPage")).RoleLandingPage,
+          Component: (await import("../features/catalog-teacher/pages/TeacherCoursesPage"))
+            .TeacherCoursesPage,
         }),
+      },
+      {
+        path: "courses/:courseId",
+        lazy: async () => ({
+          Component: (await import("../features/catalog-teacher/pages/TeacherCoursePage"))
+            .TeacherCoursePage,
+        }),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "courses/:courseId/lessons/new",
+        lazy: async () => ({
+          Component: (await import("../features/catalog-teacher/pages/LessonEditorPage"))
+            .LessonEditorPage,
+        }),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "courses/:courseId/lessons/:lessonId",
+        lazy: async () => ({
+          Component: (await import("../features/catalog-teacher/pages/LessonEditorPage"))
+            .LessonEditorPage,
+        }),
+        errorElement: <RouteErrorPage />,
       },
     ],
   },

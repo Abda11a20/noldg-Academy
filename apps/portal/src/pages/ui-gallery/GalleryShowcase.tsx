@@ -2,6 +2,7 @@ import { Container, Divider } from "@noldg/ui";
 import { GalleryData } from "./GalleryData";
 import { GalleryFeedback } from "./GalleryFeedback";
 import { GalleryForms } from "./GalleryForms";
+import { GalleryCatalog } from "./GalleryCatalog";
 
 export interface GalleryShowcaseProps {
   direction: "rtl" | "ltr";
@@ -15,6 +16,7 @@ export function GalleryShowcase({ direction }: GalleryShowcaseProps) {
       size="full"
     >
       <GalleryForms direction={direction} />
+      <GalleryCatalog />
       <GalleryFeedback />
       <GalleryData />
       <Divider />

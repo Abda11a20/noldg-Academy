@@ -12,7 +12,7 @@ import {
   Heading,
 } from "@noldg/ui";
 import { useTranslation } from "react-i18next";
-import { formatDate } from "../../../shared/i18n/formatting";
+import { formatCairoDateTime } from "../../../shared/time/time";
 import { ROUTE_PATHS } from "../../../shared/navigation/routes";
 import { APPLICATION_STATUS_LABEL_KEYS } from "../translation-keys";
 
@@ -116,7 +116,7 @@ export function ApplicationDetailView({
             <li>
               {t("admin:teachers.detail.timelineEntry", {
                 label: t("admin:teachers.statuses.submitted"),
-                date: formatDate(record.submittedAt),
+                date: formatCairoDateTime(record.submittedAt),
               })}
             </li>
             <li>{t("admin:teachers.statuses.review")}</li>
@@ -124,7 +124,7 @@ export function ApplicationDetailView({
               {t("admin:teachers.detail.timelineEntry", {
                 label: t("admin:teachers.statuses.decision"),
                 date: record.reviewedAt
-                  ? formatDate(record.reviewedAt)
+                  ? formatCairoDateTime(record.reviewedAt)
                   : t(APPLICATION_STATUS_LABEL_KEYS[record.status]),
               })}
             </li>

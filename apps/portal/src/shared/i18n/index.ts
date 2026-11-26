@@ -9,10 +9,12 @@ import enErrors from "./locales/en/errors.json";
 import enAuth from "./locales/en/auth.json";
 import arAdmin from "./locales/ar/admin.json";
 import enAdmin from "./locales/en/admin.json";
+import arCatalog from "./locales/ar/catalog.json";
+import enCatalog from "./locales/en/catalog.json";
 
 const resources = {
-  ar: { common: arCommon, errors: arErrors, auth: arAuth, admin: arAdmin },
-  en: { common: enCommon, errors: enErrors, auth: enAuth, admin: enAdmin },
+  ar: { common: arCommon, errors: arErrors, auth: arAuth, admin: arAdmin, catalog: arCatalog },
+  en: { common: enCommon, errors: enErrors, auth: enAuth, admin: enAdmin, catalog: enCatalog },
 } as const;
 
 void i18next.use(initReactI18next).init({
@@ -21,7 +23,7 @@ void i18next.use(initReactI18next).init({
   fallbackLng: brand.defaultLanguage,
   supportedLngs: [...brand.supportedLanguages],
   defaultNS: "common",
-  ns: ["common", "errors", "auth", "admin"],
+  ns: ["common", "errors", "auth", "admin", "catalog"],
   interpolation: { escapeValue: false },
   returnNull: false,
 });

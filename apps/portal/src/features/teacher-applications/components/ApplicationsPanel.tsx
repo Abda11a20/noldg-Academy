@@ -17,7 +17,7 @@ import { useListUrlState } from "../../../shared/navigation/useListUrlState";
 import { ROUTE_PATHS } from "../../../shared/navigation/routes";
 import { useTeacherApplicationList } from "../hooks/useTeacherAdministration";
 import { ApplicationPagination } from "./ApplicationPagination";
-import { formatDate } from "../../../shared/i18n/formatting";
+import { formatCairoDateTime } from "../../../shared/time/time";
 import { APPLICATION_STATUS_LABEL_KEYS, APPLICATION_STATUSES } from "../translation-keys";
 
 function applicationError(
@@ -75,7 +75,7 @@ export function ApplicationsPanel() {
       {
         id: "submitted",
         header: t("teachers.fields.submitted"),
-        render: (row: TeacherApplication) => formatDate(row.submittedAt),
+        render: (row: TeacherApplication) => formatCairoDateTime(row.submittedAt),
       },
     ],
     [t],

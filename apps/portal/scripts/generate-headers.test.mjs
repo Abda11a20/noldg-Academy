@@ -2,11 +2,20 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createHeaders } from "./generate-headers.mjs";
 
-test("uses the configured API origin in the CSP connect-src directive", () => {
-  assert.match(
-    createHeaders("https://api.example.test", "https://uploads.example.test"),
-    /connect-src 'self' https:\/\/api\.example\.test https:\/\/uploads\.example\.test;/,
+test("uses configured API and upload origins in the CSP connect-src and media-src directives", () => {
+  const headers = createHeaders(
+    "https://api.example.test",
+    "https://uploads.example.test,https://media.example.test",
   );
+  assert.match(
+    headers,
+    /connect-src 'self' https:\/\/api\.example\.test https:\/\/uploads\.example\.test https:\/\/media\.example\.test;/,
+  );
+  assert.match(
+    headers,
+    /media-src 'self' https:\/\/uploads\.example\.test https:\/\/media\.example\.test;/,
+  );
+  assert.doesNotMatch(headers, /res\.cloudinary\.com/u);
 });
 
 test("rejects a missing production API origin", () => {
@@ -30,6 +39,10 @@ test("requires valid HTTPS upload origins", () => {
   );
   assert.throws(
     () => createHeaders("https://api.example.test", "https://uploads.example.test/path"),
+    /HTTPS origins without paths/,
+  );
+  assert.throws(
+    () => createHeaders("https://api.example.test", "http://uploads.example.test"),
     /HTTPS origins without paths/,
   );
 });

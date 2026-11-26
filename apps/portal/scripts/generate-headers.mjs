@@ -30,7 +30,8 @@ export function createHeaders(apiOrigin, uploadOriginsValue) {
     return parsed.origin;
   });
 
-  return `/*\n  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' ${parsedOrigin.origin} ${parsedUploadOrigins.join(" ")}; media-src 'self' https://res.cloudinary.com; worker-src 'self'; upgrade-insecure-requests\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n  Cross-Origin-Opener-Policy: same-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n`;
+  const uploadSources = parsedUploadOrigins.join(" ");
+  return `/*\n  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' ${parsedOrigin.origin} ${uploadSources}; media-src 'self' ${uploadSources}; worker-src 'self'; upgrade-insecure-requests\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n  Cross-Origin-Opener-Policy: same-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n`;
 }
 
 if (globalThis.process.argv[1] === fileURLToPath(import.meta.url)) {

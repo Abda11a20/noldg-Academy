@@ -139,6 +139,8 @@ The one-time visualizer run recorded the largest contributing source modules bef
 | `31949c0`            | `feat(ui): add order flow primitives`                                                                                                                          |
 | `828b6fd`            | `feat(portal): add student purchases and admin orders`                                                                                                         |
 | `4e52ef3`            | `perf(portal): defer secondary route code`                                                                                                                     |
+| `5d330cd`            | `build(portal): add bundle visualizer dependency`                                                                                                              |
+| `03e5347`            | `build(portal): lock visualizer dependency`                                                                                                                    |
 | Documentation commit | This report and F6 handover docs are committed separately; its hash is included in the completion message because a report cannot contain its own commit hash. |
 
 ## 13. What the owner should review first

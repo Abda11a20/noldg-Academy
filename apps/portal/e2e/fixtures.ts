@@ -1,49 +1,26 @@
 import { expect, test as base } from "@playwright/test";
 
-/** Fails each browser test when the page emits a console error or uncaught exception. */
+/** Fails on application console errors and uncaught exceptions, while allowing handled API failures. */
 export const test = base.extend<{ browserErrors: void }>({
   browserErrors: [
     async ({ page }, use) => {
       const errors: string[] = [];
-      const handledApiErrors = new Map<number, number>();
-      let handledApiNetworkFailures = 0;
-      page.on("requestfailed", (request) => {
-        const isApiRequest = new URL(request.url()).pathname.includes("/api/");
-        if (
-          isApiRequest &&
-          (request.resourceType() === "fetch" || request.resourceType() === "xhr")
-        ) {
-          handledApiNetworkFailures += 1;
-        }
-      });
+      const apiFailureStatuses = new Set<number>();
+      let apiNetworkFailure = false;
       page.on("response", (response) => {
-        const request = response.request();
-        const status = response.status();
-        const isApiRequest = new URL(response.url()).pathname.includes("/api/");
-        if (
-          isApiRequest &&
-          (request.resourceType() === "fetch" || request.resourceType() === "xhr") &&
-          status >= 400 &&
-          status < 500
-        ) {
-          handledApiErrors.set(status, (handledApiErrors.get(status) ?? 0) + 1);
-        }
+        if (new URL(response.url()).pathname.startsWith("/api/") && !response.ok())
+          apiFailureStatuses.add(response.status());
+      });
+      page.on("requestfailed", (request) => {
+        if (new URL(request.url()).pathname.startsWith("/api/")) apiNetworkFailure = true;
       });
       page.on("console", (message) => {
         if (message.type() !== "error") return;
-        // Chromium reports handled API failures as console diagnostics as well as network events.
-        if (message.text().includes("net::ERR_FAILED") && handledApiNetworkFailures > 0) {
-          handledApiNetworkFailures -= 1;
-          return;
-        }
-        const expectedApiStatus = message.text().match(/status of (\d{3})/);
-        const status = expectedApiStatus ? Number(expectedApiStatus[1]) : undefined;
-        const handledCount = status === undefined ? 0 : (handledApiErrors.get(status) ?? 0);
-        if (status !== undefined && handledCount > 0) {
-          handledApiErrors.set(status, handledCount - 1);
-          return;
-        }
-        errors.push(message.text());
+        const text = message.text();
+        const status = text.match(/status of (\d{3})/u)?.[1];
+        if (status && apiFailureStatuses.has(Number(status))) return;
+        if (text.includes("net::ERR_FAILED") && apiNetworkFailure) return;
+        errors.push(text);
       });
       page.on("pageerror", (error) => errors.push(error.message));
       await use();

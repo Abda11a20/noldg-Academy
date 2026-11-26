@@ -59,7 +59,7 @@ test("admin opens academic and teacher administration at mobile and desktop widt
   const loginBody = (await loginResponse.json()) as { user?: { applicationStatus?: string } };
   expect(loginBody.user?.applicationStatus).toBe("approved");
   await expect(page).toHaveURL(/\/teacher$/);
-  await expect(page.getByText("Signed in as Teacher")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "My courses" })).toBeVisible();
   await page.screenshot({
     path: resolve(REPORTS, "f3-approved-teacher-en-1280.png"),
     fullPage: true,

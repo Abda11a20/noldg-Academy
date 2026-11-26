@@ -147,7 +147,7 @@ test("student, teacher, and admin login redirects by role", async ({ page }) => 
         ).toBeVisible();
         await expectAccessible(page);
       } else {
-        await expect(page.getByText("Signed in as Teacher")).toBeVisible();
+        await expect(page.getByRole("heading", { name: "My courses" })).toBeVisible();
         await expectAccessible(page);
         await page.screenshot({ path: resolve(screenshots, "f2-teacher.png"), fullPage: true });
       }

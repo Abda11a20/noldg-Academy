@@ -1,4 +1,5 @@
 import { expect, test } from "./fixtures";
+import { switchLanguage } from "./language";
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -71,7 +72,7 @@ test("admin opens academic and teacher administration at mobile and desktop widt
   await page.screenshot({ path: resolve(REPORTS, "f3-teachers-en-375.png"), fullPage: true });
   await page.getByRole("button", { name: "Close navigation" }).click();
 
-  await page.getByRole("button", { name: "Change language" }).click();
+  await switchLanguage(page, "en");
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await page.screenshot({ path: resolve(REPORTS, "f3-teachers-ar-375.png"), fullPage: true });

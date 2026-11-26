@@ -120,12 +120,38 @@ export function cairoLocalToIso(value: string, choice?: AmbiguousTimeChoice): st
   return selected.toISOString();
 }
 
+/** Converts a user-entered Cairo wall-clock value to ISO, returning undefined when DST makes it invalid.
+ * @param value Native datetime-local value.
+ * @param choice Resolution for the repeated wall-clock hour at a DST fall-back.
+ */
+export function tryCairoLocalToIso(
+  value: string,
+  choice: AmbiguousTimeChoice = "earlier",
+): string | undefined {
+  try {
+    return cairoLocalToIso(value, choice);
+  } catch {
+    return undefined;
+  }
+}
+
 /** Converts an ISO timestamp to the value accepted by a native datetime-local field in Cairo time. */
 export function isoToCairoLocal(value: string): string {
   const date = new Date(value);
   if (!Number.isFinite(date.getTime())) throw new RangeError("Expected a valid ISO timestamp.");
   const parts = getCairoParts(date);
   return `${String(parts.year).padStart(4, "0")}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}T${String(parts.hour).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`;
+}
+
+/** Converts an ISO timestamp to Cairo wall-clock input, returning undefined for invalid URL state.
+ * @param value Candidate timestamp restored from list filters.
+ */
+export function tryIsoToCairoLocal(value: string): string | undefined {
+  try {
+    return isoToCairoLocal(value);
+  } catch {
+    return undefined;
+  }
 }
 
 /** Formats an ISO timestamp for display in the configured Cairo time zone. */

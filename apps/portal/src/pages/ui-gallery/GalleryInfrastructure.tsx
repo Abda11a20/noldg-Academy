@@ -3,15 +3,21 @@ import {
   Breadcrumbs,
   Button,
   ConfirmDialog,
+  CopyButton,
+  Countdown,
   DropdownMenu,
   MobileNav,
   Pagination,
   Sidebar,
+  StatusBadge,
+  Stepper,
   Tabs,
+  Topbar,
   ToastProvider,
   useToast,
 } from "@noldg/ui";
 import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "../../shared/navigation/LanguageSwitcher";
 
 function ToastGallery() {
   const { t } = useTranslation("common");
@@ -35,7 +41,7 @@ function ToastGallery() {
  * @returns Direction-aware sample controls for the development gallery.
  */
 export function GalleryInfrastructure() {
-  const { t } = useTranslation(["common", "admin"]);
+  const { t } = useTranslation(["common", "admin", "orders"]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const links = [{ to: "/login", label: t("goHome"), icon: "home" as const }];
   const tabItems = [
@@ -44,6 +50,27 @@ export function GalleryInfrastructure() {
   ];
   return (
     <section className="space-y-4 rounded-md border border-border p-4">
+      <Topbar
+        logoAlt={t("logoAlt")}
+        userName={t("sampleDetails")}
+        roleLabel={t("galleryMenuLabel")}
+        userMenuSlot={
+          <DropdownMenu
+            trigger={t("galleryMenuLabel")}
+            triggerLabel={t("mobileAccountMenu")}
+            items={[{ id: "language", label: t("languageEnglish"), onSelect: () => undefined }]}
+          />
+        }
+        mobileNavigationSlot={
+          <MobileNav
+            items={links}
+            label={t("navigation.label")}
+            openLabel={t("navigation.open")}
+            closeLabel={t("navigation.close")}
+          />
+        }
+        languageSwitchSlot={<LanguageSwitcher />}
+      />
       <div className="flex flex-wrap gap-3">
         <Button onClick={() => setDialogOpen(true)}>{t("galleryDialogTrigger")}</Button>
         <DropdownMenu
@@ -91,6 +118,31 @@ export function GalleryInfrastructure() {
         onPageChange={() => undefined}
         onPageSizeChange={() => undefined}
       />
+      <Stepper
+        label={t("orders:stepsLabel")}
+        steps={t("orders:steps", { returnObjects: true }) as string[]}
+        currentStep={2}
+      />
+      <div className="flex flex-wrap items-center gap-3">
+        <CopyButton
+          value="ORD-2026-00041"
+          label={t("orders:copy")}
+          copiedLabel={t("orders:copied")}
+          copied={false}
+          onCopy={() => undefined}
+        />
+        <StatusBadge
+          status="awaiting_payment"
+          labels={{
+            awaiting_payment: t("orders:status.awaiting_payment"),
+            completed: t("orders:status.completed"),
+            rejected: t("orders:status.rejected"),
+            expired: t("orders:status.expired"),
+            cancelled: t("orders:status.cancelled"),
+          }}
+        />
+        <Countdown remainingSeconds={3600} label={t("orders:remainingTime")} />
+      </div>
     </section>
   );
 }

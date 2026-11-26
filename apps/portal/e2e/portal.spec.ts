@@ -1,6 +1,7 @@
 import { expect, test } from "./fixtures";
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
+import { switchLanguage } from "./language";
 
 const screenshots = resolve(process.cwd(), "../../docs/reports/screenshots");
 mkdirSync(screenshots, { recursive: true });
@@ -27,15 +28,35 @@ test("language switch updates document language and direction", async ({ page })
       path: resolve(screenshots, `f2-login-ar-${viewport.width}.png`),
       fullPage: true,
     });
-    await page.getByRole("button", { name: "تغيير اللغة" }).click();
+    await switchLanguage(page, "ar");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
     await page.screenshot({
       path: resolve(screenshots, `f2-login-en-${viewport.width}.png`),
       fullPage: true,
     });
-    await page.getByRole("button", { name: "Change language" }).click();
+    await switchLanguage(page, "en");
   }
+});
+
+test("mobile topbar keeps the language action in the account menu with touch-sized controls", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/login");
+  const accountMenu = page.getByRole("button", { name: "قائمة الحساب" });
+  await expect(accountMenu).toBeVisible();
+  const bounds = await accountMenu.boundingBox();
+  expect(bounds?.width).toBeGreaterThanOrEqual(44);
+  expect(bounds?.height).toBeGreaterThanOrEqual(44);
+  await accountMenu.click();
+  await expect(page.getByRole("menuitem", { name: "English" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect(
+    page.getByRole("banner").getByRole("button", { name: /Change language|تغيير اللغة/ }),
+  ).toBeVisible();
+  await expect(accountMenu).toBeHidden();
 });
 
 test("development gallery renders both directions", async ({ page }) => {
@@ -69,7 +90,7 @@ test("development gallery covers Arabic and English at mobile and desktop widths
       fullPage: true,
     });
   }
-  await page.getByRole("button", { name: "تغيير اللغة" }).click();
+  await page.getByRole("button", { name: "تغيير اللغة" }).first().click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
   for (const size of sizes) {

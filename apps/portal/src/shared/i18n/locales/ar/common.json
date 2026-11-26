@@ -2,6 +2,7 @@
   "appName": "Noldg Academy",
   "logoAlt": "شعار Noldg Academy",
   "changeLanguage": "تغيير اللغة",
+  "mobileAccountMenu": "قائمة الحساب",
   "languageArabic": "العربية",
   "languageEnglish": "English",
   "notFoundTitle": "الصفحة غير موجودة",
@@ -100,10 +101,12 @@
     "close": "إغلاق قائمة التنقل",
     "studentHome": "الرئيسية للطالب",
     "studentTeachers": "المعلمون",
+    "studentPurchases": "مشترياتي",
     "teacherHome": "كورساتي",
     "adminHome": "الرئيسية للإدارة",
     "academic": "الهيكل الدراسي",
-    "teachers": "المعلمون"
+    "teachers": "المعلمون",
+    "adminOrders": "الطلبات"
   },
   "galleryToastTitle": "تم الحفظ",
   "galleryToastBody": "تغييراتك جاهزة.",

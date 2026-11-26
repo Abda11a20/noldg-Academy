@@ -114,8 +114,21 @@ const routes: RouteObject[] = [
       {
         path: "checkout/:productId",
         lazy: async () => ({
-          Component: (await import("../features/student-browse/pages/CheckoutStubPage"))
-            .CheckoutStubPage,
+          Component: (await import("../features/orders/pages/CheckoutPage")).CheckoutPage,
+        }),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "purchases",
+        lazy: async () => ({
+          Component: (await import("../features/orders/pages/PurchasesPage")).PurchasesPage,
+        }),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "purchases/:orderId",
+        lazy: async () => ({
+          Component: (await import("../features/orders/pages/OrderDetailPage")).OrderDetailPage,
         }),
         errorElement: <RouteErrorPage />,
       },
@@ -190,6 +203,28 @@ const routes: RouteObject[] = [
         lazy: async () => ({
           Component: (await import("../features/teacher-applications/pages/ApplicationDetailPage"))
             .ApplicationDetailPage,
+        }),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "orders",
+        lazy: async () => ({
+          Component: (await import("../features/orders/pages/AdminOrdersPage")).AdminOrdersPage,
+        }),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "orders/new",
+        lazy: async () => ({
+          Component: (await import("../features/orders/pages/ManualOrderPage")).ManualOrderPage,
+        }),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "orders/:orderId",
+        lazy: async () => ({
+          Component: (await import("../features/orders/pages/AdminOrderDetailPage"))
+            .AdminOrderDetailPage,
         }),
         errorElement: <RouteErrorPage />,
       },

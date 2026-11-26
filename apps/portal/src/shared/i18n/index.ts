@@ -13,6 +13,8 @@ import arCatalog from "./locales/ar/catalog.json";
 import enCatalog from "./locales/en/catalog.json";
 import arBrowse from "./locales/ar/browse.json";
 import enBrowse from "./locales/en/browse.json";
+import arOrders from "./locales/ar/orders.json";
+import enOrders from "./locales/en/orders.json";
 
 const resources = {
   ar: {
@@ -22,6 +24,7 @@ const resources = {
     admin: arAdmin,
     catalog: arCatalog,
     browse: arBrowse,
+    orders: arOrders,
   },
   en: {
     common: enCommon,
@@ -30,6 +33,7 @@ const resources = {
     admin: enAdmin,
     catalog: enCatalog,
     browse: enBrowse,
+    orders: enOrders,
   },
 } as const;
 
@@ -39,7 +43,7 @@ void i18next.use(initReactI18next).init({
   fallbackLng: brand.defaultLanguage,
   supportedLngs: [...brand.supportedLanguages],
   defaultNS: "common",
-  ns: ["common", "errors", "auth", "admin", "catalog", "browse"],
+  ns: ["common", "errors", "auth", "admin", "catalog", "browse", "orders"],
   interpolation: { escapeValue: false },
   returnNull: false,
 });

@@ -1,5 +1,6 @@
 import { afterEach } from "vitest";
 import { cleanupHooks } from "../src/shared/testing/render-hook";
+import { resetOrderMockState } from "@noldg/api/mocks/testing";
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 
@@ -12,4 +13,7 @@ if (!("hasPointerCapture" in Element.prototype)) {
   Element.prototype.releasePointerCapture = () => undefined;
 }
 
-afterEach(cleanupHooks);
+afterEach(() => {
+  cleanupHooks();
+  resetOrderMockState();
+});

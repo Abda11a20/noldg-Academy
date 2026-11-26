@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { AppShell, MobileNav, Sidebar, Topbar, type NavItemProps } from "@noldg/ui";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { MobileAccountMenu } from "./MobileAccountMenu";
 import { useLocation } from "react-router";
 
 export interface PortalFrameProps {
@@ -38,6 +39,13 @@ export function PortalFrame({
       mobileNavigation={null}
       topbar={
         <Topbar
+          userMenuSlot={
+            <MobileAccountMenu
+              {...(logoutLabel ? { logoutLabel } : {})}
+              {...(onLogout ? { onLogout } : {})}
+              {...(loggingOut ? { loggingOut } : {})}
+            />
+          }
           mobileNavigationSlot={
             <MobileNav
               items={navItems}

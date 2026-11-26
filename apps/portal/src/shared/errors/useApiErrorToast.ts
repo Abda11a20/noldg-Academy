@@ -14,6 +14,17 @@ const CATALOG_ERROR_KEYS: Record<string, string> = {
   FILE_TYPE_NOT_ALLOWED: "uploadFileTypeNotAllowed",
 };
 
+const ORDER_ERROR_KEYS: Record<string, string> = {
+  ORDER_ALREADY_OPEN: "orderAlreadyOpen",
+  PRODUCT_NOT_PURCHASABLE: "productNotPurchasable",
+  PRODUCT_ALREADY_OWNED: "productAlreadyOwned",
+  TOO_MANY_OPEN_ORDERS: "tooManyOpenOrders",
+  ORDER_EXPIRED: "orderExpired",
+  ORDER_ALREADY_PROCESSED: "orderAlreadyProcessed",
+  ORDER_NOT_CANCELLABLE: "orderNotCancellable",
+  ORDER_PAYMENT_SUBMISSION_FAILED: "orderPaymentSubmissionFailed",
+};
+
 /** Reports a normalized, localized API error through the shared toast queue.
  * @returns Function accepting an unknown request failure; raw server text is never rendered.
  */
@@ -24,7 +35,8 @@ export function useApiErrorToast() {
     (error: unknown) => {
       const key =
         error instanceof AppError
-          ? (CATALOG_ERROR_KEYS[error.code] ??
+          ? (ORDER_ERROR_KEYS[error.code] ??
+            CATALOG_ERROR_KEYS[error.code] ??
             (error.code === "DUPLICATE_TRACK"
               ? "duplicateTrack"
               : error.message_key.replace("errors:", "")))

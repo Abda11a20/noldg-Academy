@@ -2,6 +2,7 @@ import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
+import { switchLanguage } from "./language";
 
 const screenshots = resolve(process.cwd(), "../../docs/reports/screenshots");
 mkdirSync(screenshots, { recursive: true });
@@ -24,7 +25,7 @@ async function signInStudent(page: Page) {
 
 async function chooseLanguage(page: Page, language: "ar" | "en") {
   if ((await page.locator("html").getAttribute("lang")) !== language) {
-    await page.getByRole("button", { name: /Change language|تغيير اللغة/ }).click();
+    await switchLanguage(page, language === "ar" ? "en" : "ar");
   }
   await expect(page.locator("html")).toHaveAttribute("lang", language);
   await expect(page.locator("html")).toHaveAttribute("dir", language === "ar" ? "rtl" : "ltr");
@@ -84,9 +85,8 @@ async function browseAtSizeAndLanguage(page: Page, width: number, language: "ar"
   });
   const subscribeLabel = language === "ar" ? "متابعة" : "Continue";
   await page.getByRole("link", { name: subscribeLabel }).first().click();
-  const checkoutText =
-    language === "ar" ? "ستتوفر في الخطوة القادمة" : "Available in the next step";
-  await expect(page.getByText(checkoutText)).toBeVisible();
+  const checkoutHeading = language === "ar" ? "إتمام الطلب" : "Checkout";
+  await expect(page.getByRole("heading", { name: checkoutHeading })).toBeVisible();
   await page.goBack();
   const listLabel = language === "ar" ? "معلمو صفك الدراسي" : "Teachers for your track";
   await page.getByRole("link", { name: listLabel }).click();
@@ -97,9 +97,7 @@ async function browseAtSizeAndLanguage(page: Page, width: number, language: "ar"
   await expect(page.getByRole("link", { name: teacherName })).toBeVisible();
 }
 
-test("student browses teacher list, details, checkout placeholder, and keeps URL filters", async ({
-  page,
-}) => {
+test("student browses teacher list, details, checkout, and keeps URL filters", async ({ page }) => {
   await page.route("https://res.cloudinary.com/**", (route) =>
     route.fulfill({
       status: 200,

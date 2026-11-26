@@ -1,4 +1,5 @@
 import { AppError } from "../errors/app-error";
+import type { ZodType } from "zod";
 import {
   CatalogCourseSchema,
   CatalogLessonSchema,
@@ -10,6 +11,18 @@ import { adaptAcademicSubject, adaptAcademicTrack } from "./admin";
 function unwrapData(payload: unknown): unknown {
   if (typeof payload !== "object" || payload === null || !("data" in payload)) return payload;
   return payload.data;
+}
+
+function parseMock<T>(schema: ZodType<T>, value: unknown): T {
+  const result = schema.safeParse(value);
+  if (!result.success) {
+    throw new AppError({
+      code: "RESPONSE_VALIDATION_FAILED",
+      status: 502,
+      message_key: "errors:invalidResponse",
+    });
+  }
+  return result.data;
 }
 
 function nestedId(value: unknown): string {
@@ -31,7 +44,7 @@ function nestedId(value: unknown): string {
 
 /** Maps current course records with nested academic models to the target course contract. */
 export function adaptCourse(value: unknown, mode: "mock" | "live" = "mock") {
-  if (mode === "mock") return CatalogCourseSchema.parse(value);
+  if (mode === "mock") return parseMock(CatalogCourseSchema, value);
   if (typeof value !== "object" || value === null)
     throw new AppError({
       code: "RESPONSE_VALIDATION_FAILED",
@@ -62,7 +75,7 @@ export function adaptCourse(value: unknown, mode: "mock" | "live" = "mock") {
 
 /** Adapts legacy lesson field names and video metadata to the target lesson contract. */
 export function adaptLesson(value: unknown, mode: "mock" | "live" = "mock") {
-  if (mode === "mock") return CatalogLessonSchema.parse(value);
+  if (mode === "mock") return parseMock(CatalogLessonSchema, value);
   if (typeof value !== "object" || value === null)
     throw new AppError({
       code: "RESPONSE_VALIDATION_FAILED",
@@ -103,7 +116,7 @@ function adaptLegacyVideo(value: unknown): { publicId: string; format: string } 
 
 /** Maps a legacy product model to the target package product contract. */
 export function adaptProduct(value: unknown, mode: "mock" | "live" = "mock") {
-  if (mode === "mock") return CatalogProductSchema.parse(value);
+  if (mode === "mock") return parseMock(CatalogProductSchema, value);
   if (typeof value !== "object" || value === null)
     throw new AppError({
       code: "RESPONSE_VALIDATION_FAILED",
@@ -136,7 +149,7 @@ export function adaptProduct(value: unknown, mode: "mock" | "live" = "mock") {
  * @param mode Active API mode; mock tickets already use the target shape.
  */
 export function adaptUploadTicket(value: unknown, mode: "mock" | "live" = "mock") {
-  if (mode === "mock") return UploadTicketSchema.parse(value);
+  if (mode === "mock") return parseMock(UploadTicketSchema, value);
   const source = unwrapData(value);
   if (
     typeof source !== "object" ||

@@ -8,6 +8,7 @@ import {
 } from "../constants";
 
 interface BrowseFiltersProps {
+  disabled?: boolean;
   search: string;
   subjectId: string;
   minRating: string;
@@ -24,6 +25,7 @@ interface BrowseFiltersProps {
 export function BrowseFilters(props: BrowseFiltersProps) {
   const { t } = useTranslation("browse");
   const [open, setOpen] = useState(false);
+  const disabled = props.disabled ?? false;
   const controls = (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
       <SearchField
@@ -31,6 +33,7 @@ export function BrowseFilters(props: BrowseFiltersProps) {
         label={t("searchLabel")}
         placeholder={t("searchPlaceholder")}
         value={props.search}
+        disabled={disabled}
         onChange={(event) => props.onSearch(event.currentTarget.value)}
       />
       <Select
@@ -38,6 +41,7 @@ export function BrowseFilters(props: BrowseFiltersProps) {
         label={t("subjectFilter")}
         placeholder={t("anySubject")}
         value={props.subjectId}
+        disabled={disabled}
         options={STUDENT_BROWSE_SUBJECTS.map((item) => ({
           value: item.id,
           label: t(item.labelKey),
@@ -49,6 +53,7 @@ export function BrowseFilters(props: BrowseFiltersProps) {
         label={t("ratingFilter")}
         placeholder={t("anyRating")}
         value={props.minRating}
+        disabled={disabled}
         options={STUDENT_BROWSE_RATINGS.map((value) => ({
           value,
           label: t("minimumRating", { value }),
@@ -59,12 +64,14 @@ export function BrowseFilters(props: BrowseFiltersProps) {
         id="browse-free"
         label={t("freeFilter")}
         checked={props.hasFreeLessons}
+        disabled={disabled}
         onCheckedChange={(checked) => props.onFreeLessons(checked === true)}
       />
       <Select
         id="browse-sort"
         label={t("sortLabel")}
         value={props.sort}
+        disabled={disabled}
         options={STUDENT_BROWSE_SORTS.map((value) => ({ value, label: t(`sort.${value}`) }))}
         placeholder={t("sortLabel")}
         onValueChange={props.onSort}
@@ -75,7 +82,7 @@ export function BrowseFilters(props: BrowseFiltersProps) {
     <>
       <div className="hidden md:block">{controls}</div>
       <div className="md:hidden">
-        <Button variant="secondary" onClick={() => setOpen(true)}>
+        <Button variant="secondary" disabled={disabled} onClick={() => setOpen(true)}>
           {t("openFilters")}
         </Button>
         <Dialog

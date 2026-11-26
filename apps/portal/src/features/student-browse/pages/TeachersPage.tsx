@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router";
 import { capabilities } from "@noldg/api/config/capabilities";
+import { apiMode } from "@noldg/api/mocks/mode";
 import type { BrowseTeacherQuery } from "@noldg/api/contracts/browse";
 import { Badge, Heading, Text } from "@noldg/ui";
 import { useListUrlState } from "../../../shared/navigation/useListUrlState";
@@ -44,6 +45,14 @@ function queryFromState(
   };
 }
 
+function browseControlsDisabled(): { trackDisabled: boolean; filtersDisabled: boolean } {
+  const liveMode = apiMode === "live";
+  return {
+    trackDisabled: liveMode && !capabilities.studentTrackFilter,
+    filtersDisabled: liveMode && !capabilities.teacherBrowseFilters,
+  };
+}
+
 /** Renders the URL-backed, server-filtered student teacher list and its request states. */
 export function TeachersPage() {
   const { t, i18n } = useTranslation(["browse", "common"]);
@@ -63,6 +72,7 @@ export function TeachersPage() {
   );
   const result = useBrowseTeachers(query);
   const [params] = useSearchParams();
+  const { trackDisabled, filtersDisabled } = browseControlsDisabled();
   const setFilter = (key: string, value: string | undefined) => {
     const filters = { ...listState.state.filters };
     if (value) filters[key] = value;
@@ -74,10 +84,15 @@ export function TeachersPage() {
     <section className="flex flex-col gap-5">
       <Heading level={1}>{t("teachersTitle")}</Heading>
       {manual ? (
-        <StudentTrackSelector {...(trackId ? { trackId } : {})} onChange={setTrack} />
+        <StudentTrackSelector
+          {...(trackId ? { trackId } : {})}
+          disabled={trackDisabled}
+          onChange={setTrack}
+        />
       ) : null}
       <BrowseCapabilityNotice />
       <BrowseFilters
+        disabled={filtersDisabled}
         search={listState.state.search}
         subjectId={listState.state.filters.subjectId ?? ""}
         minRating={listState.state.filters.minRating ?? ""}

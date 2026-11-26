@@ -22,7 +22,7 @@ export function MobileNav({ items, label, openLabel, closeLabel, trigger }: Mobi
       <Primitive.Trigger asChild>
         <Button
           aria-label={openLabel}
-          className="md:hidden"
+          className="min-h-11 min-w-11 md:hidden"
           iconOnly
           iconStart="menu"
           variant="ghost"

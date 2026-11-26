@@ -24,7 +24,7 @@ export function DropdownMenu({ trigger, triggerLabel, items }: DropdownMenuProps
     <Primitive.Root dir={direction === "rtl" ? "rtl" : "ltr"}>
       <Primitive.Trigger
         aria-label={triggerLabel}
-        className="inline-flex rounded-md p-2 text-foreground hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-focus-ring"
+        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md p-2 text-foreground hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-focus-ring"
       >
         {trigger}
       </Primitive.Trigger>

@@ -9,5 +9,14 @@ export default defineConfig({
     exclude: ["**/referencebackend/**", "**/node_modules/**", "**/dist/**"],
     setupFiles: ["../../packages/api/test/setup.ts", "./test/setup.ts"],
     passWithNoTests: true,
+    coverage: {
+      ...vitestPreset.coverage,
+      thresholds: {
+        statements: 82.13,
+        branches: 63.95,
+        functions: 70.58,
+        lines: 84.65,
+      },
+    },
   },
 });

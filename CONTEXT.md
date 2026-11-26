@@ -3,7 +3,7 @@
 ## Decisions
 
 - The project builds only the frontend. `referencebackend/` remains a read-only contract source, excluded from Git and every tool configuration. Backend evidence is recorded in `docs/contract-differences.md`.
-- F0, F1A, and F2 are the foundation for the current F3 work on `feat/f3-foundation`. Keep F3 commits on its feature branch; do not merge it without owner review.
+- F0 through F4 are integrated foundation steps. F5 is implemented on `feat/f5-student-browse`; keep its branch for owner review and do not merge without owner approval.
 - Node 24 and pnpm 11 are required. ESLint 9.39.5 stays until every configured plugin declares ESLint 10 support; see ADR-006 and Renovate notes.
 - Noldg Academy is the provisional brand name in both languages and remains marked for owner confirmation.
 - Shared UI components live in `packages/ui`; HTTP, auth contracts, adapters, and mocks live in `packages/api`. Portal screens consume the target auth contract and do not branch on backend shape.
@@ -23,6 +23,11 @@
 - F4 is implemented on `feat/f3-foundation`: teacher course and lesson pages, upload flow, bundles and server pricing preview, Cairo time helpers including DST cases, catalog contracts/adapters/endpoints/mocks, UI fields, gallery examples, capability fallbacks, and target-contract documentation. The owner installed the declared test dependencies; no install command was run in this step.
 - F4 validation passed: lint, lint-rule fixtures (17/17), typecheck, all unit/component tests, format check, headers (4/4), knip, dependency-cruiser, production build, bundle budgets, no-dev-route check, and E2E (31/31). The E2E negative proof also returned exit code 1 for a temporary failing test and the file was removed.
 - F4 handover results and remaining backend dependencies are recorded in `docs/reports/f4-report.md`.
+- F5 adds the student home, URL-backed teacher discovery, teacher detail previews, checkout placeholder, browse contracts/adapters/mocks, bilingual copy, and stricter explicit browser-error matching. Live browse capability gaps are recorded in `docs/contract-differences.md`.
+- F5 target browse API and server-owned availability/track decision are documented in `docs/api-target-browse.md` and ADR-014. Student profile, advanced teacher filters, rating summaries, starting price, server availability, and student course previews are unavailable in the current live backend and remain capability-off.
+- F5 verification passed: lint, lint-rule fixtures (17/17), typecheck, all unit/component tests with enforced thresholds, full-repository format check, headers tests (4/4), production build, bundle budgets, no-dev-route check, knip, dependency-cruiser, and E2E (31/31). Portal coverage is 85.24/66.31/73.44/87.61 (statements/branches/functions/lines), above its enforced baseline-minus-two thresholds; API is 94.62/83.49/98.95/96.49 and UI remains 100% on all four metrics. Temporary negative proofs confirmed a failing assertion and undeclared 418 make E2E exit non-zero; temporary tests were removed. Initial-route JavaScript is 228.69 kB gzip and lazy routes are below 10 kB gzip.
+- F5 browser screenshots are stored in the gitignored `docs/reports/screenshots/` directory. Arabic RTL and English desktop layouts were visually reviewed. The mobile topbar is dense at 375 px; browse content, filters, cards, and direction remain visible and usable.
+- Owner-run `pnpm audit:prod` and `pnpm audit:full` were not run during F5 and remain outstanding before acceptance.
 - Latest F3-FIX verification before F4: UI coverage was 100% on all four metrics; API coverage was 95.00% statements, 83.05% branches, 98.71% functions, and 96.74% lines.
 - Latest F4 production bundle: entry 1.44 kB gzip, main app 96.54 kB gzip, and total initial JavaScript 224.90 kB gzip. The largest lazy route was 9.30 kB gzip; `/login` excludes registration and teacher-registration chunks. The gallery is absent from the standard production build.
 - Latest F4 Playwright passed 31/31, covering auth, administration, teacher catalog, lesson upload/publish, bundle creation, and direction switching. Screenshots are in the gitignored `docs/reports/screenshots/` folder.
@@ -36,7 +41,7 @@
 - Install only when authorized: `corepack pnpm@11.28.11 install --frozen-lockfile`.
 - Mock portal: `pnpm dev` (mock mode is the default in Vite development).
 - Live portal: set public `VITE_API_MODE=live` and `VITE_API_BASE_URL`, then run `pnpm dev`. Never put secrets in Vite variables.
-- Production build requires public `VITE_API_ORIGIN` and `VITE_UPLOAD_ORIGINS` for hosting headers.
+- Production build requires public `VITE_API_ORIGIN`, `VITE_UPLOAD_ORIGINS`, and `VITE_IMAGE_ORIGINS` for hosting headers.
 - Standard checks: `pnpm lint`, `pnpm lint:rules`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm check:bundle-size`, `pnpm check:no-dev-routes`, `pnpm test:headers`, `pnpm test:e2e`, `pnpm knip`, and `pnpm dependency-cruiser`.
 
 ## Open questions

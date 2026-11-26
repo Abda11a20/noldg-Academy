@@ -24,6 +24,7 @@ import {
   listTeacherProducts,
   updatePackageProduct,
 } from "./products";
+export { getBrowseTeacher, listBrowseTeachers } from "./browse";
 
 const DEFAULT_PAGE = 1;
 const COURSE_LOOKUP_PAGE_SIZE = 100;

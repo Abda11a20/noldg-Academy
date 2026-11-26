@@ -43,6 +43,7 @@ const LOGIN_SCENARIOS = [
     email: AUTH_SCENARIO_EMAILS.wrongPassword,
     message: "The email or password is incorrect.",
     route: "/login",
+    expectedFailure: { method: "POST", urlPattern: /\/api\/auth\/login$/u, status: 401 },
   },
   {
     name: "pending teacher",
@@ -61,6 +62,7 @@ const LOGIN_SCENARIOS = [
     email: AUTH_SCENARIO_EMAILS.suspended,
     message: "This account is suspended. Contact support for help.",
     route: "/account-suspended",
+    expectedFailure: { method: "POST", urlPattern: /\/api\/auth\/login$/u, status: 403 },
   },
   {
     name: "device not registered",
@@ -68,23 +70,34 @@ const LOGIN_SCENARIOS = [
     message:
       "Your account is linked to another device. You can request a device change or sign out.",
     route: "/device-blocked",
+    expectedFailure: { method: "POST", urlPattern: /\/api\/auth\/login$/u, status: 403 },
   },
   {
     name: "429 response",
     email: AUTH_SCENARIO_EMAILS.rateLimited,
     message: "Too many attempts. Wait 30 seconds and try again.",
     route: "/login",
+    expectedFailure: { method: "POST", urlPattern: /\/api\/auth\/login$/u, status: 429 },
   },
   {
     name: "network failure",
     email: AUTH_SCENARIO_EMAILS.networkFailure,
     message: "The request could not be completed. Try again.",
     route: "/login",
+    expectedFailure: { method: "POST", urlPattern: /\/api\/auth\/login$/u, status: "network" },
   },
 ] as const;
 
 for (const scenario of LOGIN_SCENARIOS) {
-  test(`auth page handles ${scenario.name}`, async ({ page }) => {
+  test(`auth page handles ${scenario.name}`, async ({ page, declareExpectedApiFailure }) => {
+    if (scenario.expectedFailure) declareExpectedApiFailure(scenario.expectedFailure);
+    if (scenario.email === AUTH_SCENARIO_EMAILS.deviceBlocked) {
+      declareExpectedApiFailure({
+        method: "GET",
+        urlPattern: /\/api\/devices\/change-requests\/me$/u,
+        status: 404,
+      });
+    }
     await switchToEnglish(page);
     await page.getByLabel("Email address").fill(scenario.email);
     await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
@@ -103,25 +116,44 @@ const REGISTRATION_SCENARIOS = [
     email: AUTH_SCENARIO_EMAILS.emailTaken,
     phone: "+201111111113",
     message: "An account already uses this email address.",
+    expectedFailure: {
+      method: "POST",
+      urlPattern: /\/api\/auth\/register\/student$/u,
+      status: 409,
+    },
   },
   {
     name: "phone already taken",
     email: "new-student@example.test",
     phone: AUTH_SCENARIO_EMAILS.phoneTaken,
     message: "An account already uses this phone number.",
+    expectedFailure: {
+      method: "POST",
+      urlPattern: /\/api\/auth\/register\/student$/u,
+      status: 409,
+    },
   },
   {
     name: "validation details",
     email: AUTH_SCENARIO_EMAILS.validationError,
     phone: "+201111111114",
     message: "Check the information and try again.",
+    expectedFailure: {
+      method: "POST",
+      urlPattern: /\/api\/auth\/register\/student$/u,
+      status: 400,
+    },
   },
 ] as const;
 
 for (const scenario of REGISTRATION_SCENARIOS) {
-  test(`student registration handles ${scenario.name}`, async ({ page }) => {
+  test(`student registration handles ${scenario.name}`, async ({
+    page,
+    declareExpectedApiFailure,
+  }) => {
     await switchToEnglish(page);
     await fillStudentRegistration(page, scenario.email, scenario.phone);
+    declareExpectedApiFailure(scenario.expectedFailure);
     await page.getByRole("button", { name: "Create student account" }).click();
     await expect(page.getByText(scenario.message)).toBeVisible();
     if (scenario.name === "validation details") {
@@ -136,26 +168,33 @@ const OTP_SCENARIOS = [
     name: "invalid code",
     code: AUTH_OTP_SCENARIOS.invalid,
     message: "The code is incorrect.",
+    expectedFailure: { method: "POST", urlPattern: /\/api\/auth\/verify-email$/u, status: 400 },
   },
   {
     name: "expired code",
     code: AUTH_OTP_SCENARIOS.expired,
     message: "The code has expired. Request a new one.",
+    expectedFailure: { method: "POST", urlPattern: /\/api\/auth\/verify-email$/u, status: 400 },
   },
   {
     name: "rate limited code",
     code: AUTH_OTP_SCENARIOS.rateLimited,
     message: "Too many code attempts. Wait before trying again.",
+    expectedFailure: { method: "POST", urlPattern: /\/api\/auth\/verify-email$/u, status: 429 },
   },
 ] as const;
 
 for (const scenario of OTP_SCENARIOS) {
-  test(`email verification handles ${scenario.name}`, async ({ page }) => {
+  test(`email verification handles ${scenario.name}`, async ({
+    page,
+    declareExpectedApiFailure,
+  }) => {
     await switchToEnglish(page);
     await fillStudentRegistration(page, `otp-${scenario.name.replaceAll(" ", "-")}@example.test`);
     await page.getByRole("button", { name: "Create student account" }).click();
     await expect(page).toHaveURL(/\/verify-email$/);
     await enterCode(page, scenario.code);
+    declareExpectedApiFailure(scenario.expectedFailure);
     await page.getByRole("button", { name: "Verify email" }).click();
     await expect(page.getByText(scenario.message)).toBeVisible();
   });

@@ -7,6 +7,7 @@ export interface NavigationItem {
   icon: IconName;
   labelKey:
     | "navigation.studentHome"
+    | "navigation.studentTeachers"
     | "navigation.teacherHome"
     | "navigation.adminHome"
     | "navigation.academic"
@@ -19,6 +20,14 @@ export interface NavigationItem {
 const adminRoles = ["admin", "super_admin"] as const;
 
 const navigationItems: readonly NavigationItem[] = [
+  {
+    id: "student-teachers",
+    icon: "users",
+    labelKey: "navigation.studentTeachers",
+    route: ROUTE_PATHS.studentTeachers,
+    allowedRoles: ["student"],
+    enabled: true,
+  },
   {
     id: "student-home",
     icon: "home",

@@ -20,6 +20,7 @@
     "./contracts/common": "./src/contracts/common.ts",
     "./contracts/catalog": "./src/contracts/catalog.ts",
     "./contracts/catalog-editor": "./src/contracts/catalog-editor.ts",
+    "./contracts/browse": "./src/contracts/browse.ts",
     "./endpoints/catalog": "./src/endpoints/catalog/index.ts",
     "./uploads": "./src/uploads/uploadFile.ts",
     "./mocks/mode": "./src/mocks/mode.ts",

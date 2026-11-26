@@ -17,9 +17,25 @@ test("portal loads and anonymous student routes redirect to login", async ({ pag
 
 test("language switch updates document language and direction", async ({ page }) => {
   await page.goto("/login");
-  await page.getByRole("button", { name: "تغيير اللغة" }).click();
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+  for (const viewport of [
+    { width: 375, height: 812 },
+    { width: 1280, height: 800 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+    await page.screenshot({
+      path: resolve(screenshots, `f2-login-ar-${viewport.width}.png`),
+      fullPage: true,
+    });
+    await page.getByRole("button", { name: "تغيير اللغة" }).click();
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+    await page.screenshot({
+      path: resolve(screenshots, `f2-login-en-${viewport.width}.png`),
+      fullPage: true,
+    });
+    await page.getByRole("button", { name: "Change language" }).click();
+  }
 });
 
 test("development gallery renders both directions", async ({ page }) => {

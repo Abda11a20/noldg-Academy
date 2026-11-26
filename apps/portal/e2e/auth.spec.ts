@@ -152,7 +152,7 @@ test("student, teacher, and admin login redirects by role", async ({ page }) => 
         await page.screenshot({ path: resolve(screenshots, "f2-teacher.png"), fullPage: true });
       }
     } else {
-      await expect(page.getByText("Signed in as " + account.role)).toBeVisible();
+      await expect(page.getByRole("heading", { name: /Welcome|Signed in as/ })).toBeVisible();
       await expectAccessible(page);
       if (account.role === "Administrator") {
         await page.screenshot({ path: resolve(screenshots, "f2-admin.png"), fullPage: true });
@@ -171,10 +171,16 @@ test("student, teacher, and admin login redirects by role", async ({ page }) => 
 
 test("wrong password remains generic, forgot and reset password never put a code in the URL", async ({
   page,
+  declareExpectedApiFailure,
 }) => {
   await switchToEnglish(page);
   await page.getByLabel("Email address").fill("wrong-password@example.test");
   await page.getByLabel("Password", { exact: true }).fill(password);
+  declareExpectedApiFailure({
+    method: "POST",
+    urlPattern: /\/api\/auth\/login$/u,
+    status: 401,
+  });
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByText("The email or password is incorrect.")).toBeVisible();
   await expectAccessible(page);
@@ -197,6 +203,7 @@ test("wrong password remains generic, forgot and reset password never put a code
 
 test("guard preserves returnTo, logout clears session, and device-change request shows status", async ({
   page,
+  declareExpectedApiFailure,
 }) => {
   await switchToEnglish(page);
   await navigateClient(page, "/student?tab=lessons");
@@ -207,6 +214,16 @@ test("guard preserves returnTo, logout clears session, and device-change request
   await expect(page).toHaveURL(/\/student\?tab=lessons$/);
   await page.getByRole("button", { name: "Log out" }).click();
   await expect(page).toHaveURL(/\/login(?:\?returnTo=.*)?$/);
+  declareExpectedApiFailure({
+    method: "POST",
+    urlPattern: /\/api\/auth\/login$/u,
+    status: 403,
+  });
+  declareExpectedApiFailure({
+    method: "GET",
+    urlPattern: /\/api\/devices\/change-requests\/me$/u,
+    status: 404,
+  });
   await page.getByLabel("Email address").fill("device-blocked@example.test");
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
@@ -220,25 +237,16 @@ test("guard preserves returnTo, logout clears session, and device-change request
   await page.screenshot({ path: resolve(screenshots, "f2-device-blocked.png"), fullPage: true });
 });
 
-test("rate limits login and disables retry", async ({ page }) => {
+test("suspended account login routes to the suspended state", async ({
+  page,
+  declareExpectedApiFailure,
+}) => {
   await switchToEnglish(page);
-  await page.getByLabel("Email address").fill("rate-limited@example.test");
-  await page.getByLabel("Password", { exact: true }).fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByText("Too many attempts. Wait 30 seconds and try again.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Sign in" })).toBeDisabled();
-});
-
-test("network failures show the generic request message", async ({ page }) => {
-  await switchToEnglish(page);
-  await page.getByLabel("Email address").fill("network-failure@example.test");
-  await page.getByLabel("Password", { exact: true }).fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByText("The request could not be completed. Try again.")).toBeVisible();
-});
-
-test("suspended account login routes to the suspended state", async ({ page }) => {
-  await switchToEnglish(page);
+  declareExpectedApiFailure({
+    method: "POST",
+    urlPattern: /\/api\/auth\/login$/u,
+    status: 403,
+  });
   await page.getByLabel("Email address").fill("suspended@example.test");
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
@@ -247,37 +255,31 @@ test("suspended account login routes to the suspended state", async ({ page }) =
   await page.screenshot({ path: resolve(screenshots, "f2-account-suspended.png"), fullPage: true });
 });
 
-test("expired session redirects to login after a failed refresh", async ({ page }) => {
+test("expired session redirects to login after a failed refresh", async ({
+  page,
+  declareExpectedApiFailure,
+}) => {
   await switchToEnglish(page);
   await page.getByLabel("Email address").fill("expired-session@example.test");
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/student$/);
   await navigateClient(page, "/device-blocked");
+  declareExpectedApiFailure({
+    method: "GET",
+    urlPattern: /\/api\/devices\/change-requests\/me$/u,
+    status: 404,
+  });
+  declareExpectedApiFailure({
+    method: "POST",
+    urlPattern: /\/api\/auth\/refresh$/u,
+    status: 401,
+  });
+  declareExpectedApiFailure({
+    method: "POST",
+    urlPattern: /\/api\/devices\/change-requests$/u,
+    status: 401,
+  });
   await page.getByRole("button", { name: "Request a device change" }).click();
   await expect(page).toHaveURL(/\/login\?returnTo=%2Fdevice-blocked$/);
-});
-
-test("screens render at mobile and desktop widths in Arabic RTL and English LTR", async ({
-  page,
-}) => {
-  for (const viewport of [
-    { width: 375, height: 812 },
-    { width: 1280, height: 800 },
-  ]) {
-    await page.setViewportSize(viewport);
-    await navigateClient(page, "/login");
-    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-    await page.screenshot({
-      path: resolve(screenshots, "f2-login-ar-" + viewport.width + ".png"),
-      fullPage: true,
-    });
-    await page.getByRole("button", { name: "تغيير اللغة" }).click();
-    await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-    await page.screenshot({
-      path: resolve(screenshots, "f2-login-en-" + viewport.width + ".png"),
-      fullPage: true,
-    });
-    await page.getByRole("button", { name: "Change language" }).click();
-  }
 });

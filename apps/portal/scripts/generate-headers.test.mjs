@@ -79,3 +79,24 @@ test("requires valid HTTPS upload origins", () => {
     /VITE_IMAGE_ORIGINS must contain HTTPS origins/,
   );
 });
+
+test("rejects wildcard hosts in image origins", () => {
+  assert.throws(
+    () =>
+      createHeaders(
+        "https://api.example.test",
+        "https://uploads.example.test",
+        "https://*.example.test",
+      ),
+    /VITE_IMAGE_ORIGINS must not contain wildcard hosts/,
+  );
+  assert.throws(
+    () =>
+      createHeaders(
+        "https://api.example.test",
+        "https://uploads.example.test",
+        "https://images.example.test,https://cdn*.example.test",
+      ),
+    /VITE_IMAGE_ORIGINS must not contain wildcard hosts/,
+  );
+});

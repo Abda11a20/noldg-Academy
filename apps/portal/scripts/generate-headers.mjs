@@ -35,6 +35,9 @@ export function createHeaders(apiOrigin, uploadOriginsValue, imageOriginsValue) 
   }
   const imageOrigins = imageOriginsValue.split(",").map((value) => value.trim());
   const parsedImageOrigins = imageOrigins.map((origin) => {
+    if (origin.includes("*")) {
+      throw new Error("VITE_IMAGE_ORIGINS must not contain wildcard hosts.");
+    }
     const parsed = new globalThis.URL(origin);
     if (parsed.protocol !== "https:" || parsed.origin !== origin) {
       throw new Error("VITE_IMAGE_ORIGINS must contain HTTPS origins without paths or queries.");

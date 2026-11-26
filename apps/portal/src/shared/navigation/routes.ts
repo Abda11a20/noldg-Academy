@@ -11,6 +11,9 @@ export const ROUTE_PATHS = {
   teacherPending: "/teacher/pending",
   accountSuspended: "/account-suspended",
   student: "/student",
+  studentTeachers: "/student/teachers",
+  studentTeacherDetail: "/student/teachers/:teacherId",
+  studentCheckout: "/student/checkout/:productId",
   teacher: "/teacher",
   teacherCourse: "/teacher/courses/:courseId",
   teacherLessonNew: "/teacher/courses/:courseId/lessons/new",
@@ -23,6 +26,20 @@ export const ROUTE_PATHS = {
   uiGallery: "/__ui",
   catchAll: "*",
 } as const;
+
+/** Builds a teacher discovery detail path while preserving current list parameters. */
+export function getStudentTeacherPath(teacherId: string, search = ""): string {
+  const path = ROUTE_PATHS.studentTeacherDetail.replace(
+    ":teacherId",
+    encodeURIComponent(teacherId),
+  );
+  return search ? `${path}?${search}` : path;
+}
+
+/** Builds the lazy checkout placeholder path for a product identifier. */
+export function getStudentCheckoutPath(productId: string): string {
+  return ROUTE_PATHS.studentCheckout.replace(":productId", encodeURIComponent(productId));
+}
 
 /** Builds the teacher course route for an opaque course identifier. */
 export function getTeacherCoursePath(courseId: string): string {

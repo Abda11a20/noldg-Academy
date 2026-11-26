@@ -92,8 +92,32 @@ const routes: RouteObject[] = [
       {
         index: true,
         lazy: async () => ({
-          Component: (await import("../features/auth/pages/RoleLandingPage")).RoleLandingPage,
+          Component: (await import("../features/student-browse/pages/StudentHomePage"))
+            .StudentHomePage,
         }),
+      },
+      {
+        path: "teachers",
+        lazy: async () => ({
+          Component: (await import("../features/student-browse/pages/TeachersPage")).TeachersPage,
+        }),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "teachers/:teacherId",
+        lazy: async () => ({
+          Component: (await import("../features/student-browse/pages/TeacherDetailPage"))
+            .TeacherDetailPage,
+        }),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "checkout/:productId",
+        lazy: async () => ({
+          Component: (await import("../features/student-browse/pages/CheckoutStubPage"))
+            .CheckoutStubPage,
+        }),
+        errorElement: <RouteErrorPage />,
       },
     ],
   },

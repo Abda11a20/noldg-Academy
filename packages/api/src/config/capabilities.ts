@@ -20,6 +20,15 @@ export interface AuthCapabilities {
   lessonAvailabilityField: boolean;
   teacherBrowseCourses: boolean;
   teacherBrowseFilters: boolean;
+  orderNumber: boolean;
+  orderExpiry: boolean;
+  orderSenderRef: boolean;
+  singleStepOrder: boolean;
+  manualOrder: boolean;
+  publicSettings: boolean;
+  idempotencyKey: boolean;
+  orderAdminFilters: boolean;
+  orderCancellation: boolean;
 }
 
 function resolveCapability(value: string | undefined, defaultValue: boolean): boolean {
@@ -72,4 +81,13 @@ export const capabilities: AuthCapabilities = {
   ),
   teacherBrowseCourses: resolveCapability(import.meta.env.VITE_BROWSE_TEACHER_COURSES, modeDefault),
   teacherBrowseFilters: resolveCapability(import.meta.env.VITE_BROWSE_TEACHER_FILTERS, modeDefault),
+  orderNumber: resolveCapability(import.meta.env.VITE_ORDER_CAP_NUMBER, modeDefault),
+  orderExpiry: resolveCapability(import.meta.env.VITE_ORDER_CAP_EXPIRY, modeDefault),
+  orderSenderRef: resolveCapability(import.meta.env.VITE_ORDER_CAP_SENDER_REF, modeDefault),
+  singleStepOrder: resolveCapability(import.meta.env.VITE_ORDER_CAP_SINGLE_STEP, modeDefault),
+  manualOrder: resolveCapability(import.meta.env.VITE_ORDER_CAP_MANUAL, modeDefault),
+  publicSettings: resolveCapability(import.meta.env.VITE_ORDER_CAP_PUBLIC_SETTINGS, modeDefault),
+  idempotencyKey: resolveCapability(import.meta.env.VITE_ORDER_CAP_IDEMPOTENCY, modeDefault),
+  orderAdminFilters: resolveCapability(import.meta.env.VITE_ORDER_CAP_ADMIN_FILTERS, modeDefault),
+  orderCancellation: resolveCapability(import.meta.env.VITE_ORDER_CAP_CANCELLATION, modeDefault),
 };

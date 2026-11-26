@@ -2,13 +2,14 @@ import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
+import { switchLanguage } from "./language";
 
 const SCREENSHOTS = resolve(process.cwd(), "../../docs/reports/screenshots");
 mkdirSync(SCREENSHOTS, { recursive: true });
 
 async function signInApprovedTeacher(page: Page) {
   await page.goto("/login");
-  await page.getByRole("button", { name: "تغيير اللغة" }).click();
+  await switchLanguage(page, "ar");
   await page.getByLabel("Email address").fill("teacher-approved@example.test");
   await page.getByLabel("Password", { exact: true }).fill("Aa1!pass");
   await page.getByRole("button", { name: "Sign in" }).click();
@@ -96,12 +97,12 @@ test("approved teacher can publish a video lesson and create a bundle", async ({
 test("teacher course views render in Arabic RTL at mobile width", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/login");
-  await page.getByRole("button", { name: "تغيير اللغة" }).click();
+  await switchLanguage(page, "ar");
   await page.getByLabel("Email address").fill("teacher-approved@example.test");
   await page.getByLabel("Password", { exact: true }).fill("Aa1!pass");
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/teacher$/);
-  await page.getByRole("button", { name: "Change language" }).click();
+  await switchLanguage(page, "en");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await page.getByRole("link", { name: "فتح الكورس" }).click();
   await expect(page.getByRole("tab", { name: "الحصص" })).toBeVisible();

@@ -274,3 +274,20 @@ it("opens the action menu from the keyboard and supports axe", async () => {
   expect(await screen.findByRole("menuitem", { name: "Edit" })).toBeInTheDocument();
   await user.keyboard("{Escape}");
 });
+
+it("supports opening a deferred action menu through controlled state", async () => {
+  const user = userEvent.setup();
+  const onOpenChange = vi.fn();
+  render(
+    <DropdownMenu
+      trigger="Actions"
+      triggerLabel="Open actions"
+      items={[{ id: "edit", label: "Edit", onSelect: vi.fn() }]}
+      open
+      onOpenChange={onOpenChange}
+    />,
+  );
+  expect(await screen.findByRole("menuitem", { name: "Edit" })).toBeInTheDocument();
+  await user.keyboard("{Escape}");
+  expect(onOpenChange).toHaveBeenCalledWith(false);
+});

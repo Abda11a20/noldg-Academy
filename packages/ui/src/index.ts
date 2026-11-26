@@ -1,5 +1,6 @@
 export { brand, type SupportedLanguage } from "./brand/brand";
 export { Button, type ButtonProps } from "./components/button/Button";
+export { CopyButton, type CopyButtonProps } from "./components/button/CopyButton";
 export { ButtonGroup, type ButtonGroupProps } from "./components/button/ButtonGroup";
 export { Icon, type IconColor, type IconProps } from "./components/icon/Icon";
 export { Image, type ImageProps } from "./components/image/Image";
@@ -19,6 +20,7 @@ export { Topbar, type TopbarProps } from "./components/navigation/Topbar";
 export { Dialog, type DialogProps } from "./components/overlay/Dialog";
 export { ConfirmDialog, type ConfirmDialogProps } from "./components/overlay/ConfirmDialog";
 export { Tabs, type TabsProps, type TabItem } from "./components/navigation/Tabs";
+export { Stepper, type StepperProps } from "./components/navigation/Stepper";
 export {
   Breadcrumbs,
   type BreadcrumbsProps,
@@ -62,6 +64,8 @@ export {
   type SelectedFile,
 } from "./components/forms/FileDropzone";
 export { Alert, type AlertProps } from "./components/feedback/Alert";
+export { Countdown, type CountdownProps } from "./components/feedback/Countdown";
+export { StatusBadge, type StatusBadgeProps } from "./components/feedback/StatusBadge";
 export { Badge, type BadgeProps } from "./components/feedback/Badge";
 export { EmptyState, type EmptyStateProps } from "./components/feedback/EmptyState";
 export { ErrorState, type ErrorStateProps } from "./components/feedback/ErrorState";

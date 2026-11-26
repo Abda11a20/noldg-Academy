@@ -2,6 +2,16 @@ import { createBrowserRouter, redirect, type RouteObject } from "react-router";
 import { ROUTE_PATHS } from "../shared/navigation/routes";
 import { RouteErrorPage } from "../pages/RouteErrorPage";
 
+function lazyWithNamespace(
+  namespace: "admin" | "browse" | "catalog" | "orders",
+  loadComponent: () => Promise<Pick<RouteObject, "Component">>,
+) {
+  return async () => {
+    await (await import("../shared/i18n/load-route-namespace")).loadRouteNamespace(namespace);
+    return loadComponent();
+  };
+}
+
 const routes: RouteObject[] = [
   {
     path: "/",
@@ -91,32 +101,45 @@ const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        lazy: async () => ({
+        lazy: lazyWithNamespace("browse", async () => ({
           Component: (await import("../features/student-browse/pages/StudentHomePage"))
             .StudentHomePage,
-        }),
+        })),
       },
       {
         path: "teachers",
-        lazy: async () => ({
+        lazy: lazyWithNamespace("browse", async () => ({
           Component: (await import("../features/student-browse/pages/TeachersPage")).TeachersPage,
-        }),
+        })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "teachers/:teacherId",
-        lazy: async () => ({
+        lazy: lazyWithNamespace("browse", async () => ({
           Component: (await import("../features/student-browse/pages/TeacherDetailPage"))
             .TeacherDetailPage,
-        }),
+        })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "checkout/:productId",
-        lazy: async () => ({
-          Component: (await import("../features/student-browse/pages/CheckoutStubPage"))
-            .CheckoutStubPage,
-        }),
+        lazy: lazyWithNamespace("orders", async () => ({
+          Component: (await import("../features/orders/pages/CheckoutPage")).CheckoutPage,
+        })),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "purchases",
+        lazy: lazyWithNamespace("orders", async () => ({
+          Component: (await import("../features/orders/pages/PurchasesPage")).PurchasesPage,
+        })),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "purchases/:orderId",
+        lazy: lazyWithNamespace("orders", async () => ({
+          Component: (await import("../features/orders/pages/OrderDetailPage")).OrderDetailPage,
+        })),
         errorElement: <RouteErrorPage />,
       },
     ],
@@ -128,33 +151,33 @@ const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        lazy: async () => ({
+        lazy: lazyWithNamespace("catalog", async () => ({
           Component: (await import("../features/catalog-teacher/pages/TeacherCoursesPage"))
             .TeacherCoursesPage,
-        }),
+        })),
       },
       {
         path: "courses/:courseId",
-        lazy: async () => ({
+        lazy: lazyWithNamespace("catalog", async () => ({
           Component: (await import("../features/catalog-teacher/pages/TeacherCoursePage"))
             .TeacherCoursePage,
-        }),
+        })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "courses/:courseId/lessons/new",
-        lazy: async () => ({
+        lazy: lazyWithNamespace("catalog", async () => ({
           Component: (await import("../features/catalog-teacher/pages/LessonEditorPage"))
             .LessonEditorPage,
-        }),
+        })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "courses/:courseId/lessons/:lessonId",
-        lazy: async () => ({
+        lazy: lazyWithNamespace("catalog", async () => ({
           Component: (await import("../features/catalog-teacher/pages/LessonEditorPage"))
             .LessonEditorPage,
-        }),
+        })),
         errorElement: <RouteErrorPage />,
       },
     ],
@@ -172,25 +195,47 @@ const routes: RouteObject[] = [
       },
       {
         path: "academic",
-        lazy: async () => ({
+        lazy: lazyWithNamespace("admin", async () => ({
           Component: (await import("../features/academic-admin/pages/AcademicPage")).AcademicPage,
-        }),
+        })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "teachers",
-        lazy: async () => ({
+        lazy: lazyWithNamespace("admin", async () => ({
           Component: (await import("../features/teacher-applications/pages/TeachersPage"))
             .TeachersPage,
-        }),
+        })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "teachers/applications/:applicationId",
-        lazy: async () => ({
+        lazy: lazyWithNamespace("admin", async () => ({
           Component: (await import("../features/teacher-applications/pages/ApplicationDetailPage"))
             .ApplicationDetailPage,
-        }),
+        })),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "orders",
+        lazy: lazyWithNamespace("orders", async () => ({
+          Component: (await import("../features/orders/pages/AdminOrdersPage")).AdminOrdersPage,
+        })),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "orders/new",
+        lazy: lazyWithNamespace("orders", async () => ({
+          Component: (await import("../features/orders/pages/ManualOrderPage")).ManualOrderPage,
+        })),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "orders/:orderId",
+        lazy: lazyWithNamespace("orders", async () => ({
+          Component: (await import("../features/orders/pages/AdminOrderDetailPage"))
+            .AdminOrderDetailPage,
+        })),
         errorElement: <RouteErrorPage />,
       },
     ],
@@ -210,9 +255,14 @@ const routes: RouteObject[] = [
 if (import.meta.env.DEV || import.meta.env.VITE_INCLUDE_UI_GALLERY === "true") {
   routes.push({
     path: ROUTE_PATHS.uiGallery,
-    lazy: async () => ({
-      Component: (await import("../pages/ui-gallery/UIGalleryPage")).UIGalleryPage,
-    }),
+    lazy: async () => {
+      const { DEFERRED_ROUTE_NAMESPACES, loadRouteNamespace } =
+        await import("../shared/i18n/load-route-namespace");
+      await Promise.all(DEFERRED_ROUTE_NAMESPACES.map(loadRouteNamespace));
+      return {
+        Component: (await import("../pages/ui-gallery/UIGalleryPage")).UIGalleryPage,
+      };
+    },
     errorElement: <RouteErrorPage />,
   });
 }

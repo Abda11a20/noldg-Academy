@@ -2,6 +2,7 @@
   "appName": "Noldg Academy",
   "logoAlt": "Noldg Academy logo",
   "changeLanguage": "Change language",
+  "mobileAccountMenu": "Account menu",
   "languageArabic": "العربية",
   "languageEnglish": "English",
   "notFoundTitle": "Page not found",
@@ -100,10 +101,12 @@
     "close": "Close navigation",
     "studentHome": "Student home",
     "studentTeachers": "Teachers",
+    "studentPurchases": "Purchases",
     "teacherHome": "My courses",
     "adminHome": "Admin home",
     "academic": "Academic structure",
-    "teachers": "Teachers"
+    "teachers": "Teachers",
+    "adminOrders": "Orders"
   },
   "galleryToastTitle": "Saved",
   "galleryToastBody": "Your changes are ready.",

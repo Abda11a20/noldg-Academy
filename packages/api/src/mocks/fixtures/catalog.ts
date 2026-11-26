@@ -69,6 +69,16 @@ export const MOCK_PRODUCTS: CatalogProduct[] = [
     lessonIds: ["lesson-introduction"],
     status: "active",
   },
+  {
+    id: "browse-bundle-1",
+    courseId: "course-general-secondary-1",
+    type: "package",
+    name: "Algebra bundle",
+    price: 250,
+    announcedLessonCount: 5,
+    lessonIds: ["lesson-introduction"],
+    status: "active",
+  },
 ];
 
 export const MOCK_UPLOAD_TICKET: UploadTicket = {

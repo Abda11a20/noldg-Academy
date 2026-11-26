@@ -29,17 +29,27 @@ export function Topbar({
   return (
     <header className="flex items-center gap-4 border-b border-border bg-surface px-4 py-3">
       {mobileNavigationSlot}
-      <Logo alt={logoAlt} className="w-40" />
+      <Logo alt={logoAlt} className="w-32 sm:w-40" />
       <div className="ms-auto flex items-center gap-3">
-        {userName ? <span className="text-sm text-foreground">{userName}</span> : null}
-        {roleLabel ? <span className="text-sm text-foreground-muted">{roleLabel}</span> : null}
-        {userMenuSlot}
+        {userName ? (
+          <span className="hidden text-sm text-foreground md:inline">{userName}</span>
+        ) : null}
+        {roleLabel ? (
+          <span className="hidden text-sm text-foreground-muted md:inline">{roleLabel}</span>
+        ) : null}
+        {userMenuSlot ? <div className="md:hidden">{userMenuSlot}</div> : null}
         {onLogout && logoutLabel ? (
-          <Button loading={loggingOut} onClick={onLogout} size="sm" variant="ghost">
+          <Button
+            className="hidden md:inline-flex"
+            loading={loggingOut}
+            onClick={onLogout}
+            size="sm"
+            variant="ghost"
+          >
             {logoutLabel}
           </Button>
         ) : null}
-        {languageSwitchSlot}
+        <span className="hidden md:inline-flex">{languageSwitchSlot}</span>
       </div>
     </header>
   );

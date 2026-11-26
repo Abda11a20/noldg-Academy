@@ -14,6 +14,12 @@ export interface AuthCapabilities {
   lessonWindowRules: boolean;
   lessonDrafts: boolean;
   lessonVideoProcessing: boolean;
+  studentTrackFilter: boolean;
+  teacherRatings: boolean;
+  teacherStartingPrice: boolean;
+  lessonAvailabilityField: boolean;
+  teacherBrowseCourses: boolean;
+  teacherBrowseFilters: boolean;
 }
 
 function resolveCapability(value: string | undefined, defaultValue: boolean): boolean {
@@ -57,4 +63,13 @@ export const capabilities: AuthCapabilities = {
     import.meta.env.VITE_CATALOG_CAP_VIDEO_PROCESSING,
     modeDefault,
   ),
+  studentTrackFilter: resolveCapability(import.meta.env.VITE_BROWSE_TRACK_FILTER, modeDefault),
+  teacherRatings: resolveCapability(import.meta.env.VITE_BROWSE_TEACHER_RATINGS, modeDefault),
+  teacherStartingPrice: resolveCapability(import.meta.env.VITE_BROWSE_STARTING_PRICE, modeDefault),
+  lessonAvailabilityField: resolveCapability(
+    import.meta.env.VITE_BROWSE_LESSON_AVAILABILITY,
+    modeDefault,
+  ),
+  teacherBrowseCourses: resolveCapability(import.meta.env.VITE_BROWSE_TEACHER_COURSES, modeDefault),
+  teacherBrowseFilters: resolveCapability(import.meta.env.VITE_BROWSE_TEACHER_FILTERS, modeDefault),
 };

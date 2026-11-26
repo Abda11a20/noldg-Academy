@@ -30,7 +30,7 @@ export function Dialog({
       <Primitive.Portal>
         <Primitive.Overlay className="fixed inset-0 z-modal bg-overlay" />
         <Primitive.Content
-          className="fixed start-1/2 top-1/2 z-modal w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-surface p-6 text-foreground shadow-md focus:outline-none"
+          className="fixed start-1/2 top-1/2 z-modal max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-surface p-6 text-foreground shadow-md focus:outline-none rtl:translate-x-1/2"
           onOpenAutoFocus={() => {
             opener.current =
               document.activeElement instanceof HTMLElement ? document.activeElement : null;

@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router";
 import { ROUTE_PATHS } from "../../shared/navigation/routes";
 import { useAuthSnapshot } from "../../shared/auth/auth-store";
 import { SessionLoading } from "./SessionLoading";
+import { SessionUnavailable } from "./SessionUnavailable";
 
 export interface RequireAuthProps {
   children: ReactNode;
@@ -13,6 +14,7 @@ export function RequireAuth({ children }: RequireAuthProps) {
   const auth = useAuthSnapshot();
   const location = useLocation();
   if (auth.status === "unknown") return <SessionLoading />;
+  if (auth.status === "error") return <SessionUnavailable />;
   if (auth.status === "anonymous") {
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
     return (

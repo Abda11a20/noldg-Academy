@@ -18,6 +18,7 @@ let refreshFlight: Promise<string | null> | undefined;
 interface RequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
   timeoutMs?: number;
+  preserveSessionOnUnauthorized?: boolean;
 }
 
 function combineSignals(signal: AbortSignal | null | undefined, timeoutMs: number): AbortSignal {
@@ -51,8 +52,12 @@ async function refreshAccessToken(): Promise<string | null> {
   return refreshFlight;
 }
 
-async function retryAfterUnauthorized(status: number, retried: boolean): Promise<boolean> {
-  if (status !== HTTP_STATUS.unauthorized || retried) return false;
+async function retryAfterUnauthorized(
+  status: number,
+  retried: boolean,
+  preserveSessionOnUnauthorized: boolean,
+): Promise<boolean> {
+  if (status !== HTTP_STATUS.unauthorized || retried || preserveSessionOnUnauthorized) return false;
   if (!tokenStore.getAccessToken()) return false;
   const refreshedToken = await refreshAccessToken();
   if (refreshedToken) return true;
@@ -142,7 +147,13 @@ async function executeRequest<T>(
   try {
     const response = await sendRequest(path, options);
     const body = await readJson(response);
-    if (await retryAfterUnauthorized(response.status, retried))
+    if (
+      await retryAfterUnauthorized(
+        response.status,
+        retried,
+        options.preserveSessionOnUnauthorized === true,
+      )
+    )
       return executeRequest(path, schema, options, true);
     return validateResponse(response, schema, body);
   } catch (error) {

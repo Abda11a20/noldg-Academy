@@ -227,10 +227,12 @@ export async function logout(): Promise<void> {
 /** Reads the normalized current user, adapting the legacy profile and teacher application. */
 export async function getMe(): Promise<AuthUser> {
   if (apiMode === "mock") {
-    return request("/auth/me", AuthUserSchema);
+    return request("/auth/me", AuthUserSchema, { preserveSessionOnUnauthorized: true });
   }
   try {
-    const profile = await request("/auth/", LegacyProfileResponseSchema);
+    const profile = await request("/auth/", LegacyProfileResponseSchema, {
+      preserveSessionOnUnauthorized: true,
+    });
     let application: unknown;
     const role = profile.data.roles ?? profile.data.role;
     if (role === "teacher") {

@@ -207,6 +207,38 @@ it("allows a teacher profile when no legacy application exists", async () => {
   expect(user).not.toHaveProperty("applicationStatus");
 });
 
+it("preserves the session and status when the legacy profile request returns 404", async () => {
+  tokenStore.setSession({ accessToken: "saved-access" });
+  nodeServer.use(
+    http.get(`${API_BASE_URL}/auth/`, () =>
+      HttpResponse.json({ success: false, message: "Not found" }, { status: 404 }),
+    ),
+  );
+
+  await expect(authApi.getMe()).rejects.toMatchObject({ status: 404 });
+  expect(tokenStore.getAccessToken()).toBe("saved-access");
+});
+
+it("preserves the session when the legacy profile request returns a server error", async () => {
+  tokenStore.setSession({ accessToken: "saved-access" });
+  nodeServer.use(
+    http.get(`${API_BASE_URL}/auth/`, () =>
+      HttpResponse.json({ success: false, message: "Unavailable" }, { status: 500 }),
+    ),
+  );
+
+  await expect(authApi.getMe()).rejects.toMatchObject({ status: 500 });
+  expect(tokenStore.getAccessToken()).toBe("saved-access");
+});
+
+it("preserves the session when the legacy profile request has a network failure", async () => {
+  tokenStore.setSession({ accessToken: "saved-access" });
+  nodeServer.use(http.get(`${API_BASE_URL}/auth/`, () => HttpResponse.error()));
+
+  await expect(authApi.getMe()).rejects.toMatchObject({ status: 0, code: "AUTH_REQUEST_FAILED" });
+  expect(tokenStore.getAccessToken()).toBe("saved-access");
+});
+
 it("maps a recognizable legacy credential error into the target error code", async () => {
   nodeServer.use(
     http.post(`${API_BASE_URL}/auth/login`, () =>

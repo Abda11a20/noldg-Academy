@@ -10,7 +10,11 @@ import { BrowseFilters } from "../components/BrowseFilters";
 import { StudentTrackSelector } from "../components/StudentTrackSelector";
 import { TeacherListResults } from "../components/TeacherListResults";
 import { BrowseCapabilityNotice } from "../components/BrowseCapabilityNotice";
-import { STUDENT_BROWSE_DEFAULT_PAGE_SIZE } from "../constants";
+import {
+  STUDENT_BROWSE_DEFAULT_PAGE_SIZE,
+  STUDENT_BROWSE_PAGE_SIZE_OPTIONS,
+  STUDENT_BROWSE_RATINGS,
+} from "../constants";
 import { useStudentTrack } from "../hooks/useStudentTrack";
 import { useBrowseTeachers } from "../hooks/useBrowseTeachers";
 
@@ -22,14 +26,20 @@ function queryFromState(
   filters: Record<string, string>,
   trackId: string | undefined,
 ): BrowseTeacherQuery {
+  const allowedPageSize = (STUDENT_BROWSE_PAGE_SIZE_OPTIONS as readonly number[]).includes(pageSize)
+    ? pageSize
+    : STUDENT_BROWSE_DEFAULT_PAGE_SIZE;
+  const minRating = filters.minRating;
+  const validMinRating =
+    minRating !== undefined && (STUDENT_BROWSE_RATINGS as readonly string[]).includes(minRating);
   return {
     page,
-    pageSize,
+    pageSize: allowedPageSize,
     q: search,
     sort: sort === "rating" || sort === "priceAsc" || sort === "priceDesc" ? sort : "newest",
     ...(trackId ? { trackId } : {}),
     ...(filters.subjectId ? { subjectId: filters.subjectId } : {}),
-    ...(filters.minRating ? { minRating: Number(filters.minRating) } : {}),
+    ...(validMinRating ? { minRating: Number(minRating) } : {}),
     ...(filters.hasFreeLessons === "true" ? { hasFreeLessons: true } : {}),
   };
 }

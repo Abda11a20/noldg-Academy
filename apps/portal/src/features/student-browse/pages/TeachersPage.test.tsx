@@ -49,6 +49,41 @@ describe.each(scenarios)("teacher list $name response", ({ handler, expected }) 
   });
 });
 
+it.each(["abc", "9", "4.75"])(
+  "drops an invalid minRating=%s from the URL instead of failing the query",
+  async (value) => {
+    let seenMinRating: string | null = "unset";
+    nodeServer.use(
+      http.get(`${API_BASE_URL}/teachers`, ({ request }) => {
+        seenMinRating = new URL(request.url).searchParams.get("minRating");
+        return HttpResponse.json(listResult);
+      }),
+    );
+    const filters = encodeURIComponent(JSON.stringify({ minRating: value }));
+    renderPage(<TeachersPage />, undefined, [`/student/teachers?filters=${filters}`]);
+    expect(await screen.findByText("No teachers found")).toBeTruthy();
+    expect(seenMinRating).toBeNull();
+    cleanup();
+  },
+);
+
+it.each(["0", "999", "abc"])(
+  "falls back to the default page size when the URL pageSize=%s is not allowed",
+  async (value) => {
+    let seenPageSize: string | null = null;
+    nodeServer.use(
+      http.get(`${API_BASE_URL}/teachers`, ({ request }) => {
+        seenPageSize = new URL(request.url).searchParams.get("pageSize");
+        return HttpResponse.json(listResult);
+      }),
+    );
+    renderPage(<TeachersPage />, undefined, [`/student/teachers?pageSize=${value}`]);
+    expect(await screen.findByText("No teachers found")).toBeTruthy();
+    expect(seenPageSize).toBe(String(listResult.pageSize));
+    cleanup();
+  },
+);
+
 it("restores URL search and filters and hides absent rating and starting price", async () => {
   const teacher = {
     id: "teacher-no-summary",

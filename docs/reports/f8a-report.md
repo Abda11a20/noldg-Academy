@@ -91,7 +91,7 @@
 | Portal entry                     |                      1.61 kB |                      للمعلومة | —                                        |
 | Main app                         |                     71.80 kB |                      للمعلومة | —                                        |
 | إجمالي JavaScript للتحميل الأولي |                    226.29 kB | 250 kB، وكذلك baseline + 2 kB | نجاح؛ baseline 225.03 kB والنمو 1.26 kB. |
-| أكبر lazy route في القياس        | 7.08 kB (`LessonEditorPage`) |                         80 kB | نجاح.                                    |
+| أكبر lazy route في القياس        | 7.05 kB (`LessonEditorPage`) |                         80 kB | نجاح.                                    |
 | Chunk بنك الأسئلة                |                      6.48 kB |                         80 kB | نجاح؛ route كسول.                        |
 
 تحقق checker من حدود كل route. مسار `/login` لا يحمل كود بنك الأسئلة أو route المعلم.
@@ -142,6 +142,8 @@
 | `f033259` | `fix(test): resolve console guard knip findings`    |
 | `cdaab2d` | `test(e2e): await device status failure`            |
 | `b9f1bff` | `fix(test): honor no-color in e2e workers`          |
+| `5d5360c` | `docs(f8): report assessment foundation handoff`    |
+| `3a394a0` | `docs(f8): clarify final handoff commit`            |
 
 تغيير التوثيق والتقرير محفوظ في commit مستقل بعد commits التنفيذ؛ يظهر hash النهائي في سجل Git. لم يُدفع أي commit إلى `main`.
 

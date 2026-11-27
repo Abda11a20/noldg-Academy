@@ -62,6 +62,7 @@ it("confirms a manual cash order with the server preview and optional sender ref
   renderPage(
     <Routes>
       <Route element={<ManualOrderPage />} path="/admin/orders/new" />
+      <Route element={<div data-testid="created-order-detail" />} path="/admin/orders/:orderId" />
     </Routes>,
     undefined,
     ["/admin/orders/new"],
@@ -80,6 +81,7 @@ it("confirms a manual cash order with the server preview and optional sender ref
   if (!confirmButton) throw new Error("Expected the confirmation action.");
   await user.click(confirmButton);
 
+  expect(await screen.findByTestId("created-order-detail")).toBeTruthy();
   await waitFor(() =>
     expect(receivedBody).toEqual({
       studentId: "student-mona",

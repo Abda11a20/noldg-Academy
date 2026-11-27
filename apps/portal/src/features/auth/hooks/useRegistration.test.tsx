@@ -1,5 +1,5 @@
 import { act, type PropsWithChildren } from "react";
-import { cleanup } from "@testing-library/react";
+import { cleanup, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { renderHook } from "../../../shared/testing/render-hook";
 import { renderPage } from "../../../shared/testing/render-page";
@@ -12,7 +12,7 @@ function RouterWrapper({ children }: PropsWithChildren) {
 }
 
 describe("registration hooks", () => {
-  it("hides legacy student fields that the live adapter cannot save", () => {
+  it("hides legacy student fields that the live adapter cannot save", async () => {
     const hook = renderHook(() => useStudentRegistration(), { wrapper: RouterWrapper });
     const registration = { ...hook.result, supportsStudentProfileFields: false, unavailable: true };
     renderPage(
@@ -23,6 +23,7 @@ describe("registration hooks", () => {
         tracks={[]}
       />,
     );
+    await screen.findAllByRole("textbox");
     expect(document.getElementById("student-parent-phone")).toBeNull();
     expect(document.getElementById("student-system")).toBeNull();
     expect(document.getElementById("student-track")).toBeNull();

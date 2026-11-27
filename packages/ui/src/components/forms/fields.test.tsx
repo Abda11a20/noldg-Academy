@@ -84,8 +84,8 @@ describe("time and money fields", () => {
   it("inherits RTL direction from its layout without changing native values", () => {
     render(
       <div dir="rtl">
-        <DateTimeField id="rtl-date" label="Date" value="2026-06-01T10:00" />
-        <MoneyField id="rtl-money" label="Amount" value={50} />
+        <DateTimeField id="rtl-date" label="Date" readOnly value="2026-06-01T10:00" />
+        <MoneyField id="rtl-money" label="Amount" readOnly value={50} />
       </div>,
     );
     expect(screen.getByLabelText("Date").closest("[dir='rtl']")).not.toBeNull();

@@ -148,13 +148,17 @@ it("stops on a replaced session and closes on page hide and unmount", async () =
   const hook = renderHook(() => usePlaybackSession("lesson-introduction"));
   await act(async () => hook.result.current.start());
   act(() => hook.result.current.onPlay());
-  await new Promise((resolve) => setTimeout(resolve, 1200));
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1_200));
+  });
+  await vi.waitFor(() => expect(hook.result.current.status).toBe("replaced"));
   expect(heartbeats).toBe(1);
-  await vi.waitFor(() => expect(hook.result.current.status).toBe("replaced"), { timeout: 2500 });
   const second = renderHook(() => usePlaybackSession("lesson-introduction"));
   await act(async () => second.result.current.start());
-  act(() => window.dispatchEvent(new Event("pagehide")));
-  await vi.waitFor(() => expect(closes).toBeGreaterThan(0));
+  await act(async () => {
+    window.dispatchEvent(new Event("pagehide"));
+    await vi.waitFor(() => expect(closes).toBeGreaterThan(0));
+  });
   second.unmount();
   expect(closes).toBeGreaterThan(0);
 });
@@ -173,7 +177,10 @@ it.each(["LESSON_ENDED", "LESSON_NOT_AVAILABLE"] as const)(
     const hook = renderHook(() => usePlaybackSession("lesson-introduction"));
     await act(async () => hook.result.current.start());
     act(() => hook.result.current.onPlay());
-    await vi.waitFor(() => expect(hook.result.current.status).toBe("ended"), { timeout: 2_500 });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1_100));
+    });
+    await vi.waitFor(() => expect(hook.result.current.status).toBe("ended"));
   },
 );
 

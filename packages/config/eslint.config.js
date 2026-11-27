@@ -24,6 +24,7 @@ const projectIgnores = [
   "**/.pnpm-store/**",
   "**/.vite/**",
   "**/dist/**",
+  "**/dist-e2e/**",
   "**/coverage/**",
   "**/playwright-report/**",
   "**/test-results/**",

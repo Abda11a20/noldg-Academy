@@ -44,6 +44,7 @@ declare module "i18next" {
       orders: typeof import("./locales/en/orders.json");
       learning: typeof import("./locales/en/learning.json");
       questions: typeof import("./locales/en/questions.json");
+      gallery: typeof import("../../pages/ui-gallery/locales/en/gallery.json");
     };
     returnNull: false;
   }

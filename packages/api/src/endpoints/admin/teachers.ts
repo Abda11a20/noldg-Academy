@@ -89,7 +89,10 @@ export async function listTeacherApplications(state: ListUrlState, status: strin
  */
 export async function getTeacherApplication(applicationId: string): Promise<TeacherApplication> {
   if (apiMode === "mock") {
-    const payload = await request(`teachers/applications/${applicationId}`, dataSchema);
+    const payload = await request(
+      `teachers/applications/${encodeURIComponent(applicationId)}`,
+      dataSchema,
+    );
     return TeacherApplicationSchema.parse(payload);
   }
   return findLiveApplication(applicationId, ["pending", "rejected", "approved"]);
@@ -157,10 +160,11 @@ export async function reviewTeacherApplication(
     status === "rejected" ? { status, reason } : { status },
   );
   const action = status === "approved" ? "approve" : "reject";
+  const encodedId = encodeURIComponent(id);
   const path =
     apiMode === "mock"
-      ? `teachers/applications/${id}/${action}`
-      : `teachers/applications/${id}/review`;
+      ? `teachers/applications/${encodedId}/${action}`
+      : `teachers/applications/${encodedId}/review`;
   const body = apiMode === "mock" ? decision : { status };
   const payload = await request(path, dataSchema, {
     method: apiMode === "mock" ? "POST" : "PATCH",
@@ -216,7 +220,7 @@ export async function updateTeacherAccountStatus(
   reason?: string,
 ): Promise<void> {
   requireCapability(apiMode === "mock" || capabilities.adminAcademicAccess);
-  await request(`users/${userId}/status`, z.unknown(), {
+  await request(`users/${encodeURIComponent(userId)}/status`, z.unknown(), {
     method: "PATCH",
     body: apiMode === "mock" ? { status, reason } : { status },
   });

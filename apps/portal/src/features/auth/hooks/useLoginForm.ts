@@ -7,8 +7,7 @@ import { LoginFormSchema, type LoginFormValues } from "../schemas/forms";
 import { useAuthForm } from "./useAuthForm";
 import { useCooldown } from "./useCooldown";
 import { setAuthenticatedUser } from "../../../shared/auth/auth-store";
-import { authDestinationForUser } from "../utils/routing";
-import { sanitizeReturnTo } from "../utils/return-to";
+import { resolvePostLoginDestination } from "../utils/routing";
 import { ROUTE_PATHS } from "../../../shared/navigation/routes";
 
 interface LoginFailureContext {
@@ -55,8 +54,8 @@ export function useLoginForm() {
     try {
       const result = await login(values);
       setAuthenticatedUser(result.user);
-      const returnTo = sanitizeReturnTo(searchParams.get("returnTo"));
-      await navigate(returnTo ?? authDestinationForUser(result.user), { replace: true });
+      const destination = resolvePostLoginDestination(result.user, searchParams.get("returnTo"));
+      await navigate(destination, { replace: true });
       form.reset({ email: "", password: "" });
     } catch (error) {
       await handleLoginFailure({

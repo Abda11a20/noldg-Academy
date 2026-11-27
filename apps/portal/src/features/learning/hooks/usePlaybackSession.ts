@@ -80,6 +80,41 @@ async function restartExpiredPlayback(lessonId: string, options: RestartOptions)
   }
 }
 
+interface FailureHandlerOptions {
+  fatalStatus: (error: unknown) => PlaybackStatus | null;
+  tokenRestarted: { current: boolean };
+  closeCurrent: () => void;
+  setStatus: (status: PlaybackStatus) => void;
+  restartExpiredSession: () => Promise<void>;
+}
+
+async function handleHeartbeatFailure(
+  error: unknown,
+  lastAttempt: boolean,
+  options: FailureHandlerOptions,
+): Promise<boolean> {
+  const fatal = options.fatalStatus(error);
+  if (fatal) {
+    options.closeCurrent();
+    options.setStatus(fatal);
+    return true;
+  }
+  if (
+    error instanceof AppError &&
+    error.code === "PLAYBACK_TOKEN_EXPIRED" &&
+    !options.tokenRestarted.current
+  ) {
+    options.tokenRestarted.current = true;
+    await options.restartExpiredSession();
+    return true;
+  }
+  if (lastAttempt) {
+    options.closeCurrent();
+    options.setStatus("failed");
+  }
+  return lastAttempt;
+}
+
 /** Owns a playback session lifecycle without storing session details in query caches or URLs.
  * @param lessonId Lesson being played.
  * @param onProgress Receives server-computed progress updates.
@@ -145,59 +180,53 @@ export function usePlaybackSession(
     });
   }, [closeCurrent, lessonId]);
 
-  const sendHeartbeat = useCallback(async (): Promise<void> => {
-    await runHeartbeatCycle({
-      activeSession: sessionRef.current,
-      isPlaying: () => playing.current,
-      isBusy: () => heartbeatFlight.current,
-      setBusy: (busy) => {
-        heartbeatFlight.current = busy;
-      },
-      sequence: sequence.current + 1,
-      isActive: (sessionId) =>
-        mounted.current && playing.current && sessionRef.current?.sessionId === sessionId,
-      getPosition: () => position.current,
-      getRate: () => playbackRate.current,
-      wait: (delay) =>
-        new Promise<void>((resolve) => {
-          retryWaitResolver.current = resolve;
-          retryTimer.current = window.setTimeout(() => {
-            retryTimer.current = undefined;
-            retryWaitResolver.current = null;
-            resolve();
-          }, delay);
-        }),
-      setController: (controller) => {
-        heartbeatController.current = controller;
-      },
-      onProgress: (sentSequence, result) => {
-        sequence.current = sentSequence;
-        progressCallback.current?.(result);
-      },
-      onFailure: async (error, lastAttempt) => {
-        const fatal = fatalStatus(error);
-        if (fatal) {
-          closeCurrent();
-          setStatus(fatal);
-          return true;
-        }
-        if (
-          error instanceof AppError &&
-          error.code === "PLAYBACK_TOKEN_EXPIRED" &&
-          !tokenRestarted.current
-        ) {
-          tokenRestarted.current = true;
-          await restartExpiredSession();
-          return true;
-        }
-        if (lastAttempt) {
-          closeCurrent();
-          setStatus("failed");
-        }
-        return lastAttempt;
-      },
-    });
-  }, [closeCurrent, fatalStatus, restartExpiredSession]);
+  const sendHeartbeat = useCallback(
+    async (options?: { force?: boolean; isPlaying?: boolean }): Promise<void> => {
+      const force = options?.force === true;
+      await runHeartbeatCycle({
+        activeSession: sessionRef.current,
+        isPlaying: () => playing.current,
+        isBusy: () => heartbeatFlight.current,
+        setBusy: (busy) => {
+          heartbeatFlight.current = busy;
+        },
+        sequence: sequence.current + 1,
+        force,
+        playingValue: options?.isPlaying ?? true,
+        isActive: (sessionId) =>
+          mounted.current &&
+          (force || playing.current) &&
+          sessionRef.current?.sessionId === sessionId,
+        getPosition: () => position.current,
+        getRate: () => playbackRate.current,
+        wait: (delay) =>
+          new Promise<void>((resolve) => {
+            retryWaitResolver.current = resolve;
+            retryTimer.current = window.setTimeout(() => {
+              retryTimer.current = undefined;
+              retryWaitResolver.current = null;
+              resolve();
+            }, delay);
+          }),
+        setController: (controller) => {
+          heartbeatController.current = controller;
+        },
+        onProgress: (sentSequence, result) => {
+          sequence.current = sentSequence;
+          progressCallback.current?.(result);
+        },
+        onFailure: (error, lastAttempt) =>
+          handleHeartbeatFailure(error, lastAttempt, {
+            fatalStatus,
+            tokenRestarted,
+            closeCurrent,
+            setStatus,
+            restartExpiredSession,
+          }),
+      });
+    },
+    [closeCurrent, fatalStatus, restartExpiredSession],
+  );
 
   const start = useCallback(
     () =>

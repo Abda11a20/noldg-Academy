@@ -152,7 +152,7 @@ export async function listCourseLessons(
   signal?: AbortSignal,
 ) {
   const payload = await request(
-    listPath(`lessons/courses/${courseId}`, state),
+    listPath(`lessons/courses/${encodeURIComponent(courseId)}`, state),
     unknownResponseSchema,
     signalOption(signal),
   );
@@ -182,10 +182,14 @@ export async function createCourseLesson(courseId: string, input: LessonInput) {
             ? { attachmentUploadTokens: values.attachmentUploadTokens }
             : {}),
         };
-  const payload = await request(`lessons/courses/${courseId}`, unknownResponseSchema, {
-    method: "POST",
-    body,
-  });
+  const payload = await request(
+    `lessons/courses/${encodeURIComponent(courseId)}`,
+    unknownResponseSchema,
+    {
+      method: "POST",
+      body,
+    },
+  );
   const lesson = CatalogLessonSchema.parse(adaptLesson(unwrapCatalogData(payload), apiMode));
   if (values.access === "paid" && values.price !== undefined) {
     await createLessonProduct({
@@ -205,7 +209,7 @@ export async function updateCourseLesson(lessonId: string, input: Partial<Lesson
   const values = LessonInputSchema.partial().parse(input);
   requireCapability(capabilities.liveLessons || values.kind !== "live");
   const body = apiMode === "mock" ? values : liveLessonBody(values);
-  const payload = await request(`lessons/${lessonId}`, unknownResponseSchema, {
+  const payload = await request(`lessons/${encodeURIComponent(lessonId)}`, unknownResponseSchema, {
     method: "PATCH",
     body,
   });
@@ -259,10 +263,14 @@ export async function updateCourseLessonStatus(
   lessonId: string,
   status: "draft" | "published" | "archived",
 ) {
-  const payload = await request(`lessons/${lessonId}/status`, unknownResponseSchema, {
-    method: "PATCH",
-    body: { status },
-  });
+  const payload = await request(
+    `lessons/${encodeURIComponent(lessonId)}/status`,
+    unknownResponseSchema,
+    {
+      method: "PATCH",
+      body: { status },
+    },
+  );
   return CatalogLessonSchema.parse(adaptLesson(unwrapCatalogData(payload), apiMode));
 }
 
@@ -272,11 +280,15 @@ export async function requestLessonUploadTicket(
   input: { kind: "video" | "attachment"; name: string },
   signal?: AbortSignal,
 ) {
-  const payload = await request(`lessons/courses/${courseId}/uploads/sign`, unknownResponseSchema, {
-    method: "POST",
-    body: input,
-    ...signalOption(signal),
-  });
+  const payload = await request(
+    `lessons/courses/${encodeURIComponent(courseId)}/uploads/sign`,
+    unknownResponseSchema,
+    {
+      method: "POST",
+      body: input,
+      ...signalOption(signal),
+    },
+  );
   return adaptUploadTicket(payload, apiMode);
 }
 

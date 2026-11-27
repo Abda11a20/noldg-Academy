@@ -2,6 +2,7 @@ referencebackend/
 node_modules/
 .pnpm-store/
 dist/
+dist-e2e/
 coverage/
 .turbo/
 pnpm-lock.yaml

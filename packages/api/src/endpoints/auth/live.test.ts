@@ -235,8 +235,30 @@ it("preserves the session when the legacy profile request has a network failure"
   tokenStore.setSession({ accessToken: "saved-access" });
   nodeServer.use(http.get(`${API_BASE_URL}/auth/`, () => HttpResponse.error()));
 
-  await expect(authApi.getMe()).rejects.toMatchObject({ status: 0, code: "AUTH_REQUEST_FAILED" });
+  await expect(authApi.getMe()).rejects.toMatchObject({ status: 0, code: "NETWORK_ERROR" });
   expect(tokenStore.getAccessToken()).toBe("saved-access");
+});
+
+it("does not swallow non-404 teacher application errors during getMe", async () => {
+  nodeServer.use(
+    http.get(`${API_BASE_URL}/auth/`, () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          _id: "teacher-id",
+          name: "Salma Hassan",
+          email: "teacher@example.test",
+          roles: "teacher",
+          status: "active",
+          isVerified: true,
+        },
+      }),
+    ),
+    http.get(`${API_BASE_URL}/teachers/me/application`, () =>
+      HttpResponse.json({ success: false, message: "Server error" }, { status: 500 }),
+    ),
+  );
+  await expect(authApi.getMe()).rejects.toMatchObject({ status: 500 });
 });
 
 it("maps a recognizable legacy credential error into the target error code", async () => {

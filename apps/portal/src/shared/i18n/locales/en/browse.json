@@ -1,5 +1,6 @@
 {
   "homeGreeting": "Welcome, {{name}}",
+  "breadcrumbLabel": "Breadcrumbs",
   "chooseTrackPrompt": "Choose your school track to find relevant teachers.",
   "trackLabel": "School track",
   "chooseTrack": "Choose your school track",
@@ -49,7 +50,10 @@
     "available": "Available",
     "ended": "Ended"
   },
-  "access": { "free": "Free", "paid": "Paid" },
+  "access": {
+    "free": "Free",
+    "paid": "Paid"
+  },
   "noLessonsTitle": "No lesson previews",
   "noLessonsDescription": "There are no lesson previews for this course yet.",
   "productsTitle": "Lessons and bundles",

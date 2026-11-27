@@ -13,7 +13,7 @@ interface MediaEventOptions {
   rateRef: { current: number };
   intervalTimerRef: { current: number | undefined };
   controllerRef: { current: AbortController | null };
-  sendHeartbeat: () => Promise<void>;
+  sendHeartbeat: (options?: { force?: boolean; isPlaying?: boolean }) => Promise<void>;
   closeCurrent: () => void;
   setStatus: (status: "playing" | "paused" | "ended") => void;
 }
@@ -51,13 +51,24 @@ export function usePlaybackMediaEvents(options: MediaEventOptions) {
     }
     intervalTimerRef.current = undefined;
     controllerRef.current?.abort();
-    if (sessionRef.current) setStatus("paused");
-  }, [controllerRef, intervalTimerRef, playingRef, sessionRef, setStatus]);
+    if (sessionRef.current) {
+      setStatus("paused");
+      void sendHeartbeat({ force: true, isPlaying: false });
+    }
+  }, [controllerRef, intervalTimerRef, playingRef, sendHeartbeat, sessionRef, setStatus]);
 
   const onEnded = useCallback(() => {
-    closeCurrent();
-    setStatus("ended");
-  }, [closeCurrent, setStatus]);
+    playingRef.current = false;
+    if (intervalTimerRef.current !== undefined) {
+      window.clearInterval(intervalTimerRef.current);
+    }
+    intervalTimerRef.current = undefined;
+    void (async () => {
+      if (sessionRef.current) await sendHeartbeat({ force: true, isPlaying: false });
+      closeCurrent();
+      setStatus("ended");
+    })();
+  }, [closeCurrent, intervalTimerRef, playingRef, sendHeartbeat, sessionRef, setStatus]);
 
   const updatePosition = useCallback(
     (value: number) => {

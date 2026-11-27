@@ -26,7 +26,7 @@ interface StudentRow {
 
 /** Shows translated data-display components and table states. */
 export function GalleryData() {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(["gallery", "common"]);
   const columns = [
     { id: "name", header: t("sampleTableName"), render: (row: StudentRow) => row.name },
     {
@@ -59,7 +59,7 @@ export function GalleryData() {
             <ButtonGroup>
               <Button size="sm">{t("sampleAction")}</Button>
               <Button size="sm" variant="secondary">
-                {t("goHome")}
+                {t("common:goHome")}
               </Button>
             </ButtonGroup>
           </CardFooter>

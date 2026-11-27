@@ -31,6 +31,7 @@ function createRequestUrl(path: string): string {
 }
 
 function signalLogout(): void {
+  if (!tokenStore.getAccessToken()) return;
   tokenStore.clear();
   if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(AUTH_LOGOUT_EVENT));
 }

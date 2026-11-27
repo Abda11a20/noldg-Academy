@@ -1,5 +1,6 @@
 {
   "homeGreeting": "أهلًا {{name}}",
+  "breadcrumbLabel": "مسار التنقل",
   "chooseTrackPrompt": "اختر نظامك الدراسي وصفك لعرض المعلمين المناسبين.",
   "trackLabel": "الصف الدراسي",
   "chooseTrack": "اختر صفك الدراسي",

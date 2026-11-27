@@ -32,7 +32,7 @@ export function PlayerControls(props: PlayerControlsProps) {
     Number.isFinite(props.duration) ? Math.floor(props.duration) : 0,
   );
   return (
-    <div className="flex flex-wrap items-center gap-2 p-3">
+    <div className="flex flex-wrap items-center gap-2 border-t border-border bg-surface p-3 text-foreground">
       <Button
         aria-label={props.playing ? props.labels.pause : props.labels.play}
         onClick={props.onTogglePlayback}
@@ -54,7 +54,7 @@ export function PlayerControls(props: PlayerControlsProps) {
       </div>
       <input
         aria-label={props.labels.volume}
-        className="w-20 accent-primary"
+        className="w-20 rounded-sm accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         max={1}
         min={0}
         onChange={(event) => props.onVolumeChange(Number(event.currentTarget.value))}

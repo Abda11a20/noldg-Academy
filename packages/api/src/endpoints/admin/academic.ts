@@ -116,7 +116,7 @@ export async function updateTrack(trackId: string, input: Partial<AcademicTrack>
           ...(values.name ? { name: values.name } : {}),
           ...(values.active !== undefined ? { isActive: values.active } : {}),
         };
-  const payload = await request(`academic/tracks/${trackId}`, dataSchema, {
+  const payload = await request(`academic/tracks/${encodeURIComponent(trackId)}`, dataSchema, {
     method: "PATCH",
     body,
   });
@@ -195,7 +195,7 @@ export async function updateSubject(subjectId: string, fields: Partial<AcademicS
           ...(values.name ? { name: values.name } : {}),
           ...(values.active !== undefined ? { isActive: values.active } : {}),
         };
-  const payload = await request(`academic/subjects/${subjectId}`, dataSchema, {
+  const payload = await request(`academic/subjects/${encodeURIComponent(subjectId)}`, dataSchema, {
     method: "PATCH",
     body,
   });
@@ -210,7 +210,10 @@ export async function updateSubject(subjectId: string, fields: Partial<AcademicS
  */
 export async function listTrackSubjects(trackId: string) {
   requireAcademicAccess();
-  const payload = await request(`academic/tracks/${trackId}/subjects`, dataSchema);
+  const payload = await request(
+    `academic/tracks/${encodeURIComponent(trackId)}/subjects`,
+    dataSchema,
+  );
   const data = unwrapAdminData(payload);
   return z
     .array(AcademicSubjectSchema)
@@ -224,7 +227,7 @@ export async function listTrackSubjects(trackId: string) {
  */
 export async function addTrackSubject(trackId: string, subjectId: string): Promise<void> {
   requireAcademicAccess();
-  await request(`academic/tracks/${trackId}/subjects`, z.unknown(), {
+  await request(`academic/tracks/${encodeURIComponent(trackId)}/subjects`, z.unknown(), {
     method: "POST",
     body: { subjectId },
   });
@@ -237,7 +240,11 @@ export async function addTrackSubject(trackId: string, subjectId: string): Promi
  */
 export async function removeTrackSubject(trackId: string, subjectId: string): Promise<void> {
   requireAcademicAccess();
-  await request(`academic/tracks/${trackId}/subjects/${subjectId}`, z.unknown(), {
-    method: "DELETE",
-  });
+  await request(
+    `academic/tracks/${encodeURIComponent(trackId)}/subjects/${encodeURIComponent(subjectId)}`,
+    z.unknown(),
+    {
+      method: "DELETE",
+    },
+  );
 }

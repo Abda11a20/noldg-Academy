@@ -5,7 +5,7 @@ import { VideoPlayer } from "@noldg/ui";
  * @param props Direction used to keep sample player control IDs unique.
  */
 export function GalleryPlayer({ direction }: { direction: "rtl" | "ltr" }) {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(["gallery", "common"]);
   return (
     <section aria-label={t("galleryPlayer")} className="space-y-3">
       <h3 className="text-md font-semibold">{t("galleryPlayer")}</h3>
@@ -14,17 +14,17 @@ export function GalleryPlayer({ direction }: { direction: "rtl" | "ltr" }) {
         id={`gallery-video-player-${direction}`}
         watermarkText={t("galleryWatermark")}
         labels={{
-          play: t("playerPlay"),
-          pause: t("playerPause"),
-          seek: t("playerSeek"),
-          volume: t("playerVolume"),
-          mute: t("playerMute"),
-          unmute: t("playerUnmute"),
-          fullscreen: t("playerFullscreen"),
-          speed: t("playerSpeed"),
-          unsupported: t("playerUnsupported"),
-          timeValue: (current, duration) => t("playerTime", { current, duration }),
-          rateValue: (rate) => t("playerRate", { rate }),
+          play: t("common:playerPlay"),
+          pause: t("common:playerPause"),
+          seek: t("common:playerSeek"),
+          volume: t("common:playerVolume"),
+          mute: t("common:playerMute"),
+          unmute: t("common:playerUnmute"),
+          fullscreen: t("common:playerFullscreen"),
+          speed: t("common:playerSpeed"),
+          unsupported: t("common:playerUnsupported"),
+          timeValue: (current, duration) => t("common:playerTime", { current, duration }),
+          rateValue: (rate) => t("common:playerRate", { rate }),
         }}
       />
     </section>

@@ -4,6 +4,7 @@ import { apiMode } from "@noldg/api/mocks/mode";
 import { AUTH_LOGOUT_EVENT } from "@noldg/api/auth/events";
 import { Providers } from "./app/Providers";
 import { router } from "./app/router";
+import { clearAuthSession } from "./shared/auth/auth-store";
 import { ROUTE_PATHS } from "./shared/navigation/routes";
 import "./shared/i18n";
 import "./shell.css";
@@ -16,6 +17,7 @@ export async function startPortal(): Promise<void> {
     await browserWorker.start({ onUnhandledFrame: "error" });
   }
   window.addEventListener(AUTH_LOGOUT_EVENT, () => {
+    clearAuthSession();
     const requestedPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     const isLoginRoute = window.location.pathname === ROUTE_PATHS.login;
     const returnTo = isLoginRoute ? "" : `?returnTo=${encodeURIComponent(requestedPath)}`;

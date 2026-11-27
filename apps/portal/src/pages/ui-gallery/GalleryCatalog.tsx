@@ -22,7 +22,7 @@ import type { BundleFormValues } from "../../features/catalog-teacher/hooks/useB
 
 /** Demonstrates each reusable lesson editor section with translated labels in the active direction. */
 export function GalleryCatalog() {
-  const { t } = useTranslation(["common", "catalog"]);
+  const { t } = useTranslation(["gallery", "catalog"]);
   const form = useForm<LessonFormValues>({ defaultValues: LESSON_FORM_DEFAULTS });
   const access = useWatch({ control: form.control, name: "access" });
   const [bundleOpen, setBundleOpen] = useState(false);

@@ -284,14 +284,8 @@ const routes: RouteObject[] = [
 if (import.meta.env.DEV || import.meta.env.VITE_INCLUDE_UI_GALLERY === "true") {
   routes.push({
     path: ROUTE_PATHS.uiGallery,
-    lazy: async () => {
-      const { DEFERRED_ROUTE_NAMESPACES, loadRouteNamespace } =
-        await import("../shared/i18n/load-route-namespace");
-      await Promise.all(DEFERRED_ROUTE_NAMESPACES.map(loadRouteNamespace));
-      return {
-        Component: (await import("../pages/ui-gallery/UIGalleryPage")).UIGalleryPage,
-      };
-    },
+    lazy: async () =>
+      (await import("../pages/ui-gallery/load-gallery-namespace")).loadUiGalleryRoute(),
     errorElement: <RouteErrorPage />,
   });
 }

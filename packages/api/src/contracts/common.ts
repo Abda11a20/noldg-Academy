@@ -33,6 +33,15 @@ export const CurrencySchema = z.literal("EGP");
 /** ISO 8601 timestamp with an explicit UTC offset. */
 export const IsoTimestampSchema = z.string().datetime({ offset: true });
 
+/** Strict HTTPS URL validator rejecting unsafe schemes such as javascript:, data:, or http:. */
+export const HttpsUrlSchema = z.string().refine((value) => {
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}, "HTTPS URL required");
+
 /** The normalized error fields understood by the HTTP client. */
 export const ErrorEnvelopeSchema = z.object({
   success: z.literal(false).optional(),

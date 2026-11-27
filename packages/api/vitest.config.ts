@@ -7,7 +7,7 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts"],
     exclude: ["**/referencebackend/**", "**/node_modules/**", "**/dist/**"],
-    setupFiles: ["./test/setup.ts", "../config/vitest-console-guard.ts"],
+    setupFiles: ["./test/setup.ts", "./test/console-guard.ts"],
     coverage: {
       ...vitestPreset.coverage,
       thresholds: { statements: 93, branches: 83, functions: 98, lines: 95 },

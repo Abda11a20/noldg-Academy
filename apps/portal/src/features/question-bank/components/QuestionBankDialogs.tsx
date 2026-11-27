@@ -7,7 +7,7 @@ import { QuestionArchiveDialog } from "./QuestionArchiveDialog";
 import type { QuestionBankLabels } from "../types";
 import { useQuestions } from "../hooks/useQuestions";
 
-export interface QuestionDialogActions {
+interface QuestionDialogActions {
   onCreate: () => void;
   onEdit: (question: Question) => void;
   onPreview: (question: Question) => void;

@@ -10,7 +10,7 @@ export default defineConfig({
     setupFiles: [
       "../../packages/api/test/setup.ts",
       "./test/setup.ts",
-      "../../packages/config/vitest-console-guard.ts",
+      "../../packages/api/test/console-guard.ts",
     ],
     passWithNoTests: true,
     coverage: {

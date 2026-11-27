@@ -12,6 +12,9 @@ export const ROUTE_PATHS = {
   accountSuspended: "/account-suspended",
   student: "/student",
   studentTeachers: "/student/teachers",
+  studentLessons: "/student/lessons",
+  studentLessonDetail: "/student/lessons/:lessonId",
+  studentLessonQuiz: "/student/lessons/:lessonId/quiz",
   studentTeacherDetail: "/student/teachers/:teacherId",
   studentCheckout: "/student/checkout/:productId",
   studentPurchases: "/student/purchases",
@@ -39,6 +42,16 @@ export function getStudentTeacherPath(teacherId: string, search = ""): string {
     encodeURIComponent(teacherId),
   );
   return search ? `${path}?${search}` : path;
+}
+
+/** Builds a student lesson detail path for an opaque lesson identifier. */
+export function getStudentLessonPath(lessonId: string): string {
+  return ROUTE_PATHS.studentLessonDetail.replace(":lessonId", encodeURIComponent(lessonId));
+}
+
+/** Builds the student teacher detail destination for an opaque teacher identifier. */
+export function getStudentTeacherBrowsePath(teacherId: string): string {
+  return ROUTE_PATHS.studentTeacherDetail.replace(":teacherId", encodeURIComponent(teacherId));
 }
 
 /** Builds the lazy checkout placeholder path for a product identifier. */

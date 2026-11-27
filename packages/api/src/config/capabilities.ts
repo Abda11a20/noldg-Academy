@@ -29,6 +29,14 @@ export interface AuthCapabilities {
   idempotencyKey: boolean;
   orderAdminFilters: boolean;
   orderCancellation: boolean;
+  myLessonsList: boolean;
+  studentLessonDetail: boolean;
+  lessonProgressApi: boolean;
+  streamingDelivery: boolean;
+  playbackWatermark: boolean;
+  attachmentDownload: boolean;
+  playbackSessionApi: boolean;
+  deliveryIsDownloadable: boolean;
 }
 
 function resolveCapability(value: string | undefined, defaultValue: boolean): boolean {
@@ -90,4 +98,12 @@ export const capabilities: AuthCapabilities = {
   idempotencyKey: resolveCapability(import.meta.env.VITE_ORDER_CAP_IDEMPOTENCY, modeDefault),
   orderAdminFilters: resolveCapability(import.meta.env.VITE_ORDER_CAP_ADMIN_FILTERS, modeDefault),
   orderCancellation: resolveCapability(import.meta.env.VITE_ORDER_CAP_CANCELLATION, modeDefault),
+  myLessonsList: resolveCapability(import.meta.env.VITE_LEARNING_MY_LESSONS, modeDefault),
+  studentLessonDetail: resolveCapability(import.meta.env.VITE_LEARNING_STUDENT_DETAIL, modeDefault),
+  lessonProgressApi: resolveCapability(import.meta.env.VITE_LEARNING_PROGRESS, true),
+  streamingDelivery: resolveCapability(import.meta.env.VITE_LEARNING_STREAMING, false),
+  playbackWatermark: resolveCapability(import.meta.env.VITE_LEARNING_WATERMARK, modeDefault),
+  attachmentDownload: resolveCapability(import.meta.env.VITE_LEARNING_ATTACHMENTS, modeDefault),
+  playbackSessionApi: resolveCapability(import.meta.env.VITE_LEARNING_PLAYBACK, true),
+  deliveryIsDownloadable: apiMode === "live",
 };

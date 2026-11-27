@@ -3,7 +3,7 @@ import { ROUTE_PATHS } from "../shared/navigation/routes";
 import { RouteErrorPage } from "../pages/RouteErrorPage";
 
 function lazyWithNamespace(
-  namespace: "admin" | "browse" | "catalog" | "orders",
+  namespace: "admin" | "browse" | "catalog" | "orders" | "learning",
   loadComponent: () => Promise<Pick<RouteObject, "Component">>,
 ) {
   return async () => {
@@ -118,6 +118,28 @@ const routes: RouteObject[] = [
         lazy: lazyWithNamespace("browse", async () => ({
           Component: (await import("../features/student-browse/pages/TeacherDetailPage"))
             .TeacherDetailPage,
+        })),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "lessons",
+        lazy: lazyWithNamespace("learning", async () => ({
+          Component: (await import("../features/learning/pages/MyLessonsPage")).MyLessonsPage,
+        })),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "lessons/:lessonId",
+        lazy: lazyWithNamespace("learning", async () => ({
+          Component: (await import("../features/learning/pages/LessonPage")).LessonPage,
+        })),
+        errorElement: <RouteErrorPage />,
+      },
+      {
+        path: "lessons/:lessonId/quiz",
+        lazy: lazyWithNamespace("learning", async () => ({
+          Component: (await import("../features/learning/pages/LessonQuizStubPage"))
+            .LessonQuizStubPage,
         })),
         errorElement: <RouteErrorPage />,
       },

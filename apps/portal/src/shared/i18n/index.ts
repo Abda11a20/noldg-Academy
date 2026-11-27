@@ -42,6 +42,7 @@ declare module "i18next" {
       browse: typeof import("./locales/en/browse.json");
       catalog: typeof import("./locales/en/catalog.json");
       orders: typeof import("./locales/en/orders.json");
+      learning: typeof import("./locales/en/learning.json");
     };
     returnNull: false;
   }

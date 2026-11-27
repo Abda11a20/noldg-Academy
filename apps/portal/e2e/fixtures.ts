@@ -6,12 +6,15 @@ interface ExpectedApiFailure {
   method: string;
   urlPattern: RegExp;
   status: FailureStatus;
+  failure?: string;
+  required?: boolean;
 }
 
 interface ObservedApiFailure {
   method: string;
   url: string;
   status: FailureStatus;
+  failure?: string;
 }
 
 function matchesExpectedFailure(
@@ -21,7 +24,8 @@ function matchesExpectedFailure(
   return (
     observed.method === expected.method.toUpperCase() &&
     expected.urlPattern.test(observed.url) &&
-    observed.status === expected.status
+    observed.status === expected.status &&
+    (!expected.failure || observed.failure === expected.failure)
   );
 }
 
@@ -38,7 +42,7 @@ export const test = base.extend<{
       const expected: ExpectedApiFailure[] = [];
       const observed: ObservedApiFailure[] = [];
       const errors: string[] = [];
-      let resourceConsoleErrors = 0;
+      const resourceConsoleErrors: Array<{ url: string; message: string }> = [];
 
       page.on("response", (response) => {
         if (response.ok()) return;
@@ -49,12 +53,17 @@ export const test = base.extend<{
         });
       });
       page.on("requestfailed", (request) => {
-        observed.push({ method: request.method(), url: request.url(), status: "network" });
+        observed.push({
+          method: request.method(),
+          url: request.url(),
+          status: "network",
+          failure: request.failure()?.errorText ?? "Unknown network failure",
+        });
       });
       page.on("console", (message) => {
         if (message.type() !== "error") return;
         if (isBrowserResourceFailure(message.text())) {
-          resourceConsoleErrors += 1;
+          resourceConsoleErrors.push({ url: message.location().url, message: message.text() });
           return;
         }
         errors.push(message.text());
@@ -66,18 +75,29 @@ export const test = base.extend<{
       const declared = (failure: ObservedApiFailure) =>
         expected.some((declaration) => matchesExpectedFailure(failure, declaration));
       const unexpected = observed.filter((failure) => !declared(failure));
-      const matchedObservedCount = observed.filter(declared).length;
+      const missingExpected = expected
+        .filter((declaration) => declaration.required !== false)
+        .filter(
+          (declaration) =>
+            !observed.some((failure) => matchesExpectedFailure(failure, declaration)),
+        );
+      const unpairedResourceConsoleErrors = resourceConsoleErrors.filter(
+        (consoleError) =>
+          !observed.some((failure) => failure.url === consoleError.url && declared(failure)),
+      );
       expect(
         {
           consoleErrors: errors,
           undeclaredRequests: unexpected,
-          unpairedResourceConsoleErrors: Math.max(0, resourceConsoleErrors - matchedObservedCount),
+          missingExpectedRequests: missingExpected,
+          unpairedResourceConsoleErrors,
         },
-        "Only scenario-declared request failures may produce browser resource errors",
+        "Only exact method, URL, and status failures declared by this scenario are tolerated",
       ).toEqual({
         consoleErrors: [],
         undeclaredRequests: [],
-        unpairedResourceConsoleErrors: 0,
+        missingExpectedRequests: [],
+        unpairedResourceConsoleErrors: [],
       });
     },
     { auto: true },

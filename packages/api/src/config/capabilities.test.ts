@@ -42,6 +42,14 @@ describe("live backend capability overrides", () => {
       idempotencyKey: false,
       orderAdminFilters: false,
       orderCancellation: false,
+      myLessonsList: false,
+      studentLessonDetail: false,
+      lessonProgressApi: true,
+      streamingDelivery: false,
+      playbackWatermark: false,
+      attachmentDownload: false,
+      playbackSessionApi: true,
+      deliveryIsDownloadable: true,
     });
   });
 });

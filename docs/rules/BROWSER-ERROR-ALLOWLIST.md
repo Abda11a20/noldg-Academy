@@ -1,19 +1,5 @@
-# Browser error allowlist
+# Browser request error allowlist
 
-Each Playwright scenario that intentionally exercises an unsuccessful request must call
-`declareExpectedApiFailure` before triggering it. A declaration contains the HTTP method, a URL
-regular expression, and either the exact non-2xx status or `network` for a transport failure.
+Every Playwright scenario uses `declareExpectedApiFailure` to list each expected failed request with its HTTP method, URL regular expression, and exact HTTP status (or `network` for a transport failure). The fixture records failed HTTP responses and failed requests. It tolerates a Chromium “Failed to load resource” console error only when the exact request URL matches a request failure that the same scenario declared. Undeclared failures, undeclared resource errors, unmatched declarations, all other browser console errors, and all uncaught page errors fail the scenario. A declaration does not suppress unrelated requests or messages.
 
-The fixture observes all failed browser requests. A declaration identifies an expected failure
-signature; repeated requests with that same method, URL pattern, and status are tolerated because
-the query layer may retry them. Every observed request must match a declared signature. Some
-declared signatures can be absent when query cancellation timing varies between runs. Chromium's
-`Failed to load resource` console message is tolerated only when paired with a matching failed
-request. All other console errors and every uncaught page error fail the scenario. Unhandled MSW
-requests remain errors.
-
-Do not declare status-only or wildcard allowances: declarations belong to the scenario that expects
-the failure and must identify its request method, URL, and outcome.
-
-The rule is exercised by a temporary Playwright scenario that triggers an undeclared 418 response.
-That scenario must fail, then the temporary test is removed and not committed.
+Use the narrowest URL pattern practical. Do not declare failures that the scenario does not exercise. The negative proof temporarily issues an undeclared 4xx and verifies the test fails; that temporary test is removed after the proof.

@@ -13,7 +13,8 @@ export interface NavigationItem {
     | "navigation.academic"
     | "navigation.teachers"
     | "navigation.studentPurchases"
-    | "navigation.adminOrders";
+    | "navigation.adminOrders"
+    | "navigation.studentLessons";
   route: string;
   allowedRoles: readonly PortalRole[];
   enabled: boolean;
@@ -35,6 +36,14 @@ const navigationItems: readonly NavigationItem[] = [
     icon: "home",
     labelKey: "navigation.studentHome",
     route: ROUTE_PATHS.student,
+    allowedRoles: ["student"],
+    enabled: true,
+  },
+  {
+    id: "student-lessons",
+    icon: "video",
+    labelKey: "navigation.studentLessons",
+    route: ROUTE_PATHS.studentLessons,
     allowedRoles: ["student"],
     enabled: true,
   },

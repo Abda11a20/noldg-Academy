@@ -21,6 +21,7 @@ import {
 } from "./gallery-constants";
 import { GalleryShowcase } from "./GalleryShowcase";
 import { GalleryInfrastructure } from "./GalleryInfrastructure";
+import { GalleryPlayer } from "./GalleryPlayer";
 
 export interface GalleryDirectionProps {
   direction: "rtl" | "ltr";
@@ -88,6 +89,7 @@ export function GalleryDirection({ direction }: GalleryDirectionProps) {
         <Button disabled>{t("sampleAction")}</Button>
         <Button aria-label={t("sampleSearch")} iconOnly iconStart="search" variant="secondary" />
         <GalleryShowcase direction={direction} />
+        <GalleryPlayer direction={direction} />
         <GalleryInfrastructure />
       </section>
     </UiProvider>

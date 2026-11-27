@@ -51,6 +51,8 @@
 - F7 Playwright passed 39/39 in five consecutive full runs. The suite now runs with one worker to isolate the MSW service-worker state; the preview API base URL is bound to the test origin. Screenshots are saved only under the gitignored `docs/reports/screenshots/` directory. Two temporary negative proofs returned non-zero and their temporary tests were removed.
 - F7 production bundle is 226.02 kB gzip initial-route JavaScript, 0.99 kB above its committed 225.03 kB baseline and within the +2 kB guard; portal entry 1.61 kB, main app chunk 71.69 kB, largest lazy route 7.05 kB. Owner-run `pnpm audit:prod` and `pnpm audit:full` were not run.
 - F7 handover, exact E2E inventory, and local commits are in `docs/reports/f7-report.md`. `apps/portal/debug.log` is a local untracked artifact and must not be committed.
+- F8A currently stops after the API and teacher question-bank boundary: assessment target contracts/adapters/capabilities/mocks and the `/teacher/questions` screen are implemented; assessment builders, lesson quizzes, results, and their F8A Playwright journeys are pending. See `docs/reports/f8a-report.md` for verified results and limitations.
+- F8A question editing supports target MCQs and presents unsupported legacy question kinds read-only. Live-only capabilities remain disabled where the current backend lacks question images, archive, metadata, or target filters. Question filter/metadata selectors currently accept IDs because the current contract does not expose a complete selector catalog.
 
 ## How to run
 
@@ -70,3 +72,4 @@
 - Backend owners must confirm the F3 target admin permissions, paginated list contracts, teacher detail/review payload, reasoned account status, and teacher resubmission route before enabling those capabilities in live mode.
 - The owner must run `pnpm audit:prod` and `pnpm audit:full` outside this environment before accepting F4; audits were intentionally not run here.
 - Backend owners must confirm the target `/me/lessons` list/detail, attachment ticket, explicit quiz eligibility, stable playback error codes, and heartbeat server timestamp before enabling the unsupported live capabilities.
+- Backend owners must confirm question archive/image/metadata support, MCQ-only behavior, and target assessment audience/randomization/results contracts before enabling those live capabilities.

@@ -37,6 +37,15 @@ export interface AuthCapabilities {
   attachmentDownload: boolean;
   playbackSessionApi: boolean;
   deliveryIsDownloadable: boolean;
+  questionImages: boolean;
+  questionArchive: boolean;
+  questionMetadata: boolean;
+  assessmentTargeting: boolean;
+  assessmentRandomPool: boolean;
+  assessmentShuffle: boolean;
+  assessmentResultsApi: boolean;
+  quizThresholdSetting: boolean;
+  mcqOnly: boolean;
 }
 
 function resolveCapability(value: string | undefined, defaultValue: boolean): boolean {
@@ -106,4 +115,19 @@ export const capabilities: AuthCapabilities = {
   attachmentDownload: resolveCapability(import.meta.env.VITE_LEARNING_ATTACHMENTS, modeDefault),
   playbackSessionApi: resolveCapability(import.meta.env.VITE_LEARNING_PLAYBACK, true),
   deliveryIsDownloadable: apiMode === "live",
+  questionImages: resolveCapability(import.meta.env.VITE_ASSESSMENT_QUESTION_IMAGES, modeDefault),
+  questionArchive: resolveCapability(import.meta.env.VITE_ASSESSMENT_QUESTION_ARCHIVE, modeDefault),
+  questionMetadata: resolveCapability(
+    import.meta.env.VITE_ASSESSMENT_QUESTION_METADATA,
+    modeDefault,
+  ),
+  assessmentTargeting: resolveCapability(import.meta.env.VITE_ASSESSMENT_TARGETING, modeDefault),
+  assessmentRandomPool: resolveCapability(import.meta.env.VITE_ASSESSMENT_RANDOM_POOL, modeDefault),
+  assessmentShuffle: resolveCapability(import.meta.env.VITE_ASSESSMENT_SHUFFLE, modeDefault),
+  assessmentResultsApi: resolveCapability(import.meta.env.VITE_ASSESSMENT_RESULTS, modeDefault),
+  quizThresholdSetting: resolveCapability(
+    import.meta.env.VITE_ASSESSMENT_QUIZ_THRESHOLD,
+    modeDefault,
+  ),
+  mcqOnly: resolveCapability(import.meta.env.VITE_ASSESSMENT_MCQ_ONLY, modeDefault),
 };

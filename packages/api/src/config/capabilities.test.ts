@@ -50,6 +50,15 @@ describe("live backend capability overrides", () => {
       attachmentDownload: false,
       playbackSessionApi: true,
       deliveryIsDownloadable: true,
+      questionImages: false,
+      questionArchive: false,
+      questionMetadata: false,
+      assessmentTargeting: false,
+      assessmentRandomPool: false,
+      assessmentShuffle: false,
+      assessmentResultsApi: false,
+      quizThresholdSetting: false,
+      mcqOnly: false,
     });
   });
 });
@@ -66,6 +75,15 @@ describe("mock catalog capability defaults", () => {
       lessonWindowRules: true,
       lessonDrafts: true,
       lessonVideoProcessing: true,
+      questionImages: true,
+      questionArchive: true,
+      questionMetadata: true,
+      assessmentTargeting: true,
+      assessmentRandomPool: true,
+      assessmentShuffle: true,
+      assessmentResultsApi: true,
+      quizThresholdSetting: true,
+      mcqOnly: true,
     });
   });
 });

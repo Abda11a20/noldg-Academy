@@ -1,0 +1,6 @@
+export const LEARNING_DEFAULT_PAGE_SIZE = 20;
+export const LEARNING_SKELETON_COUNT = 3;
+export const PLAYBACK_RATE_MINIMUM = 0.25;
+export const PLAYBACK_RATE_MAXIMUM = 2;
+export const PLAYBACK_RETRY_DELAYS_MS = [250, 750, 1500] as const;
+export const DEFAULT_PLAYBACK_HEARTBEAT_SECONDS = 10;

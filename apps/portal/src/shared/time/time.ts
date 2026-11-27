@@ -177,3 +177,14 @@ export function isAfterNow(value: string, now: Date): boolean {
 export function isAfterTimestamp(value: string, comparison: string): boolean {
   return new Date(value).getTime() > new Date(comparison).getTime();
 }
+
+/** Formats a display-only countdown using a target and server timestamp; it never decides availability. */
+export function formatRemainingFromServer(target: string, serverNow: string): string {
+  const remainingSeconds = Math.max(
+    0,
+    Math.floor((Date.parse(target) - Date.parse(serverNow)) / 1000),
+  );
+  const hours = Math.floor(remainingSeconds / 3600);
+  const minutes = Math.floor((remainingSeconds % 3600) / 60);
+  return `${hours}:${String(minutes).padStart(2, "0")}`;
+}

@@ -102,6 +102,7 @@
     "studentHome": "Student home",
     "studentTeachers": "Teachers",
     "studentPurchases": "Purchases",
+    "studentLessons": "My lessons",
     "teacherHome": "My courses",
     "adminHome": "Admin home",
     "academic": "Academic structure",
@@ -121,5 +122,18 @@
   "gallerySecondPanel": "Details panel",
   "galleryTabsLabel": "Gallery tabs",
   "galleryBreadcrumbLabel": "Breadcrumbs",
-  "galleryCurrentPage": "Current page"
+  "galleryCurrentPage": "Current page",
+  "galleryPlayer": "Video player",
+  "galleryWatermark": "Sample student · 01000000000",
+  "playerPlay": "Play video",
+  "playerPause": "Pause video",
+  "playerSeek": "Seek video",
+  "playerVolume": "Volume",
+  "playerMute": "Mute video",
+  "playerUnmute": "Unmute video",
+  "playerFullscreen": "Full screen",
+  "playerSpeed": "Playback speed",
+  "playerUnsupported": "Unsupported video format",
+  "playerRate": "{{rate}}x",
+  "playerTime": "{{current}} / {{duration}}"
 }

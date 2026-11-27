@@ -102,6 +102,7 @@
     "studentHome": "الرئيسية للطالب",
     "studentTeachers": "المعلمون",
     "studentPurchases": "مشترياتي",
+    "studentLessons": "دروسي",
     "teacherHome": "كورساتي",
     "adminHome": "الرئيسية للإدارة",
     "academic": "الهيكل الدراسي",
@@ -121,5 +122,18 @@
   "gallerySecondPanel": "لوحة التفاصيل",
   "galleryTabsLabel": "تبويبات المعرض",
   "galleryBreadcrumbLabel": "مسار التنقل",
-  "galleryCurrentPage": "الصفحة الحالية"
+  "galleryCurrentPage": "الصفحة الحالية",
+  "galleryPlayer": "مشغل الفيديو",
+  "galleryWatermark": "طالب تجريبي · 01000000000",
+  "playerPlay": "تشغيل الفيديو",
+  "playerPause": "إيقاف الفيديو مؤقتًا",
+  "playerSeek": "موضع الفيديو",
+  "playerVolume": "مستوى الصوت",
+  "playerMute": "كتم الصوت",
+  "playerUnmute": "إلغاء كتم الصوت",
+  "playerFullscreen": "ملء الشاشة",
+  "playerSpeed": "سرعة التشغيل",
+  "playerUnsupported": "تنسيق الفيديو غير مدعوم",
+  "playerRate": "{{rate}}×",
+  "playerTime": "{{current}} / {{duration}}"
 }

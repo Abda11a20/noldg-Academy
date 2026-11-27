@@ -3,6 +3,7 @@ import { AssessmentSchema, QuestionInputSchema, QuestionSchema } from "./assessm
 
 const question = {
   id: "question-1",
+  type: "multiple_choice",
   text: "ما ناتج ٢ + ٢؟",
   options: [{ text: "٣" }, { text: "٤" }],
   correctIndex: 1,
@@ -33,6 +34,7 @@ it("requires two to five distinct options and a valid single correct index", () 
   expect(
     QuestionInputSchema.safeParse({
       text: "سؤال",
+      type: "multiple_choice",
       options: [{ text: "أ" }, { text: "ب" }],
       correctIndex: 0,
       status: "active",
@@ -41,6 +43,7 @@ it("requires two to five distinct options and a valid single correct index", () 
   expect(
     QuestionInputSchema.safeParse({
       text: "سؤال",
+      type: "multiple_choice",
       options: [{ text: "أ" }, { text: "أ" }],
       correctIndex: 3,
       status: "active",

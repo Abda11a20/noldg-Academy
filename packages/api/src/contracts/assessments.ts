@@ -10,6 +10,7 @@ export const QuestionOptionSchema = z.object({
 });
 const QuestionBaseSchema = z.object({
   id: IdSchema,
+  type: AssessmentQuestionTypeSchema,
   text: z.string().trim().min(1),
   imageUrl: z.string().url().optional(),
   options: z.array(QuestionOptionSchema).min(2).max(5),
@@ -19,7 +20,7 @@ const QuestionBaseSchema = z.object({
   lessonId: IdSchema.optional(),
   difficulty: QuestionDifficultySchema.optional(),
   status: QuestionStatusSchema,
-  used: z.boolean(),
+  used: z.boolean().optional(),
 });
 const distinctOptions = (options: Array<{ text: string }>): boolean => {
   const values = options.map((option) => option.text.trim().toLocaleLowerCase("en"));

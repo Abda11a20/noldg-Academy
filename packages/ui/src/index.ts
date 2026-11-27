@@ -70,6 +70,14 @@ export { Badge, type BadgeProps } from "./components/feedback/Badge";
 export { EmptyState, type EmptyStateProps } from "./components/feedback/EmptyState";
 export { ErrorState, type ErrorStateProps } from "./components/feedback/ErrorState";
 export { ProgressBar, type ProgressBarProps } from "./components/feedback/ProgressBar";
+export {
+  VideoPlayer,
+  type VideoPlayerProps,
+  type VideoPlayerLabels,
+  PLAYBACK_RATES,
+} from "./components/player/VideoPlayer";
+export { Watermark, type WatermarkProps } from "./components/player/Watermark";
+export { SeekBar, type SeekBarProps } from "./components/player/SeekBar";
 export { Skeleton, type SkeletonProps } from "./components/feedback/Skeleton";
 export { Card, type CardProps } from "./components/data-display/Card";
 export { Chip, type ChipProps } from "./components/data-display/Chip";

@@ -14,7 +14,8 @@ export interface NavigationItem {
     | "navigation.teachers"
     | "navigation.studentPurchases"
     | "navigation.adminOrders"
-    | "navigation.studentLessons";
+    | "navigation.studentLessons"
+    | "navigation.teacherQuestionBank";
   route: string;
   allowedRoles: readonly PortalRole[];
   enabled: boolean;
@@ -60,6 +61,14 @@ const navigationItems: readonly NavigationItem[] = [
     icon: "home",
     labelKey: "navigation.teacherHome",
     route: ROUTE_PATHS.teacher,
+    allowedRoles: ["teacher"],
+    enabled: true,
+  },
+  {
+    id: "teacher-question-bank",
+    icon: "book",
+    labelKey: "navigation.teacherQuestionBank",
+    route: ROUTE_PATHS.teacherQuestions,
     allowedRoles: ["teacher"],
     enabled: true,
   },

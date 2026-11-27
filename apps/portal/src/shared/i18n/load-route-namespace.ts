@@ -36,6 +36,13 @@ const namespaceLoaders = {
     ]);
     return { ar, en };
   },
+  questions: async () => {
+    const [{ default: ar }, { default: en }] = await Promise.all([
+      import("./locales/ar/questions.json"),
+      import("./locales/en/questions.json"),
+    ]);
+    return { ar, en };
+  },
 };
 
 export type RouteNamespace = keyof typeof namespaceLoaders;
@@ -47,6 +54,7 @@ export const DEFERRED_ROUTE_NAMESPACES = [
   "catalog",
   "orders",
   "learning",
+  "questions",
 ] as const;
 
 /** Loads a deferred bilingual feature namespace before its route renders. */

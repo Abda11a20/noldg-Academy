@@ -81,7 +81,9 @@ async function prepareE2EBuild() {
   const environment = {
     ...process.env,
     VITE_API_ORIGIN: process.env.VITE_API_ORIGIN ?? "https://api.example.invalid",
-    VITE_UPLOAD_ORIGINS: process.env.VITE_UPLOAD_ORIGINS ?? "https://api.cloudinary.com",
+    VITE_API_BASE_URL: `${E2E_BASE_URL}/api`,
+    VITE_UPLOAD_ORIGINS:
+      process.env.VITE_UPLOAD_ORIGINS ?? "https://api.cloudinary.com,https://media.example.test",
     VITE_IMAGE_ORIGINS: process.env.VITE_IMAGE_ORIGINS ?? "https://res.cloudinary.com",
     VITE_API_MODE: "mock",
     VITE_E2E_MOCKS: "true",
@@ -123,7 +125,7 @@ async function waitForProcessExit(child, exit) {
 async function runPlaywright() {
   await rm(E2E_REPORT, { force: true });
   const startedAt = Date.now();
-  const runner = spawn(process.execPath, [PLAYWRIGHT_CLI, "test"], {
+  const runner = spawn(process.execPath, [PLAYWRIGHT_CLI, "test", ...process.argv.slice(2)], {
     cwd: PORTAL_DIRECTORY,
     env: { ...process.env, PORTAL_E2E_BASE_URL: E2E_BASE_URL },
     stdio: "inherit",

@@ -20,19 +20,25 @@ test("approved teacher can publish a video lesson and create a bundle", async ({
   page,
   declareExpectedApiFailure,
 }) => {
+  declareExpectedApiFailure({
+    method: "GET",
+    urlPattern: /\/api\/(?:products\/my|lessons\/courses\/course-general-secondary-1)(?:\?.*)?$/u,
+    status: "network",
+    failure: "net::ERR_ABORTED",
+    required: false,
+  });
   await signInApprovedTeacher(page);
   await expect(page.getByRole("heading", { name: "My courses" })).toBeVisible();
+  const courseResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/lessons/courses/course-general-secondary-1") &&
+      response.status() === 200,
+  );
+  const productsResponse = page.waitForResponse(
+    (response) => response.url().includes("/api/products/my") && response.status() === 200,
+  );
   await page.getByRole("link", { name: "Open course" }).click();
-  await Promise.all([
-    page.waitForResponse(
-      (response) =>
-        response.url().includes("/api/lessons/courses/course-general-secondary-1") &&
-        response.status() === 200,
-    ),
-    page.waitForResponse(
-      (response) => response.url().includes("/api/products/my") && response.status() === 200,
-    ),
-  ]);
+  await Promise.all([courseResponse, productsResponse]);
   await page.getByRole("button", { name: "Create lesson" }).click();
   await page.getByLabel("Title").fill("F4 uploaded lesson");
   await page
@@ -53,29 +59,24 @@ test("approved teacher can publish a video lesson and create a bundle", async ({
   await expect(page).toHaveURL(/\/teacher\/courses\/course-general-secondary-1\/lessons\/lesson-/);
   await expect(page.getByText("Ready")).toBeVisible();
   await page.getByRole("button", { name: "Publish lesson" }).click();
+  const lessonsRefresh = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/lessons/courses/course-general-secondary-1") &&
+      response.status() === 200,
+  );
   await page.getByRole("link", { name: "Lessons" }).click();
+  await lessonsRefresh;
   await expect(page.getByText("F4 uploaded lesson").first()).toBeVisible();
   declareExpectedApiFailure({
     method: "GET",
     urlPattern: /\/api\/products\/[^/]+\/pricing$/u,
     status: 409,
   });
-  declareExpectedApiFailure({
-    method: "GET",
-    urlPattern: /\/api\/products\/product-3\/pricing$/u,
-    status: "network",
-  });
-  declareExpectedApiFailure({
-    method: "GET",
-    urlPattern: /\/api\/products\/my$/u,
-    status: "network",
-  });
-  declareExpectedApiFailure({
-    method: "GET",
-    urlPattern: /\/api\/lessons\/courses\/course-general-secondary-1\?page=1&pageSize=100$/u,
-    status: "network",
-  });
+  const bundlesProducts = page.waitForResponse(
+    (response) => response.url().endsWith("/api/products/my") && response.status() === 200,
+  );
   await page.getByRole("tab", { name: "Bundles" }).click();
+  await bundlesProducts;
   await page.getByRole("button", { name: "Create bundle" }).click();
   await page.getByLabel("Bundle name").fill("F4 lesson bundle");
   await page.getByLabel("Bundle price in EGP").fill("240");

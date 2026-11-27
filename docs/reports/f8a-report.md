@@ -143,7 +143,7 @@
 | `cdaab2d` | `test(e2e): await device status failure`            |
 | `b9f1bff` | `fix(test): honor no-color in e2e workers`          |
 
-تغيير التوثيق والتقرير الحاليان سيُحفظان في commit مستقل قبل رفع الفرع. لم يُدفع أي commit إلى `main`.
+تغيير التوثيق والتقرير محفوظ في commit مستقل بعد commits التنفيذ؛ يظهر hash النهائي في سجل Git. لم يُدفع أي commit إلى `main`.
 
 ## 13. ما ينبغي مراجعته أولًا
 

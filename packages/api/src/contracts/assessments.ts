@@ -37,17 +37,32 @@ export const QuestionSchema = QuestionBaseSchema.refine(
   message: "Options must be distinct",
 });
 
-export const QuestionInputSchema = QuestionBaseSchema.omit({ id: true, used: true })
-  .refine((question) => question.correctIndex < question.options.length, {
+const QuestionInputBaseSchema = QuestionBaseSchema.omit({ id: true, used: true });
+export const QuestionInputSchema = QuestionInputBaseSchema.refine(
+  (question) => question.correctIndex < question.options.length,
+  {
     path: ["correctIndex"],
     message: "correctIndex must identify an existing option",
-  })
-  .refine((question) => distinctOptions(question.options), {
-    path: ["options"],
-    message: "Options must be distinct",
-  });
+  },
+).refine((question) => distinctOptions(question.options), {
+  path: ["options"],
+  message: "Options must be distinct",
+});
+export const QuestionUpdateInputSchema = QuestionInputBaseSchema.partial().refine(
+  (input) => Object.keys(input).length > 0,
+  { message: "At least one question field must be updated" },
+);
+export const UnsupportedLegacyQuestionSchema = z.object({
+  id: IdSchema,
+  text: z.string(),
+  legacyType: z.enum(["multiple_choice", "true_false", "essay"]),
+  options: z.array(z.string()),
+  correctAnswer: z.unknown().optional(),
+  supported: z.literal(false),
+});
+export const QuestionEntrySchema = z.union([QuestionSchema, UnsupportedLegacyQuestionSchema]);
 export const QuestionListSchema = z.object({
-  items: z.array(QuestionSchema),
+  items: z.array(QuestionEntrySchema),
   page: z.number().int().positive(),
   pageSize: z.number().int().positive(),
   total: z.number().int().nonnegative(),
@@ -196,7 +211,9 @@ export const AssessmentErrorCodeSchema = z.enum([
 ]);
 
 export type Question = z.infer<typeof QuestionSchema>;
+export type QuestionEntry = z.infer<typeof QuestionEntrySchema>;
 export type QuestionInput = z.infer<typeof QuestionInputSchema>;
+export type QuestionUpdateInput = z.infer<typeof QuestionUpdateInputSchema>;
 export type QuestionListQuery = z.infer<typeof QuestionListQuerySchema>;
 export type Assessment = z.infer<typeof AssessmentSchema>;
 export type AssessmentType = z.infer<typeof AssessmentTypeSchema>;

@@ -40,6 +40,7 @@ export interface AuthCapabilities {
   questionImages: boolean;
   questionArchive: boolean;
   questionMetadata: boolean;
+  questionBankFilters: boolean;
   assessmentTargeting: boolean;
   assessmentRandomPool: boolean;
   assessmentShuffle: boolean;
@@ -119,6 +120,10 @@ export const capabilities: AuthCapabilities = {
   questionArchive: resolveCapability(import.meta.env.VITE_ASSESSMENT_QUESTION_ARCHIVE, modeDefault),
   questionMetadata: resolveCapability(
     import.meta.env.VITE_ASSESSMENT_QUESTION_METADATA,
+    modeDefault,
+  ),
+  questionBankFilters: resolveCapability(
+    import.meta.env.VITE_ASSESSMENT_QUESTION_FILTERS,
     modeDefault,
   ),
   assessmentTargeting: resolveCapability(import.meta.env.VITE_ASSESSMENT_TARGETING, modeDefault),

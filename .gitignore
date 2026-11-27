@@ -4,6 +4,7 @@ referencebackend/
 docs/reports/screenshots/
 node_modules/
 **/node_modules/
+*.log
 .pnpm-store/
 dist/
 coverage/

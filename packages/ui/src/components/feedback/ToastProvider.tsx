@@ -30,12 +30,13 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 export interface ToastProviderProps {
   children: ReactNode;
   dismissLabel: string;
+  regionLabel?: string | undefined;
 }
 
 /** Provides a bounded, accessible toast queue with direction-aware placement.
- * @param props Application subtree and translated dismissal label.
+ * @param props Application subtree and translated notification labels.
  */
-export function ToastProvider({ children, dismissLabel }: ToastProviderProps) {
+export function ToastProvider({ children, dismissLabel, regionLabel }: ToastProviderProps) {
   const [items, setItems] = useState<ToastItem[]>([]);
   const nextId = useRef(0);
   const { direction } = useUiContext();
@@ -54,7 +55,7 @@ export function ToastProvider({ children, dismissLabel }: ToastProviderProps) {
       <Primitive.Provider swipeDirection={direction === "rtl" ? "left" : "right"}>
         {children}
         <Primitive.Viewport
-          aria-label={dismissLabel}
+          aria-label={regionLabel ?? dismissLabel}
           className="fixed end-4 top-4 z-toast flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2 outline-none"
         >
           {items.map((item) => (

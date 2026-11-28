@@ -7,3 +7,7 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-family-arabic);
 }
+
+:lang(en) {
+  font-family: var(--font-family-latin);
+}

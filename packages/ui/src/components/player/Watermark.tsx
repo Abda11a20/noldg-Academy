@@ -19,6 +19,7 @@ export interface WatermarkProps {
 export function Watermark({ text, random = Math.random }: WatermarkProps) {
   const [position, setPosition] = useState(0);
   useEffect(() => {
+    if (!text) return;
     const timer = window.setInterval(() => {
       const next = Math.floor(random() * WATERMARK_POSITIONS.length);
       setPosition((current) =>
@@ -26,7 +27,7 @@ export function Watermark({ text, random = Math.random }: WatermarkProps) {
       );
     }, WATERMARK_INTERVAL_MS);
     return () => window.clearInterval(timer);
-  }, [random]);
+  }, [random, text]);
   if (!text) return null;
   return (
     <span

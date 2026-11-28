@@ -29,7 +29,7 @@ export interface GalleryDirectionProps {
 
 /** Shows the complete F0 design-system sample set in one text direction. */
 export function GalleryDirection({ direction }: GalleryDirectionProps) {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(["gallery", "common"]);
   const directionLabel = direction === "rtl" ? t("directionRtl") : t("directionLtr");
 
   return (
@@ -66,10 +66,10 @@ export function GalleryDirection({ direction }: GalleryDirectionProps) {
             </div>
           ))}
           <Button iconStart="search" iconEnd="chevronEnd" onClick={() => undefined}>
-            {t("continue")}
+            {t("common:continue")}
           </Button>
           <Button loading onClick={() => undefined}>
-            {t("loading")}
+            {t("common:loading")}
           </Button>
           <div className="flex flex-wrap items-center gap-4">
             {iconNames.map((name) => (
@@ -80,11 +80,11 @@ export function GalleryDirection({ direction }: GalleryDirectionProps) {
             ))}
             <Spinner />
           </div>
-          <Logo alt={t("logoAlt")} className="w-40" />
+          <Logo alt={t("common:logoAlt")} className="w-40" />
           <Image alt={t("imageSample")} asset="wordmark" fixedAspect />
           <VisuallyHidden>{t("hiddenDemo")}</VisuallyHidden>
         </section>
-        <Link to="/login">{t("goHome")}</Link>
+        <Link to="/login">{t("common:goHome")}</Link>
         <Text>{t("typographySample")}</Text>
         <Button disabled>{t("sampleAction")}</Button>
         <Button aria-label={t("sampleSearch")} iconOnly iconStart="search" variant="secondary" />

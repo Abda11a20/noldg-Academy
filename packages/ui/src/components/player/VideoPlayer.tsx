@@ -60,8 +60,14 @@ export function VideoPlayer(props: VideoPlayerProps) {
   };
   const togglePlayback = () => {
     const media = mediaRef.current as HTMLVideoElement;
-    if (media.paused) void media.play();
+    if (media.paused) void Promise.resolve(media.play()).catch(() => undefined);
     else media.pause();
+  };
+  const toggleFullscreen = () => {
+    const action = document.fullscreenElement
+      ? document.exitFullscreen()
+      : rootRef.current?.requestFullscreen();
+    void Promise.resolve(action).catch(() => undefined);
   };
   const toggleMute = () => {
     const next = !muted;
@@ -87,8 +93,8 @@ export function VideoPlayer(props: VideoPlayerProps) {
       ArrowRight: () => seek(position + SEEK_STEP_SECONDS),
       m: toggleMute,
       M: toggleMute,
-      f: () => void rootRef.current?.requestFullscreen(),
-      F: () => void rootRef.current?.requestFullscreen(),
+      f: toggleFullscreen,
+      F: toggleFullscreen,
     };
     const action = keys[event.key];
     if (action) {
@@ -100,8 +106,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
   if (props.source.method !== "file") return <Text role="status">{props.labels.unsupported}</Text>;
   return (
     <div
-      aria-label={props.labels.play}
-      className="relative overflow-hidden rounded-lg bg-foreground text-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+      className="relative overflow-hidden rounded-lg border border-border bg-foreground text-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
       ref={rootRef}
     >
       <video
@@ -112,7 +117,14 @@ export function VideoPlayer(props: VideoPlayerProps) {
         onContextMenu={(event) => event.preventDefault()}
         onKeyDown={onKeyDown}
         onLoadedMetadata={(event) => {
-          event.currentTarget.currentTime = props.startPositionSeconds ?? 0;
+          const media = event.currentTarget;
+          const start = props.startPositionSeconds ?? 0;
+          media.currentTime =
+            Number.isFinite(media.duration) && media.duration > 0
+              ? Math.min(Math.max(start, 0), media.duration)
+              : start;
+          setDuration(media.duration);
+          setPosition(media.currentTime);
         }}
         onDurationChange={(event) => setDuration(event.currentTarget.duration)}
         onEnded={() => {
@@ -138,13 +150,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
         src={props.source.url}
         tabIndex={0}
       >
-        <track
-          default
-          kind="captions"
-          label={props.labels.play}
-          src="data:text/vtt,WEBVTT"
-          srcLang="en"
-        />
+        <track kind="captions" label={props.labels.play} srcLang="en" />
       </video>
       <Watermark text={props.watermarkText ?? ""} />
       <PlayerControls
@@ -152,7 +158,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
         id={props.id}
         labels={props.labels}
         muted={muted}
-        onFullscreen={() => void rootRef.current?.requestFullscreen()}
+        onFullscreen={toggleFullscreen}
         onRateChange={setPlaybackRate}
         onSeek={seek}
         onToggleMute={toggleMute}

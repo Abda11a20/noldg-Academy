@@ -7,18 +7,20 @@ export interface NavItemProps {
   icon: IconName;
   active?: boolean;
   badge?: string;
+  onClick?: (() => void) | undefined;
 }
 
 /** Renders a role-filtered navigation link with active and optional badge states.
  * @param props Destination, translated label, registered icon, and display state.
  */
-export function NavItem({ to, label, icon, active = false, badge }: NavItemProps) {
+export function NavItem({ to, label, icon, active = false, badge, onClick }: NavItemProps) {
   return (
     <Button
       aria-current={active ? "page" : undefined}
       className="justify-start"
       fullWidth
       iconStart={icon}
+      onClick={onClick}
       to={to}
       variant={active ? "secondary" : "ghost"}
     >

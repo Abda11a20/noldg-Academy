@@ -48,7 +48,8 @@ vi.mock("radix-ui", async () => {
       },
     });
   };
-  return { Toast: { Root, Title, Description, Close } };
+  const Direction = { Provider: ({ children }: { children: ReactNode }) => children };
+  return { Direction, Toast: { Root, Title, Description, Close } };
 });
 
 it("only dismisses when the toast closes, not when it opens", () => {

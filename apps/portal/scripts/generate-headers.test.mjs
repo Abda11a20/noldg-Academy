@@ -20,7 +20,31 @@ test("uses configured API and upload origins in the CSP connect-src and media-sr
     headers,
     /img-src 'self' data: https:\/\/images\.example\.test https:\/\/cdn\.example\.test;/,
   );
+  assert.match(headers, /Strict-Transport-Security: max-age=31536000; includeSubDomains/);
   assert.doesNotMatch(headers, /res\.cloudinary\.com/u);
+});
+
+test("merges optional VITE_MEDIA_ORIGINS into media-src and rejects non-HTTPS values", () => {
+  const headers = createHeaders(
+    "https://api.example.test",
+    "https://uploads.example.test",
+    "https://images.example.test",
+    "https://media.example.test,https://uploads.example.test",
+  );
+  assert.match(
+    headers,
+    /media-src 'self' https:\/\/uploads\.example\.test https:\/\/media\.example\.test;/,
+  );
+  assert.throws(
+    () =>
+      createHeaders(
+        "https://api.example.test",
+        "https://uploads.example.test",
+        "https://images.example.test",
+        "http://media.example.test",
+      ),
+    /VITE_MEDIA_ORIGINS must contain HTTPS origins/,
+  );
 });
 
 test("rejects a missing production API origin", () => {

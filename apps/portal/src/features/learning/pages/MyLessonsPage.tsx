@@ -5,8 +5,8 @@ import type { LessonAvailability, MyLessonsQuery } from "@noldg/api/contracts/le
 import { useListUrlState } from "../../../shared/navigation/useListUrlState";
 import { LEARNING_DEFAULT_PAGE_SIZE } from "../constants";
 import { useMyLessons } from "../hooks/useLearningQueries";
-import { MyLessonsFilterBar } from "./MyLessonsFilterBar";
-import { MyLessonsResults } from "./MyLessonsResults";
+import { MyLessonsFilterBar } from "../components/MyLessonsFilterBar";
+import { MyLessonsResults } from "../components/MyLessonsResults";
 
 const availabilityValues: readonly LessonAvailability[] = ["available", "upcoming", "ended"];
 

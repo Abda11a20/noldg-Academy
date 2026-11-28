@@ -2,28 +2,36 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, EmptyState, ErrorState, Heading, Pagination, Select, Skeleton } from "@noldg/ui";
 import { AppError } from "@noldg/api/errors";
+import type { OrderListQuery } from "@noldg/api/contracts/orders";
 import { useListUrlState } from "../../../shared/navigation/useListUrlState";
 import { getStudentPurchasePath } from "../../../shared/navigation/routes";
 import { OrderCard } from "../components/OrderCard";
 import { useStudentOrders } from "../hooks/useOrders";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
+const STUDENT_ORDER_STATUSES = [
+  "awaiting_payment",
+  "completed",
+  "rejected",
+  "expired",
+  "cancelled",
+  "closed",
+] as const;
+
+function parseStudentOrderStatus(value: string | undefined): OrderListQuery["status"] {
+  return STUDENT_ORDER_STATUSES.find((status) => status === value);
+}
 
 /** Renders the student purchase history with URL-backed status and paging state. */
 export function PurchasesPage() {
   const { t } = useTranslation("orders");
   const list = useListUrlState();
-  const status = list.state.filters.status;
+  const status = parseStudentOrderStatus(list.state.filters.status);
   const query = useMemo(
     () => ({
       page: list.state.page,
       pageSize: list.state.pageSize,
-      ...(status
-        ? {
-            status: status as
-              "awaiting_payment" | "completed" | "rejected" | "expired" | "cancelled" | "closed",
-          }
-        : {}),
+      ...(status ? { status } : {}),
     }),
     [list.state.page, list.state.pageSize, status],
   );
@@ -103,7 +111,7 @@ export function PurchasesPage() {
         onPageChange={list.setPage}
         onPageSizeChange={list.setPageSize}
       />
-      <Button variant="ghost" onClick={() => list.setPage(1)}>
+      <Button variant="ghost" onClick={() => void result.refetch()}>
         {t("refresh")}
       </Button>
     </section>

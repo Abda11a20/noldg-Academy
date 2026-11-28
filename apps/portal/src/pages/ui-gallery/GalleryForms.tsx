@@ -23,7 +23,7 @@ interface GalleryFormsProps {
 
 /** Shows translated form components and representative validation states. */
 export function GalleryForms({ direction }: GalleryFormsProps) {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(["gallery", "common"]);
   const prefix = direction === "rtl" ? "rtl" : "ltr";
   const options = [
     { value: "math", label: t("sampleOptionMath") },
@@ -45,8 +45,8 @@ export function GalleryForms({ direction }: GalleryFormsProps) {
         <PasswordField
           id={`${prefix}-password`}
           label={t("samplePassword")}
-          showLabel={t("showPassword")}
-          hideLabel={t("hidePassword")}
+          showLabel={t("common:showPassword")}
+          hideLabel={t("common:hidePassword")}
         />
         <SearchField label={t("sampleSearch")} />
         <DateTimeField id={`${prefix}-date-time`} label={t("sampleDateTime")} />

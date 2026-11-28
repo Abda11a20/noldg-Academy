@@ -48,3 +48,26 @@ export const MOCK_APPLICATIONS: TeacherApplication[] = [
     ],
   },
 ];
+
+/** Builds the mock offering catalog for signed-in teachers from active mapped tracks and subjects. */
+export function buildMockOfferingCatalog(
+  tracks: readonly AcademicTrack[],
+  subjects: readonly AcademicSubject[],
+  mappings: Readonly<Record<string, readonly string[]>>,
+) {
+  return {
+    systems: ["general", "al_azhar"] as const,
+    tracks: tracks
+      .filter((track) => track.active && (mappings[track.id]?.length ?? 0) > 0)
+      .map((track) => ({
+        id: track.id,
+        system: track.system === "azhar" ? ("al_azhar" as const) : track.system,
+        stage: track.stage === "prep" ? ("preparatory" as const) : track.stage,
+        grade: track.grade,
+        name: track.name,
+        subjects: subjects
+          .filter((subject) => subject.active && mappings[track.id]?.includes(subject.id))
+          .map(({ id, name }) => ({ id, name })),
+      })),
+  };
+}

@@ -141,12 +141,12 @@ test("teacher navigates question bank and exam builder in Arabic RTL at 375px", 
 
   await page.getByRole("button", { name: "فتح قائمة التنقل" }).click();
   await page.getByRole("link", { name: "بنك الأسئلة" }).click();
-  await page.getByRole("button", { name: "إغلاق قائمة التنقل" }).click();
+  await expect(page.getByRole("button", { name: "إغلاق قائمة التنقل" })).toBeHidden();
   await expect(page.getByRole("heading", { name: "بنك الأسئلة" })).toBeVisible();
 
   await page.getByRole("button", { name: "فتح قائمة التنقل" }).click();
   await page.getByRole("link", { name: "كورساتي" }).click();
-  await page.getByRole("button", { name: "إغلاق قائمة التنقل" }).click();
+  await expect(page.getByRole("button", { name: "إغلاق قائمة التنقل" })).toBeHidden();
   await page.getByRole("link", { name: "فتح الكورس" }).click();
   await page.getByRole("tab", { name: "الاختبارات" }).click();
   await page.getByRole("button", { name: "إنشاء اختبار" }).click();

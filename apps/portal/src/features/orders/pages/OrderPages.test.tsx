@@ -62,6 +62,12 @@ it("restores admin filters from the URL and sends them to the API", async () => 
     expect(requestedUrl?.searchParams.get("expiringSoon")).toBe("true");
     expect(requestedUrl?.searchParams.get("status")).toBe("awaiting_payment");
   });
+  await userEvent.setup().click(screen.getByRole("tab", { name: "Completed" }));
+  await waitFor(() => {
+    expect(requestedUrl?.searchParams.get("teacherId")).toBe("teacher-1");
+    expect(requestedUrl?.searchParams.get("expiringSoon")).toBe("true");
+    expect(requestedUrl?.searchParams.get("status")).toBe("completed");
+  });
 });
 
 it("cancels only the selected awaiting order after confirmation", async () => {

@@ -3,12 +3,11 @@ import { useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { AppError } from "@noldg/api/errors";
 import { Button, ErrorState, Heading, useToast } from "@noldg/ui";
-import { formatMoney } from "../../../shared/i18n/formatting";
-import { buildWhatsappLink } from "../../../shared/whatsapp/whatsapp";
 import { useCopyValue } from "../hooks/useCopyValue";
 import { useApproveOrder, useOrder, useRejectOrder } from "../hooks/useOrders";
-import { AdminOrderSnapshot } from "./AdminOrderSnapshot";
-import { AdminOrderReviewDialog } from "./AdminOrderReviewDialog";
+import { AdminOrderSnapshot } from "../components/AdminOrderSnapshot";
+import { AdminOrderReviewDialog } from "../components/AdminOrderReviewDialog";
+import { buildOrderWhatsappLink } from "../utils/order-whatsapp";
 
 /** Shows payment evidence to an account manager and requires explicit review confirmation. */
 export function AdminOrderDetailPage(): React.ReactElement {
@@ -41,17 +40,7 @@ export function AdminOrderDetailPage(): React.ReactElement {
   }
 
   const order = query.data;
-  const whatsapp = order.student?.phone
-    ? buildWhatsappLink(
-        order.student.phone,
-        t("whatsappMessage", {
-          orderNumber: order.orderNumber,
-          productName: order.product.name,
-          amount: formatMoney(order.priceSnapshot.amount),
-          senderNumber: order.senderRef ?? "",
-        }),
-      )
-    : null;
+  const whatsapp = buildOrderWhatsappLink(order.student?.phone, order, t);
   const confirmDecision = (reason?: string): void => {
     const request =
       action === "approve"

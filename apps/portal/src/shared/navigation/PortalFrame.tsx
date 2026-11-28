@@ -4,6 +4,23 @@ import { AppShell, Topbar, type NavItemProps } from "@noldg/ui";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { DeferredMobileAccountMenu } from "./DeferredMobileAccountMenu";
 import { useLocation } from "react-router";
+import { getNavigationForRole } from "./navigation";
+import { ROUTE_PATHS } from "./routes";
+
+const ROLE_ROOT_PATHS = new Set<string>([
+  ROUTE_PATHS.student,
+  ROUTE_PATHS.teacher,
+  ROUTE_PATHS.admin,
+]);
+
+function isNavRouteActive(pathname: string, route: string): boolean {
+  if (pathname === route) return true;
+  if (route === ROUTE_PATHS.teacher && pathname.startsWith(`${ROUTE_PATHS.teacher}/courses/`)) {
+    return true;
+  }
+  if (ROLE_ROOT_PATHS.has(route)) return false;
+  return pathname.startsWith(`${route}/`);
+}
 
 const LazyMobileNav = lazy(() =>
   import("@noldg/ui").then(({ MobileNav }) => ({ default: MobileNav })),
@@ -61,7 +78,7 @@ export function PortalFrame({
     to: item.route,
     label: t(item.labelKey),
     icon: item.icon,
-    active: location.pathname === item.route,
+    active: isNavRouteActive(location.pathname, item.route),
   })) satisfies readonly NavItemProps[];
   const navigationSlots = createNavigationSlots(userRole, navItems, {
     navigation: t("navigation.label"),
@@ -96,5 +113,3 @@ export function PortalFrame({
     </AppShell>
   );
 }
-
-import { getNavigationForRole } from "../../app/navigation";

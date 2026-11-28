@@ -20,6 +20,10 @@ const fixtures = new Map([
   [path.join("packages-ui", "literal-user-text.tsx"), "noldg/no-literal-user-text-in-jsx"],
   ["external-lucide.tsx", "noldg/no-icon-library-outside-registry"],
   [path.join("features", "alpha", "native-anchor.tsx"), "noldg/no-native-ui-elements"],
+  ["network-xhr.tsx", "noldg/no-network-outside-http"],
+  ["network-beacon.tsx", "noldg/no-network-outside-http"],
+  ["dangerous-function.tsx", "noldg/no-dangerous-html-or-eval"],
+  ["dangerous-inner-html.tsx", "noldg/no-dangerous-html-or-eval"],
 ]);
 
 const eslint = new ESLint({ cwd: process.cwd() });

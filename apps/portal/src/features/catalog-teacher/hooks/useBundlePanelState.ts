@@ -6,7 +6,6 @@ import {
   MIN_CATALOG_PRICE_EGP,
   MINIMUM_ANNOUNCED_LESSON_COUNT,
   type CatalogProduct,
-  type ProductInput,
   type ProductPricing,
 } from "@noldg/api/contracts/catalog";
 import { getProductPricing } from "@noldg/api/endpoints/catalog";
@@ -107,16 +106,23 @@ export function useBundlePanelState(courseId: string) {
     const announcedLessonCount = Number(form.announcedLessonCount);
     const price = Number(form.price);
     if (!isValidBundle(form)) return;
-    const input: ProductInput = {
+    const baseInput = {
       courseId,
       name: form.name.trim(),
       price,
       announcedLessonCount,
-      lessonIds: capabilities.bundleLessons ? form.lessonIds : [],
     };
     const mutation = editing
-      ? mutations.updatePackageMutation.mutateAsync({ productId: editing.id, input })
-      : mutations.createPackageMutation.mutateAsync(input);
+      ? mutations.updatePackageMutation.mutateAsync({
+          productId: editing.id,
+          input: capabilities.bundleLessons
+            ? { ...baseInput, lessonIds: form.lessonIds }
+            : baseInput,
+        })
+      : mutations.createPackageMutation.mutateAsync({
+          ...baseInput,
+          lessonIds: capabilities.bundleLessons ? form.lessonIds : [],
+        });
     void mutation
       .then(() => {
         setDialogOpen(false);

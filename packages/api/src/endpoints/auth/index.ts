@@ -3,6 +3,7 @@ import { apiMode } from "../../mocks/mode";
 import { capabilities } from "../../config/capabilities";
 import { request } from "../../http/client";
 import { tokenStore } from "../../auth/token-store";
+import { AppError } from "../../errors/app-error";
 import {
   AcademicCatalogSchema,
   AuthMessageResponseSchema,
@@ -212,9 +213,15 @@ export async function resetPassword(input: { email: string; code: string; passwo
 export async function logout(): Promise<void> {
   try {
     if (apiMode === "mock") {
-      await request("/auth/logout", LogoutResponseSchema, { method: "POST" });
+      await request("/auth/logout", LogoutResponseSchema, {
+        method: "POST",
+        preserveSessionOnUnauthorized: true,
+      });
     } else {
-      await request("/auth/logout", LegacyActionResponseSchema, { method: "POST" });
+      await request("/auth/logout", LegacyActionResponseSchema, {
+        method: "POST",
+        preserveSessionOnUnauthorized: true,
+      });
     }
   } catch (error) {
     if (apiMode === "mock") throw error;
@@ -240,8 +247,12 @@ export async function getMe(): Promise<AuthUser> {
         application = await request(
           "/teachers/me/application",
           LegacyTeacherApplicationResponseSchema,
+          { preserveSessionOnUnauthorized: true },
         );
-      } catch {
+      } catch (applicationError) {
+        if (!(applicationError instanceof AppError) || applicationError.status !== 404) {
+          throw applicationError;
+        }
         application = undefined;
       }
     }

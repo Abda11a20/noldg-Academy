@@ -14,6 +14,7 @@ import {
 } from "@noldg/ui";
 import { AppError } from "@noldg/api/errors";
 import { formatMoney } from "../../../shared/i18n/formatting";
+import { getAdminOrderPath } from "../../../shared/navigation/routes";
 import { createConfirmationKey, useCreateManualOrder, usePricingPreview } from "../hooks/useOrders";
 
 /** Provides the supported manual cash order form; live mode degrades when unavailable. */
@@ -34,7 +35,7 @@ export function ManualOrderPage() {
       input: { studentId, productId, paymentMethod: "cash", ...(senderRef ? { senderRef } : {}) },
       key: idempotencyKey.current,
     });
-    navigate(`/admin/orders/${encodeURIComponent(result.id)}`);
+    await navigate(getAdminOrderPath(result.id));
   };
   const openConfirmation = (): void => {
     idempotencyKey.current = createConfirmationKey();
@@ -42,7 +43,7 @@ export function ManualOrderPage() {
   };
   const confirmOrder = (): void => {
     setConfirmOpen(false);
-    void submit();
+    void submit().catch(() => undefined);
   };
   return (
     <section className="space-y-5">

@@ -12,12 +12,14 @@ interface HeartbeatOptions {
   sequence: number;
   positionSeconds: number;
   playbackRate: number;
+  isPlaying: boolean;
   signal: AbortSignal;
 }
 
 interface RetryContext {
   activeSession: PlaybackSession;
   nextSequence: number;
+  isPlaying: boolean;
   isActive: () => boolean;
   getPosition: () => number;
   getRate: () => number;
@@ -33,6 +35,8 @@ interface HeartbeatCycleOptions {
   isBusy: () => boolean;
   setBusy: (busy: boolean) => void;
   sequence: number;
+  force?: boolean;
+  playingValue?: boolean;
   isActive: (sessionId: string) => boolean;
   getPosition: () => number;
   getRate: () => number;
@@ -40,6 +44,13 @@ interface HeartbeatCycleOptions {
   setController: (controller: AbortController | null) => void;
   onProgress: (sequence: number, result: PlaybackHeartbeat) => void;
   onFailure: (error: unknown, lastAttempt: boolean) => Promise<boolean>;
+}
+
+function retryAfterDelayMs(error: unknown): number {
+  if (!(error instanceof AppError) || !error.details || typeof error.details !== "object") return 0;
+  if (!("retryAfterSeconds" in error.details)) return 0;
+  const seconds = Number(error.details.retryAfterSeconds);
+  return Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : 0;
 }
 
 async function attemptHeartbeat(options: HeartbeatOptions): Promise<PlaybackHeartbeat> {
@@ -52,7 +63,7 @@ async function attemptHeartbeat(options: HeartbeatOptions): Promise<PlaybackHear
         PLAYBACK_RATE_MAXIMUM,
         Math.max(PLAYBACK_RATE_MINIMUM, options.playbackRate),
       ),
-      isPlaying: true,
+      isPlaying: options.isPlaying,
     },
     options.signal,
   );
@@ -64,9 +75,10 @@ async function attemptHeartbeat(options: HeartbeatOptions): Promise<PlaybackHear
  */
 async function sendHeartbeatWithRetry(context: RetryContext): Promise<void> {
   const sequence = context.nextSequence;
+  let nextDelayMs = 0;
   for (let attempt = 0; attempt <= PLAYBACK_RETRY_DELAYS_MS.length; attempt += 1) {
     if (attempt > 0) {
-      await context.wait(PLAYBACK_RETRY_DELAYS_MS[attempt - 1]!);
+      await context.wait(nextDelayMs);
       if (!context.isActive()) return;
     }
     const controller = new AbortController();
@@ -77,6 +89,7 @@ async function sendHeartbeatWithRetry(context: RetryContext): Promise<void> {
         sequence,
         positionSeconds: context.getPosition(),
         playbackRate: context.getRate(),
+        isPlaying: context.isPlaying,
         signal: controller.signal,
       });
       context.onSuccess(sequence, result);
@@ -85,6 +98,7 @@ async function sendHeartbeatWithRetry(context: RetryContext): Promise<void> {
       const lastAttempt = attempt === PLAYBACK_RETRY_DELAYS_MS.length;
       const handled = await context.onFailure(error, lastAttempt);
       if (handled || lastAttempt) return;
+      nextDelayMs = Math.max(PLAYBACK_RETRY_DELAYS_MS[attempt]!, retryAfterDelayMs(error));
     } finally {
       context.setController(null);
     }
@@ -96,12 +110,13 @@ async function sendHeartbeatWithRetry(context: RetryContext): Promise<void> {
  */
 export async function runHeartbeatCycle(options: HeartbeatCycleOptions): Promise<void> {
   const active = options.activeSession;
-  if (!active || !options.isPlaying() || options.isBusy()) return;
+  if (!active || (!options.force && !options.isPlaying()) || options.isBusy()) return;
   options.setBusy(true);
   try {
     await sendHeartbeatWithRetry({
       activeSession: active,
       nextSequence: options.sequence,
+      isPlaying: options.playingValue ?? true,
       isActive: () => options.isActive(active.sessionId),
       getPosition: options.getPosition,
       getRate: options.getRate,

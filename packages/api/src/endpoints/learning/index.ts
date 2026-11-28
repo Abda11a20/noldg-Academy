@@ -1,3 +1,4 @@
+import { HttpsUrlSchema } from "../../contracts/common";
 import {
   MyLessonsQuerySchema,
   PlaybackHeartbeatInputSchema,
@@ -192,11 +193,13 @@ export async function getAttachmentDownload(lessonId: string, attachmentId: stri
     unknownResponseSchema,
   );
   const data = extractData(payload);
-  if (typeof data !== "object" || data === null || !("url" in data) || typeof data.url !== "string")
+  const rawUrl = typeof data === "object" && data !== null && "url" in data ? data.url : undefined;
+  const parsedUrl = HttpsUrlSchema.safeParse(rawUrl);
+  if (!parsedUrl.success)
     throw new AppError({
       code: "RESPONSE_VALIDATION_FAILED",
       status: 502,
       message_key: "errors:invalidResponse",
     });
-  return data.url;
+  return parsedUrl.data;
 }

@@ -18,9 +18,9 @@ export function useLogout() {
     } catch {
       // Local auth must end even when the network cannot reach the logout route.
     } finally {
-      await navigate(ROUTE_PATHS.login, { replace: true });
       clearAuthSession();
       queryClient.clear();
+      await navigate(ROUTE_PATHS.login, { replace: true });
       setLoggingOut(false);
     }
   };

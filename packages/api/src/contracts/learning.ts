@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { IdSchema, IsoTimestampSchema } from "./common";
+import { HttpsUrlSchema, IdSchema, IsoTimestampSchema } from "./common";
 
 export const LessonAvailabilitySchema = z.enum(["available", "upcoming", "ended"]);
 export const LessonAccessSchema = z.enum(["free", "owned", "not_owned"]);
 export const PlaybackSourceSchema = z.discriminatedUnion("method", [
-  z.object({ method: z.literal("file"), url: z.string().url(), expiresAt: IsoTimestampSchema }),
-  z.object({ method: z.literal("hls"), url: z.string().url(), expiresAt: IsoTimestampSchema }),
+  z.object({ method: z.literal("file"), url: HttpsUrlSchema, expiresAt: IsoTimestampSchema }),
+  z.object({ method: z.literal("hls"), url: HttpsUrlSchema, expiresAt: IsoTimestampSchema }),
 ]);
 export const LessonProgressSchema = z.object({
   watchedPercent: z.number().min(0).max(100),
@@ -83,7 +83,7 @@ export const LegacyPlaybackStartedSchema = z.object({
   heartbeatIntervalSeconds: z.number().int().positive().optional(),
 });
 export const LegacyPlaybackAccessSchema = z.object({
-  video: z.object({ url: z.string().url() }),
+  video: z.object({ url: HttpsUrlSchema }),
   mediaExpiresAt: IsoTimestampSchema,
 });
 export const LegacyHeartbeatResponseSchema = z.object({

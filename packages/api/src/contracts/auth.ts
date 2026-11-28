@@ -8,7 +8,7 @@ import {
 
 export const AuthPasswordSchema = z
   .string()
-  .min(AUTH_PASSWORD_MIN_LENGTH)
+  .min(AUTH_PASSWORD_MIN_LENGTH, "password_too_short")
   .superRefine((password, context) => {
     if (new TextEncoder().encode(password).length > AUTH_PASSWORD_MAX_BYTES) {
       context.addIssue({ code: "custom", message: "password_too_long" });
@@ -21,15 +21,18 @@ export const AuthPasswordSchema = z
     if (!/[#?!@$%^&*-]/.test(password))
       context.addIssue({ code: "custom", message: "password_symbol" });
   });
-export const LoginPasswordSchema = z.string().superRefine((password, context) => {
-  if (new TextEncoder().encode(password).length > AUTH_PASSWORD_MAX_BYTES) {
-    context.addIssue({ code: "custom", message: "password_too_long" });
-  }
-});
+export const LoginPasswordSchema = z
+  .string()
+  .min(1)
+  .superRefine((password, context) => {
+    if (new TextEncoder().encode(password).length > AUTH_PASSWORD_MAX_BYTES) {
+      context.addIssue({ code: "custom", message: "password_too_long" });
+    }
+  });
 
-const emailSchema = z.string().trim().email().max(320);
-const phoneSchema = z.string().trim().min(1).max(64);
-const otpSchema = z.string().regex(new RegExp(`^\\d{${AUTH_OTP_LENGTH}}$`));
+const emailSchema = z.string().trim().email("email").max(320, "email");
+const phoneSchema = z.string().trim().min(1, "phone").max(64, "phone");
+const otpSchema = z.string().regex(new RegExp(`^\\d{${AUTH_OTP_LENGTH}}$`), "otp");
 const offeringSchema = z.object({
   trackId: z.string().trim().min(1),
   subjectId: z.string().trim().min(1),
@@ -64,8 +67,8 @@ export const StudentRegistrationRequestSchema = z.object({
   phone: phoneSchema,
   parentPhone: phoneSchema,
   password: AuthPasswordSchema,
-  trackId: z.string().trim().min(1),
-  acceptTerms: z.literal(true),
+  trackId: z.string().trim().min(1, "track"),
+  acceptTerms: z.literal(true, { message: "terms" }),
 });
 export const StudentRegistrationResponseSchema = z.object({
   emailVerificationRequired: z.boolean(),
@@ -76,10 +79,10 @@ export const TeacherRegistrationRequestSchema = z.object({
   email: emailSchema,
   phone: phoneSchema,
   password: AuthPasswordSchema,
-  bio: z.string().trim().min(1).max(1000),
-  offerings: z.array(offeringSchema).min(1),
-  image: z.custom<File>((file) => typeof File !== "undefined" && file instanceof File),
-  acceptTerms: z.literal(true),
+  bio: z.string().trim().min(1).max(1000, "bio"),
+  offerings: z.array(offeringSchema).min(1, "offerings"),
+  image: z.custom<File>((file) => typeof File !== "undefined" && file instanceof File, "file"),
+  acceptTerms: z.literal(true, { message: "terms" }),
 });
 export const TeacherRegistrationResponseSchema = z.object({
   userId: z.string().optional(),

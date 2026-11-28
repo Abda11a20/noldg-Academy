@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
 import { AppError } from "@noldg/api/errors";
 import {
   Button,
@@ -18,7 +17,7 @@ import { useListUrlState } from "../../../shared/navigation/useListUrlState";
 import { getAdminOrderPath, ROUTE_PATHS } from "../../../shared/navigation/routes";
 import { OrderCard } from "../components/OrderCard";
 import { useAdminOrders } from "../hooks/useOrders";
-import { AdminOrderFilters } from "./AdminOrderFilters";
+import { AdminOrderFilters } from "../components/AdminOrderFilters";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 const ORDER_STATUSES = ["awaiting_payment", "completed", "rejected", "closed"] as const;
@@ -59,7 +58,6 @@ function buildOrderQuery(
 /** Renders the admin review queue using server-side list state and pagination. */
 export function AdminOrdersPage() {
   const { t } = useTranslation("orders");
-  const navigate = useNavigate();
   const list = useListUrlState();
   const status = list.state.filters.status;
   const filtersEnabled = capabilities.orderAdminFilters;
@@ -100,7 +98,7 @@ export function AdminOrdersPage() {
     <section className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Heading level={1}>{t("ordersTitle")}</Heading>
-        <Button onClick={() => navigate(ROUTE_PATHS.adminManualOrder)}>{t("manualTitle")}</Button>
+        <Button to={ROUTE_PATHS.adminManualOrder}>{t("manualTitle")}</Button>
       </div>
       <SearchField
         id="orders-search"
@@ -114,7 +112,12 @@ export function AdminOrdersPage() {
       <Tabs
         label={t("statusLabel")}
         value={status ?? "all"}
-        onValueChange={(value) => list.setFilters(value === "all" ? {} : { status: value })}
+        onValueChange={(value) => {
+          const nextFilters = { ...list.state.filters };
+          if (value === "all") delete nextFilters.status;
+          else nextFilters.status = value;
+          list.setFilters(nextFilters);
+        }}
         items={[
           { value: "all", label: t("allStatuses"), content: null },
           { value: "awaiting_payment", label: t("status.awaiting_payment"), content: null },

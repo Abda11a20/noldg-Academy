@@ -1,4 +1,4 @@
-import type { ComponentType, MouseEventHandler, ReactNode } from "react";
+import type { AriaAttributes, ComponentType, MouseEventHandler, ReactNode } from "react";
 import type { UiLinkProps } from "../../providers/UiProvider";
 import { assertSafeLinkTarget, resolveSafeLinkRel } from "../typography/link-security";
 export interface ButtonLinkProps {
@@ -8,6 +8,7 @@ export interface ButtonLinkProps {
   disabled?: boolean | undefined;
   loading: boolean;
   className: string;
+  ariaCurrent?: AriaAttributes["aria-current"];
   label?: string | undefined;
   id?: string | undefined;
   rel?: string | undefined;
@@ -23,6 +24,7 @@ export function ButtonLink({
   disabled,
   loading,
   className,
+  ariaCurrent,
   label,
   id,
   rel,
@@ -42,6 +44,7 @@ export function ButtonLink({
   return (
     <LinkComponent
       aria-busy={loading}
+      aria-current={ariaCurrent}
       aria-disabled={Boolean(disabled || loading)}
       aria-label={label}
       className={className}

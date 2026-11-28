@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { capabilities } from "@noldg/api/config/capabilities";
 import { Badge, Button, Card, CardBody, ConfirmDialog, Text } from "@noldg/ui";
 import type { OrderSummary } from "@noldg/api/contracts/orders";
 import { useTranslation } from "react-i18next";
@@ -16,6 +17,17 @@ interface StudentOrderSnapshotProps {
 function buildOrderWhatsapp(supportNumber: string | null, message: string) {
   if (!supportNumber) return null;
   return buildWhatsappLink(supportNumber, message);
+}
+
+function canCancelOrder(order: OrderSummary): boolean {
+  return order.status === "awaiting_payment" && capabilities.orderCancellation;
+}
+
+function hasSnapshotCounts(order: OrderSummary): boolean {
+  return (
+    order.priceSnapshot.announcedCount !== undefined &&
+    order.priceSnapshot.remainingCount !== undefined
+  );
 }
 
 /** Presents a student's order snapshot and allows cancellation while payment is pending.
@@ -43,8 +55,7 @@ export function StudentOrderSnapshot(props: StudentOrderSnapshotProps): React.Re
           <Text>{order.product.name}</Text>
           <Text>{t("priceNow", { price: formatMoney(order.priceSnapshot.amount) })}</Text>
           <Text>{t("fullPrice", { price: formatMoney(order.priceSnapshot.fullPrice) })}</Text>
-          {order.priceSnapshot.announcedCount !== undefined &&
-          order.priceSnapshot.remainingCount !== undefined ? (
+          {hasSnapshotCounts(order) ? (
             <Text>
               {t("counts", {
                 announced: order.priceSnapshot.announcedCount,
@@ -68,7 +79,7 @@ export function StudentOrderSnapshot(props: StudentOrderSnapshotProps): React.Re
               {t("whatsapp")}
             </Button>
           ) : null}
-          {order.status === "awaiting_payment" ? (
+          {canCancelOrder(order) ? (
             <Button variant="danger" onClick={() => setConfirmOpen(true)}>
               {t("cancel")}
             </Button>
@@ -84,7 +95,10 @@ export function StudentOrderSnapshot(props: StudentOrderSnapshotProps): React.Re
         cancelLabel={t("back")}
         confirmLabel={t("confirmCancel")}
         onConfirm={() => {
-          void props.onCancel().then(() => setConfirmOpen(false));
+          void props
+            .onCancel()
+            .then(() => setConfirmOpen(false))
+            .catch(() => undefined);
         }}
       />
     </>

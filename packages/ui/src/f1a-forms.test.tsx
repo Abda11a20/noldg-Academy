@@ -163,6 +163,7 @@ it("emits selected drop files and displays supplied progress and errors", async 
   );
   const input = container.querySelector("input[type=file]");
   expect(input).toHaveAttribute("accept", "image/*");
+  expect(input).not.toHaveAttribute("multiple");
   expect(screen.getByText("Too large")).toBeVisible();
   expect(screen.getByRole("progressbar", { name: "photo.png" })).toHaveAttribute("value", "40");
   const file = new File(["content"], "photo.png", { type: "image/png" });
@@ -170,8 +171,15 @@ it("emits selected drop files and displays supplied progress and errors", async 
   expect(onFilesSelected).toHaveBeenCalled();
   expect((await axe(container)).violations).toHaveLength(0);
   rerender(
-    <FileDropzone description="Choose a file" files={[]} label="Upload file" maximumSize="10 MB" />,
+    <FileDropzone
+      description="Choose a file"
+      files={[]}
+      label="Upload file"
+      maximumSize="10 MB"
+      multiple
+    />,
   );
+  expect(container.querySelector("input[type=file]")).toHaveAttribute("multiple");
   expect(screen.queryByRole("list")).not.toBeInTheDocument();
   fireEvent.dragEnter(screen.getByRole("group", { name: "Upload file" }));
   fireEvent.dragOver(screen.getByRole("group", { name: "Upload file" }));

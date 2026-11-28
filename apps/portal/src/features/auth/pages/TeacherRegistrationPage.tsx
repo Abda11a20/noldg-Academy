@@ -15,7 +15,12 @@ import { ROUTE_PATHS } from "../../../shared/navigation/routes";
 import { AuthPanel } from "../components/AuthPanel";
 import { OfferingsPicker } from "../components/OfferingsPicker";
 import { useTeacherRegistration } from "../hooks/useRegistration";
-import { AUTH_BIO_MAX_LENGTH, AUTH_IMAGE_ACCEPT, AUTH_IMAGE_MAX_BYTES } from "../constants";
+import {
+  AUTH_BIO_MAX_LENGTH,
+  AUTH_IMAGE_ACCEPT,
+  AUTH_IMAGE_MAX_BYTES,
+  isValidAuthImageFile,
+} from "../constants";
 import { translateAuthMessage } from "../utils/translate-error";
 import { fieldErrorProps } from "../utils/field-error-props";
 
@@ -93,7 +98,7 @@ export function TeacherRegistrationPage() {
           onFilesSelected={(files) => {
             const file = files.item(0);
             if (!file) return;
-            if (!file.type.startsWith("image/") || file.size > AUTH_IMAGE_MAX_BYTES) {
+            if (!isValidAuthImageFile(file)) {
               state.form.resetField("image");
               state.form.setError("image", { type: "validate", message: "file" });
               state.setSelectedImage(undefined);

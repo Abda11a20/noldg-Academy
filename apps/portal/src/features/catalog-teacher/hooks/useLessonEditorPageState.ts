@@ -91,7 +91,11 @@ function getNonReadyMessage(
 }
 
 function isVideoReady(lesson: CatalogLesson | undefined, uploadStatus: string): boolean {
-  return lesson?.videoState === "ready" || uploadStatus === "ready";
+  return (
+    lesson?.videoState === "ready" ||
+    uploadStatus === "ready" ||
+    (!lesson && !capabilities.lessonDrafts && uploadStatus === "uploaded")
+  );
 }
 
 function confirmLeave(blocker: ReturnType<typeof useBlocker>): void {
@@ -131,28 +135,41 @@ export type LessonEditorPageState =
   | { screen: "missing-course" | "loading" | "not-found"; message: string }
   | { screen: "ready"; editor: LessonEditorContentProps };
 
+function isScheduleLocked(lesson: CatalogLesson | undefined): boolean {
+  return Boolean(lesson && !capabilities.lessonWindowRules);
+}
+
+function existingAttachmentCount(lesson: CatalogLesson | undefined): number {
+  return lesson?.attachments.length ?? 0;
+}
+
 /** Loads lesson editor data and coordinates editor hooks without rendering UI. */
 export function useLessonEditorPageState(): LessonEditorPageState {
   const { t } = useTranslation(["catalog", "errors"]);
   const { courseId, lessonId } = useParams();
+  const resolvedCourseId = courseId ?? "";
   const navigate = useNavigate();
   const allowPostSaveNavigation = useRef(false);
-  const schema = useMemo(() => createLessonFormSchema(() => new Date()), []);
+  const lessonQuery = useQuery({
+    queryKey: [...catalogQueryKeys.lessons(courseId ?? "none"), lessonId ?? "new"],
+    queryFn: ({ signal }) => getCourseLesson(resolvedCourseId, lessonId ?? "", signal, true),
+    enabled: Boolean(courseId) && Boolean(lessonId),
+  });
+  const lesson = lessonQuery.data;
+  const scheduleLocked = isScheduleLocked(lesson);
+  const schema = useMemo(
+    () => createLessonFormSchema(() => new Date(), { skipFutureEndCheck: scheduleLocked }),
+    [scheduleLocked],
+  );
   const form = useForm<LessonFormValues>({
     resolver: zodResolver(schema),
     defaultValues: LESSON_FORM_DEFAULTS,
   });
   const access = useWatch({ control: form.control, name: "access" });
   const upload = useVideoUpload();
-  const attachments = useAttachmentUploads(courseId ?? "");
-  const mutations = useCatalogMutations(courseId ?? "");
-  const lessonQuery = useQuery({
-    queryKey: [...catalogQueryKeys.lessons(courseId ?? "none"), lessonId ?? "new"],
-    queryFn: ({ signal }) => getCourseLesson(courseId ?? "", lessonId ?? "", signal, true),
-    enabled: Boolean(courseId) && Boolean(lessonId),
-  });
-  const lesson = lessonQuery.data;
-  const video = useLessonEditorVideoSelection(courseId ?? "", lesson, upload);
+  const attachments = useAttachmentUploads(resolvedCourseId, existingAttachmentCount(lesson));
+  const mutations = useCatalogMutations(resolvedCourseId);
+  const video = useLessonEditorVideoSelection(resolvedCourseId, lesson, upload);
   const blocker = useBlocker(({ currentLocation, nextLocation }) => {
     if (allowPostSaveNavigation.current) {
       allowPostSaveNavigation.current = false;
@@ -178,7 +195,7 @@ export function useLessonEditorPageState(): LessonEditorPageState {
     lessonId,
     navigateToLesson: (id) => {
       allowPostSaveNavigation.current = true;
-      void navigate(getTeacherLessonPath(courseId ?? "", id), { replace: true });
+      void navigate(getTeacherLessonPath(resolvedCourseId, id), { replace: true });
     },
     saveLesson: mutations.saveLesson,
     uploadState: upload.state,
@@ -207,7 +224,7 @@ export function useLessonEditorPageState(): LessonEditorPageState {
     attachmentFiles: attachments.files,
     blockerState: blocker.state,
     busy,
-    courseId: courseId ?? "",
+    courseId: resolvedCourseId,
     form,
     isReady,
     lesson,
@@ -230,10 +247,10 @@ export function useLessonEditorPageState(): LessonEditorPageState {
     onRetryAttachment: attachments.retry,
     onRetryUpload: upload.retry,
     onSaveDraft: save.handleSaveDraft,
-    onStartUpload: () => startVideoUpload(upload, video.videoFile, courseId ?? ""),
+    onStartUpload: () => startVideoUpload(upload, video.videoFile, resolvedCourseId),
     rejectedAttachmentCount: attachments.rejectedCount,
     replacementPending: video.replacementPending,
-    scheduleLocked: Boolean(lesson && !capabilities.lessonWindowRules),
+    scheduleLocked,
     showReplace: video.showReplace,
     uploadState: upload.state,
     validationMessage: (value) => lessonValidationMessage(value, t),

@@ -75,4 +75,17 @@ describe("useAttachmentUploads", () => {
     expect(hook.result.current.rejectedCount).toBe(1);
     hook.unmount();
   });
+
+  it("counts existing lesson attachments toward the limit and rejects empty files", () => {
+    const empty = new File([], "empty.pdf", { type: "application/pdf" });
+    const valid = new File(["doc"], "extra.pdf", { type: "application/pdf" });
+    const hook = renderHook(
+      () => useAttachmentUploads("course-general-secondary-1", ATTACHMENT_COUNT_LIMIT),
+      { wrapper: TestProviders },
+    );
+    act(() => hook.result.current.addFiles(makeFileList([empty, valid])));
+    expect(hook.result.current.files).toHaveLength(0);
+    expect(hook.result.current.rejectedCount).toBe(2);
+    hook.unmount();
+  });
 });

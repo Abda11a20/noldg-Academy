@@ -7,7 +7,8 @@ export const orderQueryKeys = {
   list: (scope: "student" | "admin", query: OrderListQuery) =>
     [...orderQueryKeys.lists(), scope, query] as const,
   details: () => [...orderQueryKeys.root, "detail"] as const,
-  detail: (id: string) => [...orderQueryKeys.details(), id] as const,
+  detail: (id: string, scope: "student" | "admin" = "student") =>
+    [...orderQueryKeys.details(), scope, id] as const,
   settings: () => [...orderQueryKeys.root, "settings"] as const,
   pricing: (productId: string) => ["products", "pricing", productId] as const,
 };

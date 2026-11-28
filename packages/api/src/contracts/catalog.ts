@@ -78,7 +78,7 @@ export const LessonListSchema = z.object({
 
 export const ProductPricingSchema = z.object({
   fullPrice: CatalogPriceSchema,
-  currentPrice: CatalogPriceSchema,
+  currentPrice: z.number().int().min(0).max(MAX_CATALOG_PRICE_EGP),
   announcedLessonCount: z.number().int().min(MINIMUM_ANNOUNCED_LESSON_COUNT),
   remainingLessonCount: z.number().int().nonnegative(),
   commissionPercentage: z.number().nonnegative(),

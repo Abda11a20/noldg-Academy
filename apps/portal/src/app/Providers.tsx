@@ -7,14 +7,34 @@ import { ToastProvider, UiProvider, type UiLinkProps } from "@noldg/ui";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { AUTH_LOGOUT_EVENT } from "@noldg/api/auth/events";
+import { AppError } from "@noldg/api/errors";
 import { clearAuthSession, initializeAuthSession } from "../shared/auth/auth-store";
 
 function PortalRouterLink(props: UiLinkProps) {
   return <RouterLink {...props} />;
 }
 
+const QUERY_STALE_TIME_MS = 30_000;
+
+function shouldRetryQuery(failureCount: number, error: unknown): boolean {
+  if (failureCount >= 1) return false;
+  if (
+    error instanceof AppError &&
+    ((error.status >= 400 && error.status < 500) || error.status === 501)
+  ) {
+    return false;
+  }
+  return true;
+}
+
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
+  defaultOptions: {
+    queries: {
+      retry: shouldRetryQuery,
+      staleTime: QUERY_STALE_TIME_MS,
+      refetchOnWindowFocus: false,
+    },
+  },
 });
 
 function DocumentLanguageSync() {
@@ -41,7 +61,12 @@ function PortalUiProvider({ children }: { children: ReactNode }) {
   const linkComponent: ComponentType<UiLinkProps> = PortalRouterLink;
   return (
     <UiProvider direction={direction} linkComponent={linkComponent}>
-      <ToastProvider dismissLabel={i18n.t("common:toastDismiss")}>{children}</ToastProvider>
+      <ToastProvider
+        dismissLabel={i18n.t("common:toastDismiss")}
+        regionLabel={i18n.t("common:notificationsRegion")}
+      >
+        {children}
+      </ToastProvider>
     </UiProvider>
   );
 }

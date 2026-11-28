@@ -119,6 +119,17 @@ it("pauses toast dismissal while focused and places its viewport logically in RT
   vi.useRealTimers();
 });
 
+it("labels the toast viewport with a dedicated regionLabel when provided", () => {
+  const { container } = render(
+    <UiProvider direction="ltr">
+      <ToastProvider dismissLabel="Dismiss" regionLabel="Notifications">
+        <DefaultToastTrigger />
+      </ToastProvider>
+    </UiProvider>,
+  );
+  expect(container.querySelector("[aria-label='Notifications']")).toBeInTheDocument();
+});
+
 it("dismisses polite notifications after their duration", async () => {
   vi.useFakeTimers();
   render(

@@ -1,13 +1,61 @@
 /// <reference types="vite/client" />
 
+type CapabilityFlag = "true" | "false";
+
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL?: string;
+  readonly VITE_API_ORIGIN?: string;
+  readonly VITE_UPLOAD_ORIGINS?: string;
+  readonly VITE_IMAGE_ORIGINS?: string;
+  readonly VITE_MEDIA_ORIGINS?: string;
   readonly VITE_API_MODE?: "mock" | "live";
+  readonly VITE_E2E_MOCKS?: CapabilityFlag;
+  readonly VITE_INCLUDE_UI_GALLERY?: CapabilityFlag;
   readonly VITE_AUTH_STORAGE?: "memory" | "session";
   readonly VITE_AUTH_HEADER_STRATEGY?: "target" | "legacy";
-  readonly VITE_AUTH_CAP_EMAIL_OTP?: "true" | "false";
-  readonly VITE_AUTH_CAP_REFRESH_COOKIE?: "true" | "false";
-  readonly VITE_AUTH_CAP_STUDENT_PROFILE_FIELDS?: "true" | "false";
-  readonly VITE_AUTH_CAP_PUBLIC_CATALOG?: "true" | "false";
-  readonly VITE_AUTH_CAP_DEVICE_CHANGE_REQUEST?: "true" | "false";
+  readonly VITE_AUTH_CAP_EMAIL_OTP?: CapabilityFlag;
+  readonly VITE_AUTH_CAP_REFRESH_COOKIE?: CapabilityFlag;
+  readonly VITE_AUTH_CAP_STUDENT_PROFILE_FIELDS?: CapabilityFlag;
+  readonly VITE_AUTH_CAP_PUBLIC_CATALOG?: CapabilityFlag;
+  readonly VITE_AUTH_CAP_DEVICE_CHANGE_REQUEST?: CapabilityFlag;
+  readonly VITE_ADMIN_ACADEMIC_ACCESS?: CapabilityFlag;
+  readonly VITE_TEACHER_APPLICATIONS_API?: CapabilityFlag;
+  readonly VITE_ADMIN_SEARCH_PAGINATION?: CapabilityFlag;
+  readonly VITE_CATALOG_CAP_BUNDLE_LESSONS?: CapabilityFlag;
+  readonly VITE_CATALOG_CAP_LIVE_LESSONS?: CapabilityFlag;
+  readonly VITE_CATALOG_CAP_LESSON_WINDOW_RULES?: CapabilityFlag;
+  readonly VITE_CATALOG_CAP_LESSON_DRAFTS?: CapabilityFlag;
+  readonly VITE_CATALOG_CAP_VIDEO_PROCESSING?: CapabilityFlag;
+  readonly VITE_BROWSE_TRACK_FILTER?: CapabilityFlag;
+  readonly VITE_BROWSE_TEACHER_RATINGS?: CapabilityFlag;
+  readonly VITE_BROWSE_STARTING_PRICE?: CapabilityFlag;
+  readonly VITE_BROWSE_LESSON_AVAILABILITY?: CapabilityFlag;
+  readonly VITE_BROWSE_TEACHER_COURSES?: CapabilityFlag;
+  readonly VITE_BROWSE_TEACHER_FILTERS?: CapabilityFlag;
+  readonly VITE_ORDER_CAP_NUMBER?: CapabilityFlag;
+  readonly VITE_ORDER_CAP_EXPIRY?: CapabilityFlag;
+  readonly VITE_ORDER_CAP_SENDER_REF?: CapabilityFlag;
+  readonly VITE_ORDER_CAP_SINGLE_STEP?: CapabilityFlag;
+  readonly VITE_ORDER_CAP_MANUAL?: CapabilityFlag;
+  readonly VITE_ORDER_CAP_PUBLIC_SETTINGS?: CapabilityFlag;
+  readonly VITE_ORDER_CAP_IDEMPOTENCY?: CapabilityFlag;
+  readonly VITE_ORDER_CAP_ADMIN_FILTERS?: CapabilityFlag;
+  readonly VITE_ORDER_CAP_CANCELLATION?: CapabilityFlag;
+  readonly VITE_LEARNING_MY_LESSONS?: CapabilityFlag;
+  readonly VITE_LEARNING_STUDENT_DETAIL?: CapabilityFlag;
+  readonly VITE_LEARNING_PROGRESS?: CapabilityFlag;
+  readonly VITE_LEARNING_STREAMING?: CapabilityFlag;
+  readonly VITE_LEARNING_WATERMARK?: CapabilityFlag;
+  readonly VITE_LEARNING_ATTACHMENTS?: CapabilityFlag;
+  readonly VITE_LEARNING_PLAYBACK?: CapabilityFlag;
+  readonly VITE_ASSESSMENT_QUESTION_IMAGES?: CapabilityFlag;
+  readonly VITE_ASSESSMENT_QUESTION_ARCHIVE?: CapabilityFlag;
+  readonly VITE_ASSESSMENT_QUESTION_METADATA?: CapabilityFlag;
+  readonly VITE_ASSESSMENT_QUESTION_FILTERS?: CapabilityFlag;
+  readonly VITE_ASSESSMENT_TARGETING?: CapabilityFlag;
+  readonly VITE_ASSESSMENT_RANDOM_POOL?: CapabilityFlag;
+  readonly VITE_ASSESSMENT_SHUFFLE?: CapabilityFlag;
+  readonly VITE_ASSESSMENT_RESULTS?: CapabilityFlag;
+  readonly VITE_ASSESSMENT_QUIZ_THRESHOLD?: CapabilityFlag;
+  readonly VITE_ASSESSMENT_MCQ_ONLY?: CapabilityFlag;
 }

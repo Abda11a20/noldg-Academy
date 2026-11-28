@@ -45,12 +45,12 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "msw": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@noldg/config": "workspace:*",
     "@vitest/coverage-v8": "catalog:",
+    "msw": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

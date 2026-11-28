@@ -8,7 +8,7 @@ import type { TeacherOfferingSelection } from "./useRegistration";
 import { useAuthSnapshot } from "../../../shared/auth/auth-store";
 import { normalizeArabicDigits } from "../../../shared/normalize-arabic-digits";
 import { ROUTE_PATHS } from "../../../shared/navigation/routes";
-import { AUTH_IMAGE_MAX_BYTES } from "../constants";
+import { isValidAuthImageFile } from "../constants";
 
 interface ResubmissionFields {
   name: string;
@@ -98,8 +98,7 @@ export function useTeacherResubmission({
   };
   const onImageSelected = (files: FileList) => {
     const file = files.item(0);
-    if (file && file.type.startsWith("image/") && file.size <= AUTH_IMAGE_MAX_BYTES)
-      setSelectedImage(file);
+    if (file && isValidAuthImageFile(file)) setSelectedImage(file);
   };
   const onRemoveOffering = (trackId: string, subjectId: string) =>
     setOfferings((current) =>

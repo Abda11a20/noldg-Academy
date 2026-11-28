@@ -2,10 +2,12 @@ import {
   createContext,
   useContext,
   useMemo,
+  type AriaAttributes,
   type ComponentType,
   type MouseEventHandler,
   type ReactNode,
 } from "react";
+import { Direction } from "radix-ui";
 import type { IconDirection } from "../icons";
 
 /** Props accepted by the router link component supplied by the portal. */
@@ -13,6 +15,7 @@ export interface UiLinkProps {
   to: string;
   className?: string;
   "aria-busy"?: boolean | undefined;
+  "aria-current"?: AriaAttributes["aria-current"];
   "aria-disabled"?: boolean | undefined;
   "aria-label"?: string | undefined;
   id?: string | undefined;
@@ -47,7 +50,11 @@ export function UiProvider({ direction, linkComponent, children }: UiProviderPro
     () => ({ direction, linkComponent: effectiveLinkComponent }),
     [direction, effectiveLinkComponent],
   );
-  return <UiContext.Provider value={value}>{children}</UiContext.Provider>;
+  return (
+    <Direction.Provider dir={direction}>
+      <UiContext.Provider value={value}>{children}</UiContext.Provider>
+    </Direction.Provider>
+  );
 }
 
 /** Reads the direction-aware UI context and the injected router link.

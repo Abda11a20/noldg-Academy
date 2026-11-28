@@ -23,6 +23,7 @@ function validateWindow(
   context: z.RefinementCtx,
   now: Date | (() => Date),
   time: LessonTimeValidation,
+  skipFutureEndCheck = false,
 ): void {
   let start: string | undefined;
   let end: string | undefined;
@@ -52,6 +53,7 @@ function validateWindow(
       message: "catalog:windowInvalid",
     });
   }
+  if (skipFutureEndCheck) return;
   const currentTime = typeof now === "function" ? now() : now;
   if (!time.isAfterNow(end, currentTime)) {
     context.addIssue({
@@ -72,9 +74,13 @@ function validatePrice(values: LessonFormValues, context: z.RefinementCtx): void
 }
 
 /** Creates time-sensitive lesson form validation using the shared Cairo-time helpers. @param now Injectable clock. @param time Central time conversion and comparison helpers. */
-export function createLessonFormSchema(now: Date | (() => Date), time: LessonTimeValidation) {
+export function createLessonFormSchema(
+  now: Date | (() => Date),
+  time: LessonTimeValidation,
+  options?: { skipFutureEndCheck?: boolean },
+) {
   return LessonFormSchema.superRefine((values, context) => {
-    validateWindow(values, context, now, time);
+    validateWindow(values, context, now, time, options?.skipFutureEndCheck);
     validatePrice(values, context);
   });
 }

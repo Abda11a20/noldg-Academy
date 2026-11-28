@@ -25,6 +25,7 @@ export function LessonAttachmentsSection(props: LessonAttachmentsSectionProps) {
         files={[]}
         label={t("lessonAttachments")}
         maximumSize={props.maximumSize}
+        multiple
         onFilesSelected={props.onSelect}
       />
       {(props.lesson?.attachments ?? []).map((attachment) => (

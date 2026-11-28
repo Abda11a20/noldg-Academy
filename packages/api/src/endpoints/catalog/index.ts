@@ -198,7 +198,7 @@ export async function createCourseLesson(courseId: string, input: LessonInput) {
       name: values.title,
       price: values.price,
       announcedLessonCount: 1,
-      lessonIds: [lesson.id],
+      lessonIds: capabilities.bundleLessons ? [lesson.id] : [],
     });
   }
   return lesson;

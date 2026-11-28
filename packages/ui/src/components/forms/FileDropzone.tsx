@@ -15,6 +15,7 @@ export interface FileDropzoneProps {
   files: readonly SelectedFile[];
   onFilesSelected?: (files: FileList) => void;
   disabled?: boolean;
+  multiple?: boolean | undefined;
 }
 /** Presents a file picker and drop target; selection is emitted and never uploaded. @param props Copy, constraints, and supplied file states. */
 export function FileDropzone({
@@ -25,6 +26,7 @@ export function FileDropzone({
   files,
   onFilesSelected,
   disabled,
+  multiple = false,
 }: FileDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { dragging, startDragging, stopDragging } = useFileDragState();
@@ -40,9 +42,10 @@ export function FileDropzone({
         aria-label={label}
         className="sr-only"
         disabled={disabled}
-        multiple
+        multiple={multiple}
         onChange={(event) => {
           if (event.currentTarget.files) onFilesSelected?.(event.currentTarget.files);
+          event.currentTarget.value = "";
         }}
         ref={inputRef}
         type="file"
@@ -64,7 +67,7 @@ export function FileDropzone({
         <p className="text-sm text-foreground-muted">{description}</p>
         <p className="text-sm text-foreground-subtle">{maximumSize}</p>
         <button
-          className="mt-3 rounded-md border border-border-strong px-3 py-2 text-foreground"
+          className="mt-3 rounded-md border border-border-strong px-3 py-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
           type="button"

@@ -6,6 +6,18 @@ import { ATTACHMENT_COUNT_LIMIT, DEFAULT_UPLOAD_LIMITS } from "../constants";
 import { ATTACHMENT_ACCEPT } from "../upload-constants";
 
 const SUPPORTED_ATTACHMENT_EXTENSIONS = new Set(ATTACHMENT_ACCEPT.split(","));
+const MAX_ATTACHMENT_FILENAME_LENGTH = 255;
+
+function isValidAttachmentFile(file: File): boolean {
+  const extension = `.${file.name.split(".").at(-1)?.toLocaleLowerCase()}`;
+  return (
+    file.name.length > 0 &&
+    file.name.length <= MAX_ATTACHMENT_FILENAME_LENGTH &&
+    file.size > 0 &&
+    file.size <= DEFAULT_UPLOAD_LIMITS.attachmentBytes &&
+    SUPPORTED_ATTACHMENT_EXTENSIONS.has(extension)
+  );
+}
 
 export interface AttachmentUpload {
   id: string;
@@ -18,8 +30,9 @@ export interface AttachmentUpload {
 
 /** Uploads selected lesson attachments directly and keeps only transient file and ticket state.
  * @param courseId Owning course used to request a signed upload ticket.
+ * @param existingCount Count of attachments already saved on the lesson.
  */
-export function useAttachmentUploads(courseId: string) {
+export function useAttachmentUploads(courseId: string, existingCount = 0) {
   const [files, setFiles] = useState<AttachmentUpload[]>([]);
   const [rejectedCount, setRejectedCount] = useState(0);
   const controllers = useRef(new Map<string, AbortController>());
@@ -76,16 +89,10 @@ export function useAttachmentUploads(courseId: string) {
 
   const addFiles = useCallback(
     (selected: FileList) => {
-      let remaining = Math.max(0, ATTACHMENT_COUNT_LIMIT - files.length);
+      let remaining = Math.max(0, ATTACHMENT_COUNT_LIMIT - existingCount - files.length);
       let rejected = 0;
       for (const file of Array.from(selected)) {
-        if (
-          file.size > DEFAULT_UPLOAD_LIMITS.attachmentBytes ||
-          !SUPPORTED_ATTACHMENT_EXTENSIONS.has(
-            `.${file.name.split(".").at(-1)?.toLocaleLowerCase()}`,
-          ) ||
-          remaining === 0
-        ) {
+        if (!isValidAttachmentFile(file) || remaining === 0) {
           rejected += 1;
           continue;
         }
@@ -96,7 +103,7 @@ export function useAttachmentUploads(courseId: string) {
       }
       setRejectedCount(rejected);
     },
-    [files.length, upload],
+    [existingCount, files.length, upload],
   );
 
   const remove = useCallback((id: string) => {

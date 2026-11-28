@@ -16,10 +16,10 @@ export default defineConfig({
     coverage: {
       ...vitestPreset.coverage,
       thresholds: {
-        statements: 85.52,
-        branches: 67.64,
-        functions: 73.96,
-        lines: 87.84,
+        statements: 87.3,
+        branches: 71.61,
+        functions: 77.16,
+        lines: 89.4,
       },
     },
   },

@@ -125,9 +125,11 @@ async function waitForProcessExit(child, exit) {
 async function runPlaywright() {
   await rm(E2E_REPORT, { force: true });
   const startedAt = Date.now();
+  const runnerEnvironment = { ...process.env, PORTAL_E2E_BASE_URL: E2E_BASE_URL };
+  delete runnerEnvironment.NO_COLOR;
   const runner = spawn(process.execPath, [PLAYWRIGHT_CLI, "test", ...process.argv.slice(2)], {
     cwd: PORTAL_DIRECTORY,
-    env: { ...process.env, PORTAL_E2E_BASE_URL: E2E_BASE_URL },
+    env: runnerEnvironment,
     stdio: "inherit",
     windowsHide: true,
     detached: process.platform !== "win32",

@@ -7,10 +7,11 @@ import { BundlesPanel } from "../components/BundlesPanel";
 import { COURSE_LOOKUP_PAGE_SIZE } from "../constants";
 import { isForbiddenError } from "../../../shared/errors/isForbiddenError";
 import { ROUTE_PATHS } from "../../../shared/navigation/routes";
+import { AssessmentListPanel } from "../../assessments/index";
 
 /** Composes the teacher course title and its lesson and bundle tabs. */
 export function TeacherCoursePage() {
-  const { t } = useTranslation(["catalog", "errors"]);
+  const { t } = useTranslation(["catalog", "errors", "assessments"]);
   const { courseId } = useParams();
   const { courses } = useCatalogQueries(undefined, {
     page: 1,
@@ -56,6 +57,16 @@ export function TeacherCoursePage() {
             value: "bundles",
             label: t("courseBundles"),
             content: <BundlesPanel courseId={course.id} />,
+          },
+          {
+            value: "exams",
+            label: t("assessments:examsTitle"),
+            content: <AssessmentListPanel courseId={course.id} type="exam" />,
+          },
+          {
+            value: "homework",
+            label: t("assessments:homeworkTitle"),
+            content: <AssessmentListPanel courseId={course.id} type="homework" />,
           },
         ]}
       />

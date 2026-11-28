@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import i18n from "../../../shared/i18n";
 import { renderPage } from "../../../shared/testing/render-page";
 import { TeacherCoursePage } from "./TeacherCoursePage";
+import { MOCK_ASSESSMENTS } from "@noldg/api/mocks/fixtures/assessments";
 
 const course = {
   id: "course-1",
@@ -84,6 +85,29 @@ describe("teacher course detail", () => {
     await user.click(screen.getByRole("tab", { name: "Bundles" }));
     expect((await screen.findAllByText("Algebra package")).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/EGP.*160/).length).toBeGreaterThan(0);
+  });
+
+  it("shows course exam and homework tabs with server assessment data", async () => {
+    const user = userEvent.setup();
+    nodeServer.use(
+      http.get(`${API_BASE_URL}/courses/my`, () =>
+        HttpResponse.json({ items: [course], page: 1, pageSize: 100, total: 1 }),
+      ),
+      http.get(`${API_BASE_URL}/assessments/courses/:courseId`, () =>
+        HttpResponse.json(MOCK_ASSESSMENTS),
+      ),
+    );
+    renderPage(
+      <Routes>
+        <Route element={<TeacherCoursePage />} path="/teacher/courses/:courseId" />
+      </Routes>,
+      undefined,
+      ["/teacher/courses/course-1"],
+    );
+    await user.click(await screen.findByRole("tab", { name: "Exams" }));
+    expect((await screen.findAllByText(/First exam/)).length).toBeGreaterThan(0);
+    await user.click(screen.getByRole("tab", { name: "Homework" }));
+    expect((await screen.findAllByText(/Grammar homework/)).length).toBeGreaterThan(0);
   });
 
   it("shows a permission state when the lesson list returns 403", async () => {

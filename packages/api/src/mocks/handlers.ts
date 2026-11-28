@@ -5,6 +5,7 @@ import { catalogHandlers } from "./handlers/catalog";
 import { browseHandlers } from "./handlers/browse";
 import { orderHandlers } from "./handlers/orders";
 import { learningHandlers } from "./handlers/learning";
+import { assessmentHandlers } from "./handlers/assessments";
 
 /** Initial mock handler list; domain handlers are added with their API modules. */
 export const handlers: RequestHandler[] = [
@@ -14,4 +15,5 @@ export const handlers: RequestHandler[] = [
   ...browseHandlers,
   ...orderHandlers,
   ...learningHandlers,
+  ...assessmentHandlers,
 ];

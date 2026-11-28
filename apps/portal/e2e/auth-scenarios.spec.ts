@@ -3,6 +3,7 @@ import { expect, test } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 const PASSWORD = "Aa1!pass";
+const DEVICE_STATUS_PATH = /\/api\/devices\/change-requests\/me$/u;
 
 async function switchToEnglish(page: Page): Promise<void> {
   await page.goto("/login");
@@ -94,16 +95,26 @@ for (const scenario of LOGIN_SCENARIOS) {
     if (scenario.email === AUTH_SCENARIO_EMAILS.deviceBlocked) {
       declareExpectedApiFailure({
         method: "GET",
-        urlPattern: /\/api\/devices\/change-requests\/me$/u,
+        urlPattern: DEVICE_STATUS_PATH,
         status: 404,
       });
     }
     await switchToEnglish(page);
     await page.getByLabel("Email address").fill(scenario.email);
     await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
+    const deviceStatusRequest =
+      scenario.email === AUTH_SCENARIO_EMAILS.deviceBlocked
+        ? page.waitForResponse(
+            (response) =>
+              response.request().method() === "GET" &&
+              DEVICE_STATUS_PATH.test(response.url()) &&
+              response.status() === 404,
+          )
+        : undefined;
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL(new RegExp(`${scenario.route.replaceAll("/", "\\/")}$`));
     await expect(page.getByText(scenario.message)).toBeVisible();
+    if (deviceStatusRequest) await deviceStatusRequest;
     if (scenario.name === "429 response") {
       await expect(page.getByRole("button", { name: "Sign in" })).toBeDisabled();
     }

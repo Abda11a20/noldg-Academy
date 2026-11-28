@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  cairoDateBoundaryToIso,
   cairoLocalToIso,
   formatCairoDateTime,
   isAfterNow,
@@ -25,6 +26,16 @@ describe("Cairo time conversion", () => {
     const timestamp = cairoLocalToIso("2024-06-15T13:45");
     expect(isoToCairoLocal(timestamp)).toBe("2024-06-15T13:45");
     expect(formatCairoDateTime(timestamp, "en-EG")).toContain("Jun");
+  });
+
+  it("converts day-level homework boundaries in Cairo time", () => {
+    expect(isoToCairoLocal(cairoDateBoundaryToIso("2026-11-28", "startOfDay"))).toBe(
+      "2026-11-28T00:00",
+    );
+    expect(isoToCairoLocal(cairoDateBoundaryToIso("2026-11-28", "endOfDay"))).toBe(
+      "2026-11-28T23:59",
+    );
+    expect(() => cairoDateBoundaryToIso("2026-02-30", "startOfDay")).toThrow(RangeError);
   });
 
   it("compares instants against the injected clock", () => {

@@ -20,6 +20,7 @@ export const ROUTE_PATHS = {
   studentPurchases: "/student/purchases",
   studentPurchaseDetail: "/student/purchases/:orderId",
   teacher: "/teacher",
+  teacherQuestions: "/teacher/questions",
   teacherCourse: "/teacher/courses/:courseId",
   teacherLessonNew: "/teacher/courses/:courseId/lessons/new",
   teacherLessonEdit: "/teacher/courses/:courseId/lessons/:lessonId",

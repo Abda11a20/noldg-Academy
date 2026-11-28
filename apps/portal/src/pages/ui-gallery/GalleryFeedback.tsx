@@ -14,7 +14,7 @@ import {
 
 /** Shows translated feedback components in their available visual tones. */
 export function GalleryFeedback() {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation("gallery");
 
   return (
     <section aria-label={t("galleryFeedback")}>

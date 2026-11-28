@@ -31,7 +31,7 @@ export function MobileNav({ items, label, openLabel, closeLabel, trigger }: Mobi
         </Button>
       </Primitive.Trigger>
       <Primitive.Portal>
-        <Primitive.Overlay className="fixed inset-0 z-overlay bg-overlay md:hidden" />
+        <Primitive.Overlay className="fixed inset-0 z-overlay bg-overlay/60 md:hidden" />
         <Primitive.Content className="fixed inset-y-0 start-0 z-modal w-72 bg-surface p-4 shadow-md focus:outline-none md:hidden">
           <Primitive.Title className="sr-only">{label}</Primitive.Title>
           <Primitive.Close asChild>
@@ -43,7 +43,7 @@ export function MobileNav({ items, label, openLabel, closeLabel, trigger }: Mobi
               variant="ghost"
             />
           </Primitive.Close>
-          <Sidebar items={items} label={label} />
+          <Sidebar items={items} label={label} onItemSelect={() => setOpen(false)} />
         </Primitive.Content>
       </Primitive.Portal>
     </Primitive.Root>

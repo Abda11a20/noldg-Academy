@@ -20,7 +20,7 @@ import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "../../shared/navigation/LanguageSwitcher";
 
 function ToastGallery() {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation("gallery");
   const { notify } = useToast();
   return (
     <Button
@@ -41,9 +41,9 @@ function ToastGallery() {
  * @returns Direction-aware sample controls for the development gallery.
  */
 export function GalleryInfrastructure() {
-  const { t } = useTranslation(["common", "admin", "orders"]);
+  const { t } = useTranslation(["gallery", "common", "admin", "orders"]);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const links = [{ to: "/login", label: t("goHome"), icon: "home" as const }];
+  const links = [{ to: "/login", label: t("common:goHome"), icon: "home" as const }];
   const tabItems = [
     { value: "first", label: t("galleryFirstTab"), content: <p>{t("galleryFirstPanel")}</p> },
     { value: "second", label: t("gallerySecondTab"), content: <p>{t("gallerySecondPanel")}</p> },
@@ -51,22 +51,24 @@ export function GalleryInfrastructure() {
   return (
     <section className="space-y-4 rounded-md border border-border p-4">
       <Topbar
-        logoAlt={t("logoAlt")}
+        logoAlt={t("common:logoAlt")}
         userName={t("sampleDetails")}
         roleLabel={t("galleryMenuLabel")}
         userMenuSlot={
           <DropdownMenu
             trigger={t("galleryMenuLabel")}
-            triggerLabel={t("mobileAccountMenu")}
-            items={[{ id: "language", label: t("languageEnglish"), onSelect: () => undefined }]}
+            triggerLabel={t("common:mobileAccountMenu")}
+            items={[
+              { id: "language", label: t("common:languageEnglish"), onSelect: () => undefined },
+            ]}
           />
         }
         mobileNavigationSlot={
           <MobileNav
             items={links}
-            label={t("navigation.label")}
-            openLabel={t("navigation.open")}
-            closeLabel={t("navigation.close")}
+            label={t("common:navigation.label")}
+            openLabel={t("common:navigation.open")}
+            closeLabel={t("common:navigation.close")}
           />
         }
         languageSwitchSlot={<LanguageSwitcher />}
@@ -80,11 +82,11 @@ export function GalleryInfrastructure() {
         />
         <MobileNav
           items={links}
-          label={t("navigation.label")}
-          openLabel={t("navigation.open")}
-          closeLabel={t("navigation.close")}
+          label={t("common:navigation.label")}
+          openLabel={t("common:navigation.open")}
+          closeLabel={t("common:navigation.close")}
         />
-        <ToastProvider dismissLabel={t("toastDismiss")}>
+        <ToastProvider dismissLabel={t("common:toastDismiss")}>
           <ToastGallery />
         </ToastProvider>
       </div>
@@ -93,17 +95,17 @@ export function GalleryInfrastructure() {
         onOpenChange={setDialogOpen}
         title={t("galleryDialogTitle")}
         description={t("galleryDialogBody")}
-        closeLabel={t("toastDismiss")}
-        confirmLabel={t("continue")}
+        closeLabel={t("common:toastDismiss")}
+        confirmLabel={t("common:continue")}
         cancelLabel={t("sampleAction")}
         onConfirm={() => setDialogOpen(false)}
       />
       <Tabs label={t("galleryTabsLabel")} items={tabItems} />
       <Breadcrumbs
         label={t("galleryBreadcrumbLabel")}
-        items={[{ label: t("goHome"), to: "/login" }, { label: t("galleryCurrentPage") }]}
+        items={[{ label: t("common:goHome"), to: "/login" }, { label: t("galleryCurrentPage") }]}
       />
-      <Sidebar items={links} label={t("navigation.label")} />
+      <Sidebar items={links} label={t("common:navigation.label")} />
       <Pagination
         page={1}
         pageSize={10}

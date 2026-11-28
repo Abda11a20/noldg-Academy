@@ -58,6 +58,13 @@ function identifyCurrentError(
   return messageCode ?? identifyStatus(error, operation);
 }
 
+const preservedTransportCodes = new Set([
+  "NETWORK_ERROR",
+  "TIMEOUT",
+  "ABORTED",
+  "RESPONSE_VALIDATION_FAILED",
+]);
+
 /** Maps legacy backend statuses and recognizable messages to stable target auth codes. */
 export function adaptCurrentAuthError(error: unknown, operation: AuthOperation): AppError {
   if (!(error instanceof AppError))
@@ -66,6 +73,7 @@ export function adaptCurrentAuthError(error: unknown, operation: AuthOperation):
       status: 0,
       message_key: "errors:requestFailed",
     });
+  if (preservedTransportCodes.has(error.code)) return error;
   const code = identifyCurrentError(error, operation);
   return new AppError({
     code,

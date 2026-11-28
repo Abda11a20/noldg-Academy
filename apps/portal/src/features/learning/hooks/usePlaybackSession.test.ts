@@ -61,8 +61,45 @@ it("prevents rapid duplicate starts, resumes at the server position and sends he
     playbackRate: 2,
     isPlaying: true,
   });
-  act(() => hook.result.current.onPause());
+  await act(async () => {
+    hook.result.current.onPause();
+  });
   expect(hook.result.current.status).toBe("paused");
+  await vi.waitFor(() => expect(heartbeatBody).toMatchObject({ isPlaying: false }));
+});
+
+it("sends a final heartbeat before closing when playback ends", async () => {
+  const heartbeats: unknown[] = [];
+  let closed = false;
+  nodeServer.use(
+    http.post(`${API_BASE_URL}/lessons/lesson-introduction/playback`, () =>
+      HttpResponse.json(startResponse("ended-session")),
+    ),
+    http.post(`${API_BASE_URL}/playback/ended-session/heartbeat`, async ({ request }) => {
+      heartbeats.push(await request.json());
+      return HttpResponse.json({
+        watchedSeconds: 100,
+        watchedPercent: 100,
+        thresholdReached: true,
+        nextHeartbeatInSeconds: 10,
+        serverNow: "2026-11-27T10:01:40.000Z",
+      });
+    }),
+    http.post(`${API_BASE_URL}/playback/ended-session/close`, () => {
+      closed = true;
+      return new HttpResponse(null, { status: 204 });
+    }),
+  );
+  const hook = renderHook(() => usePlaybackSession("lesson-introduction"));
+  await act(async () => hook.result.current.start());
+  act(() => hook.result.current.updatePosition(100));
+  await act(async () => {
+    hook.result.current.onEnded();
+  });
+  await vi.waitFor(() => expect(closed).toBe(true));
+  expect(heartbeats).toHaveLength(1);
+  expect(heartbeats[0]).toMatchObject({ sequence: 1, positionSeconds: 100, isPlaying: false });
+  expect(hook.result.current.status).toBe("ended");
 });
 
 it("retries network failures with the same sequence number", async () => {

@@ -189,11 +189,27 @@ it("runs session-replaced, expired-token, and network-retry mock scenarios", asy
   });
 });
 
-it("obtains an attachment URL on demand and normalizes provider errors", async () => {
+it("obtains an attachment URL on demand, rejects non-HTTPS URLs, and normalizes provider errors", async () => {
   expect(await getAttachmentDownload("lesson-introduction", "attachment-notes")).toContain(
     "notes.pdf",
   );
   await expect(
     getAttachmentDownload("lesson-introduction", "attachment-failure"),
   ).rejects.toMatchObject({ status: 503 });
+  nodeServer.use(
+    http.get(`${API_BASE_URL}/lessons/lesson-introduction/attachments/unsafe-js/download`, () =>
+      HttpResponse.json({ url: "javascript:alert(1)" }),
+    ),
+    http.get(`${API_BASE_URL}/lessons/lesson-introduction/attachments/unsafe-http/download`, () =>
+      HttpResponse.json({ url: "http://media.example.test/notes.pdf" }),
+    ),
+  );
+  await expect(getAttachmentDownload("lesson-introduction", "unsafe-js")).rejects.toMatchObject({
+    code: "RESPONSE_VALIDATION_FAILED",
+    status: 502,
+  });
+  await expect(getAttachmentDownload("lesson-introduction", "unsafe-http")).rejects.toMatchObject({
+    code: "RESPONSE_VALIDATION_FAILED",
+    status: 502,
+  });
 });

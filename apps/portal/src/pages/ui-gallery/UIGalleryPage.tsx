@@ -4,7 +4,7 @@ import { GalleryDirection } from "./GalleryDirection";
 
 /** Development-only route displaying design tokens and all F0 UI components. */
 export function UIGalleryPage() {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation("gallery");
   return (
     <div className="space-y-6" data-gallery-build-marker="noldg-academy-ui-gallery-dev-only">
       <div className="flex justify-end">

@@ -47,9 +47,9 @@ export function TeacherDetailPage() {
   return (
     <section className="flex flex-col gap-5">
       <Breadcrumbs
-        label={t("common:galleryBreadcrumbLabel")}
+        label={t("breadcrumbLabel")}
         items={[
-          { label: t("common:sampleStudent"), to: ROUTE_PATHS.student },
+          { label: t("common:navigation.studentHome"), to: ROUTE_PATHS.student },
           { label: t("teachersTitle"), to: listPath },
           { label: name },
         ]}

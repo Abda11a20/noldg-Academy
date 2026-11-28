@@ -1,5 +1,6 @@
-import type { ComponentType, MouseEventHandler, ReactNode } from "react";
+import type { AriaAttributes, ComponentType, MouseEventHandler, ReactNode } from "react";
 import type { UiLinkProps } from "../../providers/UiProvider";
+import { assertSafeLinkTarget, resolveSafeLinkRel } from "../typography/link-security";
 export interface ButtonLinkProps {
   linkComponent?: ComponentType<UiLinkProps> | undefined;
   to: string;
@@ -7,6 +8,7 @@ export interface ButtonLinkProps {
   disabled?: boolean | undefined;
   loading: boolean;
   className: string;
+  ariaCurrent?: AriaAttributes["aria-current"];
   label?: string | undefined;
   id?: string | undefined;
   rel?: string | undefined;
@@ -14,7 +16,7 @@ export interface ButtonLinkProps {
   onClick?: MouseEventHandler<HTMLButtonElement | HTMLAnchorElement> | undefined;
   children: ReactNode;
 }
-/** Renders button-styled navigation and blocks activation while unavailable. @param props Link provider and button presentation. @throws Error when no provider link is available. */
+/** Renders button-styled navigation and blocks activation while unavailable. @param props Link provider and button presentation. @throws Error when no provider link is available or for unsafe protocols. */
 export function ButtonLink({
   linkComponent: LinkComponent,
   to,
@@ -22,6 +24,7 @@ export function ButtonLink({
   disabled,
   loading,
   className,
+  ariaCurrent,
   label,
   id,
   rel,
@@ -30,6 +33,7 @@ export function ButtonLink({
   children,
 }: ButtonLinkProps) {
   if (!LinkComponent) throw new Error("Button navigation requires a UiProvider link component.");
+  assertSafeLinkTarget(to);
   const handleClick: MouseEventHandler<HTMLAnchorElement> = (event) => {
     if (loading || disabled) {
       event.preventDefault();
@@ -40,12 +44,13 @@ export function ButtonLink({
   return (
     <LinkComponent
       aria-busy={loading}
+      aria-current={ariaCurrent}
       aria-disabled={Boolean(disabled || loading)}
       aria-label={label}
       className={className}
       id={id}
       onClick={handleClick}
-      rel={rel}
+      rel={resolveSafeLinkRel(target, rel)}
       tabIndex={disabled || loading ? -1 : undefined}
       target={target}
       title={title}

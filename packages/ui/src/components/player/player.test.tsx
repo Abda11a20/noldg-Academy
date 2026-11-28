@@ -46,7 +46,7 @@ it("renders file controls, applies callbacks and keyboard shortcuts", async () =
   const onTimeUpdate = vi.fn();
   const play = vi
     .spyOn(HTMLMediaElement.prototype, "play")
-    .mockImplementation(async () => undefined);
+    .mockRejectedValueOnce(new Error("autoplay blocked"));
   const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
   const fullscreen = vi.fn();
   Object.defineProperty(HTMLElement.prototype, "requestFullscreen", {
@@ -96,6 +96,18 @@ it("renders file controls, applies callbacks and keyboard shortcuts", async () =
   fireEvent.keyDown(keyboardTarget, { key: "k" });
   fireEvent.click(screen.getByRole("button", { name: "Full screen" }));
   expect(fullscreen).toHaveBeenCalledTimes(3);
+  const exitFullscreen = vi.fn().mockRejectedValueOnce(new Error("denied"));
+  Object.defineProperty(document, "fullscreenElement", {
+    configurable: true,
+    value: container.firstChild,
+  });
+  Object.defineProperty(document, "exitFullscreen", {
+    configurable: true,
+    value: exitFullscreen,
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Full screen" }));
+  expect(exitFullscreen).toHaveBeenCalledOnce();
+  Object.defineProperty(document, "fullscreenElement", { configurable: true, value: null });
   fireEvent.click(screen.getByRole("button", { name: "Mute video" }));
   expect(media?.muted).toBe(true);
   fireEvent.keyDown(keyboardTarget, { key: "M" });
@@ -121,7 +133,7 @@ it("renders file controls, applies callbacks and keyboard shortcuts", async () =
 it("handles missing callbacks, duration changes, and alternate keyboard play keys", () => {
   const play = vi
     .spyOn(HTMLMediaElement.prototype, "play")
-    .mockImplementation(async () => undefined);
+    .mockRejectedValueOnce(new Error("autoplay blocked"));
   const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
   const { container } = render(
     <VideoPlayer

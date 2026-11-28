@@ -105,10 +105,14 @@ export async function updatePackageProduct(productId: string, input: Partial<Pro
   assertBundleLessonLimit(values);
   requireCapability(capabilities.bundleLessons || values.lessonIds === undefined);
   const body = apiMode === "mock" ? values : liveProductBody(values);
-  const payload = await request(`products/${productId}`, unknownResponseSchema, {
-    method: "PATCH",
-    body,
-  });
+  const payload = await request(
+    `products/${encodeURIComponent(productId)}`,
+    unknownResponseSchema,
+    {
+      method: "PATCH",
+      body,
+    },
+  );
   const data = unwrapCatalogData(payload);
   if (typeof data !== "object" || data === null || !("product" in data) || !("pricing" in data)) {
     throw new AppError({
@@ -127,7 +131,7 @@ export async function updatePackageProduct(productId: string, input: Partial<Pro
 /** Loads a product's server-computed current student price. */
 export async function getProductPricing(productId: string, signal?: AbortSignal) {
   const payload = await request(
-    `products/${productId}/pricing`,
+    `products/${encodeURIComponent(productId)}/pricing`,
     unknownResponseSchema,
     signalOption(signal),
   );

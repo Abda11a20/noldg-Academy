@@ -8,7 +8,10 @@ const EGYPT_COUNTRY_CODE = "20";
  */
 export function normalizeEgyptianWhatsappNumber(value: string): string | null {
   const digits = normalizeArabicDigits(value).replace(/\D/g, "");
-  const local = digits.startsWith(EGYPT_COUNTRY_CODE) ? digits.slice(2) : digits.replace(/^0/, "");
+  const international = digits.startsWith("00") ? digits.slice(2) : digits;
+  const local = international.startsWith(EGYPT_COUNTRY_CODE)
+    ? international.slice(2).replace(/^0/, "")
+    : international.replace(/^0/, "");
   return /^1[0125]\d{8}$/.test(local) ? `${EGYPT_COUNTRY_CODE}${local}` : null;
 }
 

@@ -14,9 +14,11 @@ export function useServerCountdown(
   receivedAtMs: number,
 ): number {
   const [now, setNow] = useState(() => new Date());
+  const active = Boolean(expiresAt && serverNow);
   useEffect(() => {
+    if (!active) return;
     const intervalId = window.setInterval(() => setNow(new Date()), DISPLAY_COUNTDOWN_TICK_MS);
     return () => window.clearInterval(intervalId);
-  }, []);
-  return getDisplayRemainingSeconds(expiresAt, serverNow, receivedAtMs, now);
+  }, [active]);
+  return active ? getDisplayRemainingSeconds(expiresAt, serverNow, receivedAtMs, now) : 0;
 }

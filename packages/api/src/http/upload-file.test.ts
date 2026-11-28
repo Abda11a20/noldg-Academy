@@ -4,8 +4,10 @@ import type { UploadTicket } from "../contracts/catalog";
 
 class FakeXmlHttpRequest {
   static nextStatus = 200;
+  static nextResponseText = "";
   upload = new EventTarget();
   status = 0;
+  responseText = "";
   timeout = 0;
   body?: FormData;
   private listeners = new Map<string, EventListener[]>();
@@ -13,6 +15,7 @@ class FakeXmlHttpRequest {
   send(body: FormData): void {
     this.body = body;
     this.status = FakeXmlHttpRequest.nextStatus;
+    this.responseText = FakeXmlHttpRequest.nextResponseText;
     const progress = Object.assign(new Event("progress"), {
       lengthComputable: true,
       loaded: 5,
@@ -43,6 +46,7 @@ const formPostTicket: UploadTicket = {
 
 afterEach(() => {
   FakeXmlHttpRequest.nextStatus = 200;
+  FakeXmlHttpRequest.nextResponseText = "";
   vi.unstubAllGlobals();
 });
 
@@ -63,7 +67,14 @@ describe("uploadFile", () => {
     await expect(
       uploadFile(formPostTicket, new File(["data"], "lesson.mp4")),
     ).rejects.toMatchObject({ code: "UPLOAD_REJECTED" });
+    FakeXmlHttpRequest.nextStatus = 400;
+    FakeXmlHttpRequest.nextResponseText =
+      '{"error":{"message":"Stale request - expired timestamp"}}';
+    await expect(
+      uploadFile(formPostTicket, new File(["data"], "lesson.mp4")),
+    ).rejects.toMatchObject({ code: "UPLOAD_EXPIRED" });
     FakeXmlHttpRequest.nextStatus = 410;
+    FakeXmlHttpRequest.nextResponseText = "";
     await expect(
       uploadFile(formPostTicket, new File(["data"], "lesson.mp4")),
     ).rejects.toMatchObject({ code: "UPLOAD_EXPIRED" });

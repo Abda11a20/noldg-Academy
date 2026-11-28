@@ -89,7 +89,10 @@ export async function listTeacherApplications(state: ListUrlState, status: strin
  */
 export async function getTeacherApplication(applicationId: string): Promise<TeacherApplication> {
   if (apiMode === "mock") {
-    const payload = await request(`teachers/applications/${applicationId}`, dataSchema);
+    const payload = await request(
+      `teachers/applications/${encodeURIComponent(applicationId)}`,
+      dataSchema,
+    );
     return TeacherApplicationSchema.parse(payload);
   }
   return findLiveApplication(applicationId, ["pending", "rejected", "approved"]);
@@ -110,20 +113,7 @@ export async function getMyTeacherApplication(
  * @returns Catalog adapted from the authenticated legacy catalog endpoint.
  */
 export async function getTeacherOfferingCatalog(): Promise<AcademicCatalog> {
-  if (apiMode === "mock")
-    return AcademicCatalogSchema.parse({
-      systems: ["general", "al_azhar"],
-      tracks: [
-        {
-          id: "track-1",
-          system: "general",
-          stage: "secondary",
-          grade: 1,
-          name: "First secondary",
-          subjects: [{ id: "subject-1", name: "Mathematics" }],
-        },
-      ],
-    });
+  if (apiMode === "mock") return request("academic/catalog", AcademicCatalogSchema);
   const state: ListUrlState = { page: 1, pageSize: 100, search: "", filters: {} };
   const trackPage = await listTracks(state);
   const tracks = await Promise.all(
@@ -157,10 +147,11 @@ export async function reviewTeacherApplication(
     status === "rejected" ? { status, reason } : { status },
   );
   const action = status === "approved" ? "approve" : "reject";
+  const encodedId = encodeURIComponent(id);
   const path =
     apiMode === "mock"
-      ? `teachers/applications/${id}/${action}`
-      : `teachers/applications/${id}/review`;
+      ? `teachers/applications/${encodedId}/${action}`
+      : `teachers/applications/${encodedId}/review`;
   const body = apiMode === "mock" ? decision : { status };
   const payload = await request(path, dataSchema, {
     method: apiMode === "mock" ? "POST" : "PATCH",
@@ -216,7 +207,7 @@ export async function updateTeacherAccountStatus(
   reason?: string,
 ): Promise<void> {
   requireCapability(apiMode === "mock" || capabilities.adminAcademicAccess);
-  await request(`users/${userId}/status`, z.unknown(), {
+  await request(`users/${encodeURIComponent(userId)}/status`, z.unknown(), {
     method: "PATCH",
     body: apiMode === "mock" ? { status, reason } : { status },
   });

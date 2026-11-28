@@ -6,8 +6,19 @@ import { MobileNav } from "./navigation/MobileNav";
 import { Pagination } from "./navigation/Pagination";
 import { UiProvider, type UiLinkProps } from "../providers/UiProvider";
 
-function TestLink({ to, children }: UiLinkProps) {
-  return <a href={to}>{children}</a>;
+function TestLink({ to, children, onClick, ...props }: UiLinkProps) {
+  return (
+    <a
+      href={to}
+      onClick={(event) => {
+        event.preventDefault();
+        onClick?.(event);
+      }}
+      {...props}
+    >
+      {children}
+    </a>
+  );
 }
 
 it("opens and closes the responsive navigation drawer", async () => {
@@ -23,6 +34,10 @@ it("opens and closes the responsive navigation drawer", async () => {
     </UiProvider>,
   );
   expect((await axe(container)).violations).toHaveLength(0);
+  await user.click(screen.getByRole("button", { name: "Open navigation" }));
+  expect(await screen.findByRole("dialog", { name: "Navigation" })).toBeInTheDocument();
+  await user.click(screen.getByRole("link", { name: "Home" }));
+  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   await user.click(screen.getByRole("button", { name: "Open navigation" }));
   expect(await screen.findByRole("dialog", { name: "Navigation" })).toBeInTheDocument();
   await user.keyboard("{Escape}");

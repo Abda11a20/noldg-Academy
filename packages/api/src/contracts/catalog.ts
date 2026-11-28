@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { IdSchema, IsoTimestampSchema, MoneySchema } from "./common";
+import { HttpsUrlSchema, IdSchema, IsoTimestampSchema, MoneySchema } from "./common";
 
 export const MIN_CATALOG_PRICE_EGP = 1;
 export const MAX_CATALOG_PRICE_EGP = 2_147_483_647;
@@ -78,7 +78,7 @@ export const LessonListSchema = z.object({
 
 export const ProductPricingSchema = z.object({
   fullPrice: CatalogPriceSchema,
-  currentPrice: CatalogPriceSchema,
+  currentPrice: z.number().int().min(0).max(MAX_CATALOG_PRICE_EGP),
   announcedLessonCount: z.number().int().min(MINIMUM_ANNOUNCED_LESSON_COUNT),
   remainingLessonCount: z.number().int().nonnegative(),
   commissionPercentage: z.number().nonnegative(),
@@ -94,14 +94,14 @@ export const ProductListSchema = z.array(
 export const UploadTicketSchema = z.discriminatedUnion("method", [
   z.object({
     method: z.literal("form-post"),
-    url: z.string().url(),
+    url: HttpsUrlSchema,
     fields: z.record(z.string(), z.string()),
     uploadToken: z.string().min(1),
     expiresAt: IsoTimestampSchema.optional(),
   }),
   z.object({
     method: z.literal("tus"),
-    url: z.string().url(),
+    url: HttpsUrlSchema,
     headers: z.record(z.string(), z.string()),
     uploadToken: z.string().min(1),
     expiresAt: IsoTimestampSchema.optional(),

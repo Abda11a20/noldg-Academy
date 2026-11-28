@@ -1,5 +1,5 @@
 import { axe } from "jest-axe";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it, vi } from "vitest";
 import { AppShell } from "./layout/AppShell";
@@ -12,8 +12,12 @@ import { Sidebar } from "./navigation/Sidebar";
 import { Topbar } from "./navigation/Topbar";
 import { UiProvider, type UiLinkProps } from "../providers/UiProvider";
 
-function TestLink({ to, children }: UiLinkProps) {
-  return <a href={to}>{children}</a>;
+function TestLink({ to, children, ...props }: UiLinkProps) {
+  return (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  );
 }
 
 it("renders the app shell, breadcrumb trail and shared navigation accessibly", async () => {
@@ -48,8 +52,23 @@ it("renders the app shell, breadcrumb trail and shared navigation accessibly", a
   );
   expect((await axe(container)).violations).toHaveLength(0);
   expect(screen.getByRole("navigation", { name: "Breadcrumbs" })).toBeInTheDocument();
-  expect(screen.getByRole("navigation", { name: "Main navigation" })).toBeInTheDocument();
+  const mainNav = screen.getByRole("navigation", { name: "Main navigation" });
+  expect(mainNav).toBeInTheDocument();
+  expect(within(mainNav).getByRole("link", { name: "Home" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
   expect(screen.getByRole("img", { name: "Account avatar" })).toBeInTheDocument();
+});
+
+it("omits the desktop sidebar landmark when sidebar is null", () => {
+  const { container } = render(
+    <AppShell topbar={<header />} sidebar={null} mobileNavigation={null}>
+      <p>Auth screen</p>
+    </AppShell>,
+  );
+  expect(container.querySelector("aside")).toBeNull();
+  expect(screen.getByText("Auth screen")).toBeInTheDocument();
 });
 
 it("renders a sortable data table and forwards the requested sort column", async () => {

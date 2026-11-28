@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router";
+import { useLocation, useSearchParams } from "react-router";
 import { Button, Link, PasswordField, Stack, TextField } from "@noldg/ui";
 import { ROUTE_PATHS } from "../../../shared/navigation/routes";
 import { AuthPanel } from "../components/AuthPanel";
@@ -18,8 +18,9 @@ export function LoginPage() {
     passwordReset?: boolean;
     verificationUnavailable?: boolean;
   } | null;
+  const [searchParams] = useSearchParams();
   const { form, submit, pending, errorKey, secondsRemaining } = useLoginForm();
-  const returnTo = sanitizeReturnTo(new URLSearchParams(window.location.search).get("returnTo"));
+  const returnTo = sanitizeReturnTo(searchParams.get("returnTo"));
   const loginError = errorKey ? translateAuthMessage(errorKey) : undefined;
   const disabled = pending || secondsRemaining > 0;
 

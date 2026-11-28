@@ -24,6 +24,7 @@ const projectIgnores = [
   "**/.pnpm-store/**",
   "**/.vite/**",
   "**/dist/**",
+  "**/dist-e2e/**",
   "**/coverage/**",
   "**/playwright-report/**",
   "**/test-results/**",
@@ -37,7 +38,7 @@ export default defineConfig(
   reactHooks.configs.flat.recommended,
   {
     files: sourceFiles,
-    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    languageOptions: { globals: globals.browser },
     plugins: {
       react,
       import: importPlugin,
@@ -65,6 +66,21 @@ export default defineConfig(
   },
   {
     files: [
+      "**/*.{mjs,cjs}",
+      "**/vite.config.*",
+      "**/vitest.config.*",
+      "**/playwright.config.*",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "apps/portal/e2e/**",
+      "apps/portal/test/**",
+      "packages/api/test/**",
+      "tools/**",
+    ],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+  },
+  {
+    files: [
       "apps/**/*.{js,jsx,ts,tsx}",
       "packages/**/*.{js,jsx,ts,tsx}",
       "tools/lint-fixtures/**/*.tsx",
@@ -79,17 +95,20 @@ export default defineConfig(
     rules: { "@typescript-eslint/no-require-imports": "off" },
   },
   {
-    files: [
-      "apps/portal/src/features/**/*.{js,jsx,ts,tsx}",
-      "tools/lint-fixtures/features/**/*.tsx",
-    ],
+    files: ["apps/portal/src/**/*.{js,jsx,ts,tsx}"],
     plugins: { boundaries },
     settings: {
+      "import/resolver": {
+        node: {
+          extensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
+        },
+      },
       "boundaries/elements": [
-        { type: "feature", pattern: "apps/*/src/features/**/*" },
-        { type: "shared", pattern: "apps/*/src/shared/**/*" },
-        { type: "app", pattern: "apps/*/src/**/*" },
-        { type: "package", pattern: "packages/**/*" },
+        { type: "feature", partialMatch: false, pattern: "apps/*/src/features/**" },
+        { type: "shared", partialMatch: false, pattern: "apps/*/src/shared/**" },
+        { type: "pages", partialMatch: false, pattern: "apps/*/src/pages/**" },
+        { type: "app", partialMatch: false, pattern: "apps/*/src/**" },
+        { type: "package", partialMatch: false, pattern: "packages/**" },
       ],
     },
     rules: {
@@ -97,11 +116,21 @@ export default defineConfig(
         "error",
         {
           checkUnknownLocals: true,
-          default: "allow",
+          default: "disallow",
           policies: [
+            {
+              from: { element: { type: ["app", "pages"] } },
+              allow: {
+                to: { element: { type: ["app", "pages", "feature", "shared", "package"] } },
+              },
+            },
             {
               from: { element: { type: "feature" } },
               allow: { to: { element: { type: ["feature", "shared", "package"] } } },
+            },
+            {
+              from: { element: { type: "shared" } },
+              allow: { to: { element: { type: ["shared", "package"] } } },
             },
           ],
         },

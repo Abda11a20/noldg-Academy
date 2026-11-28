@@ -1,4 +1,11 @@
 export type ApiMode = "mock" | "live";
 
-/** API transport mode selected by the public Vite configuration. */
-export const apiMode: ApiMode = import.meta.env.VITE_API_MODE === "live" ? "live" : "mock";
+function resolveApiMode(): ApiMode {
+  if (import.meta.env.VITE_API_MODE === "live") return "live";
+  if (import.meta.env.VITE_API_MODE === "mock") return "mock";
+  if (import.meta.env.PROD && import.meta.env.VITE_E2E_MOCKS !== "true") return "live";
+  return "mock";
+}
+
+/** API transport mode selected by public Vite configuration; production builds default to live. */
+export const apiMode: ApiMode = resolveApiMode();

@@ -38,7 +38,7 @@ export interface ButtonProps
   to?: string;
   target?: string;
   children?: ReactNode;
-  onClick?: MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
+  onClick?: MouseEventHandler<HTMLButtonElement | HTMLAnchorElement> | undefined;
 }
 
 /** Renders a shared button or injected router link with variants, icons, and guarded loading.
@@ -80,6 +80,7 @@ export function Button({
         disabled={disabled}
         loading={loading}
         className={classes}
+        ariaCurrent={props["aria-current"]}
         label={props["aria-label"]}
         id={props.id}
         rel={props.rel}

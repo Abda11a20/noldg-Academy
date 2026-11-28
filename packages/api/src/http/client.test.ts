@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { http, HttpResponse, delay } from "msw";
+import { API_BASE_URL } from "../constants/http";
 import { tokenStore } from "../auth/token-store";
 import { AppError } from "../errors/app-error";
 import { nodeServer } from "../mocks/node";
 import { request } from "./client";
 import { z } from "zod";
 
-const apiOrigin = "http://localhost:3000/api";
+const apiOrigin = API_BASE_URL;
 const resultSchema = z.object({ ok: z.boolean() });
 
 afterEach(() => tokenStore.clear());

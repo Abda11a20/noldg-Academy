@@ -72,11 +72,17 @@ test("approved teacher can publish a video lesson and create a bundle", async ({
     urlPattern: /\/api\/products\/[^/]+\/pricing$/u,
     status: 409,
   });
-  const bundlesProducts = page.waitForResponse(
-    (response) => response.url().endsWith("/api/products/my") && response.status() === 200,
-  );
-  await page.getByRole("tab", { name: "Bundles" }).click();
-  await bundlesProducts;
+  // The products list may already be cached when the tab opens, so the response is optional.
+  await Promise.all([
+    page
+      .waitForResponse(
+        (response) => response.url().endsWith("/api/products/my") && response.status() === 200,
+        { timeout: 5_000 },
+      )
+      .catch(() => null),
+    page.getByRole("tab", { name: "Bundles" }).click(),
+  ]);
+  await expect(page.getByRole("button", { name: "Create bundle" })).toBeEnabled();
   await page.getByRole("button", { name: "Create bundle" }).click();
   await page.getByLabel("Bundle name").fill("F4 lesson bundle");
   await page.getByLabel("Bundle price in EGP").fill("240");
@@ -85,8 +91,12 @@ test("approved teacher can publish a video lesson and create a bundle", async ({
   const productsRefresh = page.waitForResponse(
     (response) => response.url().endsWith("/api/products/my") && response.status() === 200,
   );
+  const pricingRefresh = page.waitForResponse(
+    (response) =>
+      /\/api\/products\/[^/]+\/pricing$/u.test(response.url()) && response.status() === 200,
+  );
   await page.getByRole("button", { name: "Save bundle" }).click();
-  await productsRefresh;
+  await Promise.all([productsRefresh, pricingRefresh]);
   await expect(page.getByRole("cell", { name: "F4 lesson bundle" })).toBeVisible();
   await expect(page.getByText(/EGP.*240/).first()).toBeVisible();
   await page.screenshot({

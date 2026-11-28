@@ -2,12 +2,16 @@ import { buildWhatsappLink, normalizeEgyptianWhatsappNumber } from "./whatsapp";
 import { describe, expect, it } from "vitest";
 
 describe("WhatsApp link helpers", () => {
-  it.each(["01012345678", "+201012345678", "٠١٠١٢٣٤٥٦٧٨", "201012345678"])(
-    "normalizes %s",
-    (input) => {
-      expect(normalizeEgyptianWhatsappNumber(input)).toBe("201012345678");
-    },
-  );
+  it.each([
+    "01012345678",
+    "+201012345678",
+    "00201012345678",
+    "+2001012345678",
+    "٠١٠١٢٣٤٥٦٧٨",
+    "201012345678",
+  ])("normalizes %s", (input) => {
+    expect(normalizeEgyptianWhatsappNumber(input)).toBe("201012345678");
+  });
 
   it.each(["", "12345", "011123456789", "+971501234567"])("rejects %s", (input) => {
     expect(normalizeEgyptianWhatsappNumber(input)).toBeNull();

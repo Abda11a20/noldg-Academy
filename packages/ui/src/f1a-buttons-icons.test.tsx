@@ -116,6 +116,38 @@ it("uses the injected router link and blocks unavailable navigation", async () =
     </UiProvider>,
   );
   expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/home");
+  rerender(
+    <UiProvider direction="ltr" linkComponent={TestRouterLink}>
+      <Link to="https://noldg.example" target="_blank" rel="external">
+        External
+      </Link>
+      <Button to="https://noldg.example" target="_blank">
+        External button
+      </Button>
+    </UiProvider>,
+  );
+  expect(screen.getByRole("link", { name: "External" })).toHaveAttribute(
+    "rel",
+    "external noopener noreferrer",
+  );
+  expect(screen.getByRole("link", { name: "External button" })).toHaveAttribute(
+    "rel",
+    "noopener noreferrer",
+  );
+  expect(() =>
+    render(
+      <UiProvider direction="ltr" linkComponent={TestRouterLink}>
+        <Link to="javascript:alert(1)">Bad link</Link>
+      </UiProvider>,
+    ),
+  ).toThrow(/Unsafe link protocol/);
+  expect(() =>
+    render(
+      <UiProvider direction="ltr" linkComponent={TestRouterLink}>
+        <Button to="data:text/html,bad">Bad button</Button>
+      </UiProvider>,
+    ),
+  ).toThrow(/Unsafe link protocol/);
   expect(() => render(<Link to="/home">Home</Link>)).toThrow(/UiProvider router link/);
   expect(() => render(<Button to="/student">Open</Button>)).toThrow(/UiProvider link component/);
 });

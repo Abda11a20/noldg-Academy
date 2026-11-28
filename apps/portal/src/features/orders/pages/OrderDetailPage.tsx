@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ErrorState, Heading } from "@noldg/ui";
 import { AppError } from "@noldg/api/errors";
 import { useCancelOrder, useOrder, useOrderSettings } from "../hooks/useOrders";
-import { StudentOrderSnapshot } from "./StudentOrderSnapshot";
+import { StudentOrderSnapshot } from "../components/StudentOrderSnapshot";
 
 /** Displays one student's order snapshot and cancellation action while awaiting payment. */
 export function OrderDetailPage() {

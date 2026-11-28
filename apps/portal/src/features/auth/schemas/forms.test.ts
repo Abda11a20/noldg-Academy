@@ -7,8 +7,9 @@ import {
   TeacherRegistrationRequestSchema,
 } from "@noldg/api/contracts/auth";
 import { normalizeArabicDigits } from "../../../shared/normalize-arabic-digits";
-import { authDestinationForUser } from "../utils/routing";
+import { authDestinationForUser, resolvePostLoginDestination } from "../utils/routing";
 import { sanitizeReturnTo } from "../utils/return-to";
+import { translateFieldError } from "../utils/translate-field-error";
 
 const validPassword = `Aa1!${"x".repeat(68)}`;
 
@@ -23,9 +24,15 @@ describe("auth validation and navigation helpers", () => {
     expect(LoginRequestSchema.safeParse({ email: "invalid", password: "short" }).success).toBe(
       false,
     );
+    expect(LoginRequestSchema.safeParse({ email: "mona@example.test", password: "" }).success).toBe(
+      false,
+    );
     expect(
       LoginRequestSchema.safeParse({ email: "mona@example.test", password: "Aa1!pass" }).success,
     ).toBe(true);
+    expect(translateFieldError(undefined)).not.toContain("validation.");
+    expect(translateFieldError("password_too_short")).not.toContain("validation.");
+    expect(translateFieldError("errors:fieldInvalid")).not.toBe("errors:fieldInvalid");
   });
 
   it("normalizes Arabic-Indic and Persian digits for phone and OTP inputs", () => {
@@ -85,6 +92,10 @@ describe("auth validation and navigation helpers", () => {
       applicationStatus: "pending",
     });
     expect(authDestinationForUser(student)).toBe("/student");
+    expect(resolvePostLoginDestination(student, "/student/lessons")).toBe("/student/lessons");
+    expect(resolvePostLoginDestination(student, "/admin")).toBe("/student");
+    expect(resolvePostLoginDestination(student, "/login")).toBe("/student");
+    expect(resolvePostLoginDestination(pendingTeacher, "/teacher")).toBe("/teacher/pending");
     expect(authDestinationForUser(pendingTeacher)).toBe("/teacher/pending");
     expect(authDestinationForUser({ ...pendingTeacher, applicationStatus: "approved" })).toBe(
       "/teacher",

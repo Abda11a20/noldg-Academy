@@ -2,7 +2,7 @@ import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { EmptyState, ErrorState, Spinner } from "@noldg/ui";
 import { useOrderSettings, usePricingPreview } from "../hooks/useOrders";
-import { CheckoutReady } from "./CheckoutReady";
+import { CheckoutReady } from "../components/CheckoutReady";
 
 /** Loads server-authoritative checkout data and composes the appropriate page state.
  * @returns Loading, safe error, or checkout form state.

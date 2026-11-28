@@ -3,8 +3,17 @@ import { AppError } from "../errors/app-error";
 
 const HTTP_OK_MIN = 200;
 const HTTP_OK_MAX = 299;
+const HTTP_BAD_REQUEST = 400;
 const HTTP_GONE = 410;
 const UPLOAD_TIMEOUT_MS = 30 * 60 * 1000;
+const EXPIRED_UPLOAD_PATTERN = /\b(?:stale|expired|timestamp)\b/i;
+
+function isExpiredUploadStatus(status: number, responseText: string): boolean {
+  return (
+    status === HTTP_GONE ||
+    (status === HTTP_BAD_REQUEST && EXPIRED_UPLOAD_PATTERN.test(responseText))
+  );
+}
 
 export interface UploadProgress {
   loaded: number;
@@ -59,7 +68,7 @@ export function uploadFile(
         resolve({ uploadToken: ticket.uploadToken });
         return;
       }
-      const expired = xhr.status === HTTP_GONE;
+      const expired = isExpiredUploadStatus(xhr.status, xhr.responseText ?? "");
       reject(
         uploadError(
           expired ? "UPLOAD_EXPIRED" : "UPLOAD_REJECTED",

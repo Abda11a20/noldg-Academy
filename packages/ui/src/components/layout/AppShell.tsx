@@ -15,7 +15,9 @@ export function AppShell({ topbar, sidebar, mobileNavigation, children }: AppShe
     <div className="min-h-screen bg-background text-foreground">
       {topbar}
       <div className="mx-auto flex w-full max-w-screen-2xl">
-        <aside className="hidden w-64 shrink-0 border-e border-border md:block">{sidebar}</aside>
+        {sidebar ? (
+          <aside className="hidden w-64 shrink-0 border-e border-border md:block">{sidebar}</aside>
+        ) : null}
         <main className="min-w-0 flex-1 px-4 py-6">{children}</main>
       </div>
       {mobileNavigation}

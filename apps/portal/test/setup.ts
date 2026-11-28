@@ -10,7 +10,10 @@ import {
 if (!i18n.isInitialized) {
   await new Promise<void>((resolve) => i18n.on("initialized", () => resolve()));
 }
-await Promise.all(DEFERRED_ROUTE_NAMESPACES.map(loadRouteNamespace));
+await Promise.all([
+  ...DEFERRED_ROUTE_NAMESPACES.map((namespace) => loadRouteNamespace(namespace, "ar")),
+  ...DEFERRED_ROUTE_NAMESPACES.map((namespace) => loadRouteNamespace(namespace, "en")),
+]);
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 

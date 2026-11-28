@@ -18,10 +18,9 @@ import {
 } from "./e2e-constants.mjs";
 
 const PORTAL_DIRECTORY = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const DIST_DIRECTORY = resolve(PORTAL_DIRECTORY, "dist");
+const E2E_OUT_DIR = "dist-e2e";
 const VITE_CLI = resolve(PORTAL_DIRECTORY, "node_modules/vite/bin/vite.js");
 const PLAYWRIGHT_CLI = resolve(PORTAL_DIRECTORY, "node_modules/@playwright/test/cli.js");
-const HEADER_GENERATOR = resolve(PORTAL_DIRECTORY, "scripts/generate-headers.mjs");
 const E2E_REPORT = resolve(PORTAL_DIRECTORY, "test-results/e2e-results.json");
 const PROCESS_EXIT_GRACE_MS = 1500;
 const executeFile = promisify(execFile);
@@ -55,7 +54,17 @@ async function waitForPreview(preview, previewExit) {
 function startPreview() {
   const preview = spawn(
     process.execPath,
-    [VITE_CLI, "preview", "--host", E2E_HOST, "--port", String(E2E_PORT), "--strictPort"],
+    [
+      VITE_CLI,
+      "preview",
+      "--outDir",
+      E2E_OUT_DIR,
+      "--host",
+      E2E_HOST,
+      "--port",
+      String(E2E_PORT),
+      "--strictPort",
+    ],
     {
       cwd: PORTAL_DIRECTORY,
       stdio: "inherit",
@@ -89,8 +98,7 @@ async function prepareE2EBuild() {
     VITE_E2E_MOCKS: "true",
     VITE_INCLUDE_UI_GALLERY: "true",
   };
-  await runCommand(process.execPath, [VITE_CLI, "build"], environment);
-  await runCommand(process.execPath, [HEADER_GENERATOR], environment);
+  await runCommand(process.execPath, [VITE_CLI, "build", "--outDir", E2E_OUT_DIR], environment);
 }
 
 async function readPlaywrightExitCode() {
@@ -173,27 +181,7 @@ async function runPlaywright() {
   return exitCode;
 }
 
-async function stopPreview(preview) {
-  if (preview.exitCode !== null) return;
-  if (process.platform === "win32") {
-    try {
-      await executeFile("taskkill", ["/PID", String(preview.pid), "/T", "/F"], {
-        windowsHide: true,
-      });
-    } catch {
-      if (preview.exitCode === null) preview.kill();
-    }
-    return;
-  }
-  try {
-    process.kill(-preview.pid, "SIGTERM");
-  } catch (error) {
-    if (preview.exitCode === null) throw error;
-  }
-}
-
 async function main() {
-  await access(DIST_DIRECTORY);
   await access(VITE_CLI);
   await access(PLAYWRIGHT_CLI);
   await prepareE2EBuild();
@@ -204,7 +192,7 @@ async function main() {
     process.exitCode = await runPlaywright();
   } finally {
     try {
-      await stopPreview(preview.process);
+      await killProcessTree(preview.process);
     } finally {
       await waitForProcessExit(preview.process, preview.exit);
     }

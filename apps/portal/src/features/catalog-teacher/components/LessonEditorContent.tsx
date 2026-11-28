@@ -18,6 +18,36 @@ import { LessonStatusSection } from "./LessonStatusSection";
 import { LessonEditorDialogs } from "./LessonEditorDialogs";
 import { LessonQuizSection } from "../../assessments/index";
 
+interface LessonEditorVideoProps {
+  file: File | undefined;
+  uploadState: VideoUploadState;
+  replacementPending: boolean;
+  maximumSize: string;
+  onPick: (files: FileList) => void;
+  onRemove: () => void;
+  onStart: () => void;
+  onCancel: () => void;
+  onRetry: () => void;
+}
+
+interface LessonEditorAttachmentsProps {
+  files: AttachmentUpload[];
+  rejectedCount: number;
+  maximumSize: string;
+  onAdd: (files: FileList) => void;
+  onRemove: (id: string) => void;
+  onRetry: (id: string) => void;
+}
+
+interface LessonEditorDialogsProps {
+  leaveBlocked: boolean;
+  showReplace: boolean;
+  onConfirmLeave: () => void;
+  onCancelLeave: (open: boolean) => void;
+  onConfirmReplace: () => void;
+  onCancelReplace: (open: boolean) => void;
+}
+
 export interface LessonEditorContentProps {
   courseId: string;
   lesson: CatalogLesson | undefined;
@@ -26,38 +56,20 @@ export interface LessonEditorContentProps {
   scheduleLocked: boolean;
   isReady: boolean;
   busy: boolean;
-  uploadState: VideoUploadState;
-  videoFile: File | undefined;
-  replacementPending: boolean;
-  showReplace: boolean;
-  attachmentFiles: AttachmentUpload[];
-  rejectedAttachmentCount: number;
-  blockerState: "blocked" | "unblocked" | "proceeding";
   validationMessage: (value: unknown) => string | undefined;
-  maximumVideoSize: string;
-  maximumAttachmentSize: string;
-  onPickVideo: (files: FileList) => void;
-  onRemoveVideo: () => void;
-  onCancelUpload: () => void;
-  onRetryUpload: () => void;
-  onStartUpload: () => void;
-  onAddAttachments: (files: FileList) => void;
-  onRemoveAttachment: (id: string) => void;
-  onRetryAttachment: (id: string) => void;
+  video: LessonEditorVideoProps;
+  attachments: LessonEditorAttachmentsProps;
+  dialogs: LessonEditorDialogsProps;
   onSaveDraft: () => void;
   onPublish: () => void;
-  onConfirmLeave: () => void;
-  onCancelLeave: (open: boolean) => void;
-  onConfirmReplace: () => void;
-  onCancelReplace: (open: boolean) => void;
 }
 
 /** Renders the composed lesson editor sections from state and callbacks. @param props Editor state and user events. */
 export function LessonEditorContent(props: LessonEditorContentProps) {
   const { t } = useTranslation(["catalog"]);
-  const { form } = props;
+  const { form, video, attachments, dialogs } = props;
   const largeFileWarning = Boolean(
-    props.videoFile && props.videoFile.size >= DEFAULT_UPLOAD_LIMITS.largeVideoWarningBytes,
+    video.file && video.file.size >= DEFAULT_UPLOAD_LIMITS.largeVideoWarningBytes,
   );
   return (
     <section className="space-y-6">
@@ -100,25 +112,25 @@ export function LessonEditorContent(props: LessonEditorContentProps) {
           acceptedTypes={VIDEO_ACCEPTED_TYPES.join(",")}
           largeFileWarning={largeFileWarning}
           lesson={props.lesson}
-          maximumSize={props.maximumVideoSize}
-          onCancel={props.onCancelUpload}
-          onRemove={props.onRemoveVideo}
-          onRetry={props.onRetryUpload}
-          onSelect={props.onPickVideo}
-          onStart={props.onStartUpload}
-          replacementPending={props.replacementPending}
-          uploadState={props.uploadState}
-          videoFile={props.videoFile}
+          maximumSize={video.maximumSize}
+          onCancel={video.onCancel}
+          onRemove={video.onRemove}
+          onRetry={video.onRetry}
+          onSelect={video.onPick}
+          onStart={video.onStart}
+          replacementPending={video.replacementPending}
+          uploadState={video.uploadState}
+          videoFile={video.file}
         />
         <LessonAttachmentsSection
           acceptedTypes={ATTACHMENT_ACCEPT}
-          files={props.attachmentFiles}
+          files={attachments.files}
           lesson={props.lesson}
-          maximumSize={props.maximumAttachmentSize}
-          onRemove={props.onRemoveAttachment}
-          onRetry={props.onRetryAttachment}
-          onSelect={props.onAddAttachments}
-          rejectedCount={props.rejectedAttachmentCount}
+          maximumSize={attachments.maximumSize}
+          onRemove={attachments.onRemove}
+          onRetry={attachments.onRetry}
+          onSelect={attachments.onAdd}
+          rejectedCount={attachments.rejectedCount}
         />
         <LessonStatusSection
           busy={props.busy}
@@ -132,12 +144,12 @@ export function LessonEditorContent(props: LessonEditorContentProps) {
         ) : null}
       </form>
       <LessonEditorDialogs
-        leaveBlocked={props.blockerState === "blocked"}
-        onCancelLeave={props.onCancelLeave}
-        onCancelReplace={props.onCancelReplace}
-        onConfirmLeave={props.onConfirmLeave}
-        onConfirmReplace={props.onConfirmReplace}
-        showReplace={props.showReplace}
+        leaveBlocked={dialogs.leaveBlocked}
+        onCancelLeave={dialogs.onCancelLeave}
+        onCancelReplace={dialogs.onCancelReplace}
+        onConfirmLeave={dialogs.onConfirmLeave}
+        onConfirmReplace={dialogs.onConfirmReplace}
+        showReplace={dialogs.showReplace}
       />
     </section>
   );

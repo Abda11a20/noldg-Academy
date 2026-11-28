@@ -38,7 +38,7 @@ export function useAdminOrders(query: OrderListQuery) {
 /** Loads one order and its server-provided price snapshot. @param id Opaque order identifier. @param admin Uses admin detail access. */
 export function useOrder(id: string, admin = false) {
   return useQuery({
-    queryKey: orderQueryKeys.detail(id),
+    queryKey: orderQueryKeys.detail(id, admin ? "admin" : "student"),
     queryFn: ({ signal }) => getOrder(id, admin, signal),
     enabled: Boolean(id),
   });
@@ -63,7 +63,10 @@ export function usePricingPreview(productId: string) {
   });
 }
 
-function useOrderMutation<TInput, TResult>(mutationFn: (input: TInput) => Promise<TResult>) {
+function useOrderMutation<TInput, TResult>(
+  mutationFn: (input: TInput) => Promise<TResult>,
+  scope: "student" | "admin",
+) {
   const queryClient = useQueryClient();
   const reportError = useApiErrorToast();
   return useMutation({
@@ -75,7 +78,7 @@ function useOrderMutation<TInput, TResult>(mutationFn: (input: TInput) => Promis
         "id" in result &&
         typeof result.id === "string"
       )
-        queryClient.setQueryData(orderQueryKeys.detail(result.id), result);
+        queryClient.setQueryData(orderQueryKeys.detail(result.id, scope), result);
       await queryClient.invalidateQueries({ queryKey: orderQueryKeys.root });
     },
     onError: reportError,
@@ -84,32 +87,35 @@ function useOrderMutation<TInput, TResult>(mutationFn: (input: TInput) => Promis
 
 /** Creates a student order with the supplied stable idempotency key. */
 export function useCreateOrder() {
-  return useOrderMutation(({ input, key }: { input: CreateOrderInput; key: string }) =>
-    createOrder(input, key),
+  return useOrderMutation(
+    ({ input, key }: { input: CreateOrderInput; key: string }) => createOrder(input, key),
+    "student",
   );
 }
 
 /** Cancels a pending student order. */
 export function useCancelOrder() {
-  return useOrderMutation((id: string) => cancelOrder(id));
+  return useOrderMutation((id: string) => cancelOrder(id), "student");
 }
 
 /** Approves a received payment after confirmation. */
 export function useApproveOrder() {
-  return useOrderMutation((id: string) => approveOrder(id));
+  return useOrderMutation((id: string) => approveOrder(id), "admin");
 }
 
 /** Rejects an order with a required reason. */
 export function useRejectOrder() {
-  return useOrderMutation(({ id, reason }: { id: string; reason: string }) =>
-    rejectOrder(id, reason),
+  return useOrderMutation(
+    ({ id, reason }: { id: string; reason: string }) => rejectOrder(id, reason),
+    "admin",
   );
 }
 
 /** Creates and approves a manual cash order. */
 export function useCreateManualOrder() {
-  return useOrderMutation(({ input, key }: { input: ManualOrderInput; key: string }) =>
-    createManualOrder(input, key),
+  return useOrderMutation(
+    ({ input, key }: { input: ManualOrderInput; key: string }) => createManualOrder(input, key),
+    "admin",
   );
 }
 

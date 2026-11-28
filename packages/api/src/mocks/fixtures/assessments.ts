@@ -136,6 +136,13 @@ export const MOCK_ASSESSMENT_ATTEMPTS = [
   },
 ];
 
+export const MOCK_ASSESSMENT_RESULTS_SUMMARY = {
+  averageScore: 6,
+  manualCount: 1,
+  autoCount: 1,
+  suspiciousCount: 1,
+};
+
 /** Frozen attempt detail fixture keeps the original question content on the attempt record. */
 export const MOCK_ASSESSMENT_ATTEMPT_DETAIL = AssessmentAttemptDetailSchema.parse({
   ...MOCK_ASSESSMENT_ATTEMPTS[1],

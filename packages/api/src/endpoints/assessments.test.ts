@@ -66,7 +66,11 @@ it("returns server-computed result summaries and frozen attempt detail", async (
     pageSize: 20,
     suspicious: true,
   });
-  expect(results).toMatchObject({ total: 1, items: [{ suspicious: true, score: 4 }] });
+  expect(results).toMatchObject({
+    total: 1,
+    items: [{ suspicious: true, score: 4 }],
+    summary: { averageScore: 6, manualCount: 1, autoCount: 1, suspiciousCount: 1 },
+  });
   const detail = await getAssessmentAttempt("assessment-exam-published", "attempt-2");
   expect(detail.questions[0]).toMatchObject({ question: { id: "question-mock-4" } });
 });

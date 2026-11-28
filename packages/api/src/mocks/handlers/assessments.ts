@@ -14,6 +14,7 @@ import {
   MOCK_ASSESSMENTS,
   MOCK_ASSESSMENT_ATTEMPTS,
   MOCK_ASSESSMENT_ATTEMPT_DETAIL,
+  MOCK_ASSESSMENT_RESULTS_SUMMARY,
   MOCK_QUESTIONS,
 } from "../fixtures/assessments";
 
@@ -130,6 +131,7 @@ export const assessmentHandlers = [
       page: Number(url.searchParams.get("page") ?? 1),
       pageSize: Number(url.searchParams.get("pageSize") ?? 20),
       total: items.length,
+      summary: MOCK_ASSESSMENT_RESULTS_SUMMARY,
     });
   }),
   http.get(`${API_BASE_URL}/assessments/:assessmentId`, ({ params }) => {

@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   AssessmentAttemptDetailSchema,
   AssessmentAttemptListSchema,
+  AssessmentResultsSummarySchema,
   AssessmentListSchema,
   AssessmentSchema,
   QuestionEntrySchema,
@@ -192,7 +193,17 @@ export function adaptAssessmentAttempts(value: unknown) {
     page: pagination?.page ?? 1,
     pageSize: (pagination?.limit ?? items.length) || 1,
     total: pagination?.total ?? items.length,
+    ...legacyResultSummary(value),
   });
+}
+
+function legacyResultSummary(value: unknown): {
+  summary?: z.infer<typeof AssessmentResultsSummarySchema>;
+} {
+  if (!isRecord(value) || !("summary" in value)) return {};
+  const parsed = AssessmentResultsSummarySchema.safeParse(value.summary);
+  if (!parsed.success) throw invalidResponse();
+  return { summary: parsed.data };
 }
 
 /** Validates a frozen assessment attempt detail payload.

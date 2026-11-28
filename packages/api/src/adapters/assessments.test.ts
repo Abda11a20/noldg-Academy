@@ -156,8 +156,18 @@ it("normalizes legacy assessment list pagination and preserves server result sum
     adaptAssessmentAttempts({
       data: MOCK_ASSESSMENT_ATTEMPTS,
       pagination: { page: 1, limit: 20, total: 2 },
+      summary: {
+        averageScore: 6,
+        manualCount: 1,
+        autoCount: 1,
+        suspiciousCount: 1,
+      },
     }),
-  ).toMatchObject({ items: [{ suspicious: false }, { suspicious: true }], total: 2 });
+  ).toMatchObject({
+    items: [{ suspicious: false }, { suspicious: true }],
+    total: 2,
+    summary: { averageScore: 6, manualCount: 1, autoCount: 1, suspiciousCount: 1 },
+  });
   expect(adaptAssessmentList(MOCK_ASSESSMENTS)).toEqual(MOCK_ASSESSMENTS);
   expect(adaptAssessmentList({ data: [], pagination: {} })).toMatchObject({
     page: 1,
@@ -170,6 +180,9 @@ it("normalizes legacy assessment list pagination and preserves server result sum
   expect(() => adaptAssessmentAttempts(null)).toThrowError(
     expect.objectContaining({ status: 502 }),
   );
+  expect(() =>
+    adaptAssessmentAttempts({ data: [], summary: { averageScore: "invalid" } }),
+  ).toThrowError(expect.objectContaining({ status: 502 }));
   expect(adaptAssessmentAttemptDetail(MOCK_ASSESSMENT_ATTEMPT_DETAIL)).toEqual(
     MOCK_ASSESSMENT_ATTEMPT_DETAIL,
   );

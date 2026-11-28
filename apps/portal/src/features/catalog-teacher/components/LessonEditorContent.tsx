@@ -16,6 +16,7 @@ import { LessonVideoSection } from "./LessonVideoSection";
 import { LessonAttachmentsSection } from "./LessonAttachmentsSection";
 import { LessonStatusSection } from "./LessonStatusSection";
 import { LessonEditorDialogs } from "./LessonEditorDialogs";
+import { LessonQuizSection } from "../../assessments/index";
 
 export interface LessonEditorContentProps {
   courseId: string;
@@ -126,6 +127,9 @@ export function LessonEditorContent(props: LessonEditorContentProps) {
           onPublish={props.onPublish}
           onSaveDraft={props.onSaveDraft}
         />
+        {props.lesson ? (
+          <LessonQuizSection courseId={props.courseId} lessonId={props.lesson.id} />
+        ) : null}
       </form>
       <LessonEditorDialogs
         leaveBlocked={props.blockerState === "blocked"}

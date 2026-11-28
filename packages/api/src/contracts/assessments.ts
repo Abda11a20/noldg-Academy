@@ -257,6 +257,13 @@ export const AssessmentAttemptListQuerySchema = z.object({
   search: z.string().optional(),
   suspicious: z.boolean().optional(),
 });
+export const CourseStudentSchema = z.object({
+  id: IdSchema,
+  name: z.string().trim().min(1),
+});
+export const CourseStudentListSchema = z.object({
+  items: z.array(CourseStudentSchema),
+});
 export const AssessmentAttemptDetailSchema = z.object({
   id: IdSchema,
   assessmentId: IdSchema,
@@ -299,3 +306,5 @@ export type AssessmentAttemptDetail = z.infer<typeof AssessmentAttemptDetailSche
 export type AssessmentAttemptSummary = z.infer<typeof AssessmentAttemptSummarySchema>;
 export type AssessmentResultsSummary = z.infer<typeof AssessmentResultsSummarySchema>;
 export type AssessmentAttemptListQuery = z.infer<typeof AssessmentAttemptListQuerySchema>;
+export type CourseStudent = z.infer<typeof CourseStudentSchema>;
+export type CourseStudentList = z.infer<typeof CourseStudentListSchema>;

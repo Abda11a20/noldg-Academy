@@ -7,14 +7,18 @@ export interface DateTimeFieldProps extends Omit<
 > {
   id: string;
   label: string;
+  mode?: "datetime" | "date";
   hint?: string;
   error?: string;
   required?: boolean;
 }
 
-/** Renders a labelled native local date-time input with bounds and an accessible error. @param props Field labels and datetime-local attributes. */
+/** Renders a labelled native local date or date-time input with bounds and an accessible error. @param props Field labels and input attributes. */
 export const DateTimeField = forwardRef<HTMLInputElement, DateTimeFieldProps>(
-  function DateTimeField({ id, label, hint, error, required, className = "", ...props }, ref) {
+  function DateTimeField(
+    { id, label, mode = "datetime", hint, error, required, className = "", ...props },
+    ref,
+  ) {
     const describedBy =
       [hint ? `${id}-hint` : undefined, error ? `${id}-error` : undefined]
         .filter(Boolean)
@@ -29,7 +33,7 @@ export const DateTimeField = forwardRef<HTMLInputElement, DateTimeFieldProps>(
           id={id}
           ref={ref}
           required={required}
-          type="datetime-local"
+          type={mode === "date" ? "date" : "datetime-local"}
         />
       </Field>
     );

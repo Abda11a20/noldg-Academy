@@ -84,13 +84,17 @@ it("unwraps a legacy assessment detail and disables unsupported live archive", a
       }),
     ),
   );
-  const { archiveAssessment, getAssessment } = await import("./assessments");
+  const { archiveAssessment, getAssessment, listCourseStudents } = await import("./assessments");
   await expect(getAssessment("legacy-assessment")).resolves.toMatchObject({
     lessonId: "lesson-1",
     questionIds: ["question-1"],
     status: "published",
   });
   await expect(archiveAssessment("legacy-assessment")).rejects.toMatchObject({
+    code: "CAPABILITY_UNAVAILABLE",
+    status: 501,
+  });
+  await expect(listCourseStudents("course-1")).rejects.toMatchObject({
     code: "CAPABILITY_UNAVAILABLE",
     status: 501,
   });

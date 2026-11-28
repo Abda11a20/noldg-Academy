@@ -3,7 +3,6 @@ import {
   AssessmentInputSchema,
   AssessmentListSchema,
   AssessmentSchema,
-  AssessmentUpdateInputSchema,
   QuestionInputSchema,
   QuestionListSchema,
   QuestionSchema,
@@ -15,8 +14,17 @@ import {
   MOCK_ASSESSMENT_ATTEMPTS,
   MOCK_ASSESSMENT_ATTEMPT_DETAIL,
   MOCK_ASSESSMENT_RESULTS_SUMMARY,
+  MOCK_COURSE_STUDENTS,
   MOCK_QUESTIONS,
 } from "../fixtures/assessments";
+import {
+  assessmentInputErrorCode,
+  changeMockAssessmentStatus,
+  hasUnknownTargetStudents,
+  updateMockAssessment,
+} from "./assessments-validation";
+
+export { assessmentInputErrorCode } from "./assessments-validation";
 
 let questions = structuredClone(MOCK_QUESTIONS);
 let questionCounter = MOCK_QUESTIONS.length + 1;
@@ -78,6 +86,15 @@ function findQuestion(questionId: string): Question | undefined {
   return questions.find((question) => question.id === questionId);
 }
 
+function applyStatusChange(assessmentId: string, status: "published" | "closed" | "archived") {
+  const result = changeMockAssessmentStatus(assessments, assessmentId, status);
+  if (result.updated) {
+    const next = result.updated;
+    assessments = assessments.map((entry) => (entry.id === next.id ? next : entry));
+  }
+  return result.response;
+}
+
 export const assessmentHandlers = [
   http.get(`${API_BASE_URL}/assessments/my`, ({ request }) => {
     const url = new URL(request.url);
@@ -90,6 +107,9 @@ export const assessmentHandlers = [
       return HttpResponse.json({ items: [], page: 1, pageSize: 20, total: 0 });
     return HttpResponse.json(assessmentListResponse(url));
   }),
+  http.get(`${API_BASE_URL}/assessments/courses/:courseId/students`, () =>
+    HttpResponse.json({ items: MOCK_COURSE_STUDENTS }),
+  ),
   http.get(`${API_BASE_URL}/assessments/courses/:courseId`, ({ params, request }) => {
     const url = new URL(request.url);
     url.searchParams.set("courseId", String(params.courseId));
@@ -103,6 +123,8 @@ export const assessmentHandlers = [
         { error: { code: assessmentInputErrorCode(rawInput) } },
         { status: 400 },
       );
+    if (hasUnknownTargetStudents(parsed.data.targetMode, parsed.data.studentIds))
+      return HttpResponse.json({ error: { code: "TARGET_STUDENT_INVALID" } }, { status: 400 });
     const assessment = AssessmentSchema.parse({
       ...parsed.data,
       id: `assessment-mock-${assessmentCounter++}`,
@@ -123,15 +145,20 @@ export const assessmentHandlers = [
   }),
   http.get(`${API_BASE_URL}/assessments/:assessmentId/attempts`, ({ request }) => {
     const url = new URL(request.url);
+    const page = Math.max(1, Number(url.searchParams.get("page") ?? 1));
+    const pageSize = Math.max(1, Number(url.searchParams.get("pageSize") ?? 20));
     const suspicious = url.searchParams.get("suspicious");
-    const items = MOCK_ASSESSMENT_ATTEMPTS.filter(
-      (attempt) => suspicious === null || String(attempt.suspicious) === suspicious,
+    const search = url.searchParams.get("q")?.trim().toLocaleLowerCase("en");
+    const matches = MOCK_ASSESSMENT_ATTEMPTS.filter(
+      (attempt) =>
+        (suspicious === null || String(attempt.suspicious) === suspicious) &&
+        (!search || attempt.student.name.toLocaleLowerCase("en").includes(search)),
     );
     return HttpResponse.json({
-      items,
-      page: Number(url.searchParams.get("page") ?? 1),
-      pageSize: Number(url.searchParams.get("pageSize") ?? 20),
-      total: items.length,
+      items: matches.slice((page - 1) * pageSize, page * pageSize),
+      page,
+      pageSize,
+      total: matches.length,
       summary: MOCK_ASSESSMENT_RESULTS_SUMMARY,
     });
   }),
@@ -140,27 +167,26 @@ export const assessmentHandlers = [
     if (!assessment) return HttpResponse.json({ error: { code: "NOT_FOUND" } }, { status: 404 });
     return HttpResponse.json(assessment);
   }),
-  http.patch(`${API_BASE_URL}/assessments/:assessmentId/publish`, ({ params }) => {
-    return changeMockAssessmentStatus(String(params.assessmentId), "published");
-  }),
-  http.patch(`${API_BASE_URL}/assessments/:assessmentId/close`, ({ params }) => {
-    return changeMockAssessmentStatus(String(params.assessmentId), "closed");
-  }),
-  http.patch(`${API_BASE_URL}/assessments/:assessmentId/archive`, ({ params }) => {
-    return changeMockAssessmentStatus(String(params.assessmentId), "archived");
-  }),
+  http.patch(`${API_BASE_URL}/assessments/:assessmentId/publish`, ({ params }) =>
+    applyStatusChange(String(params.assessmentId), "published"),
+  ),
+  http.patch(`${API_BASE_URL}/assessments/:assessmentId/close`, ({ params }) =>
+    applyStatusChange(String(params.assessmentId), "closed"),
+  ),
+  http.patch(`${API_BASE_URL}/assessments/:assessmentId/archive`, ({ params }) =>
+    applyStatusChange(String(params.assessmentId), "archived"),
+  ),
   http.patch(`${API_BASE_URL}/assessments/:assessmentId`, async ({ params, request }) => {
-    const assessmentId = String(params.assessmentId);
-    const existing = assessments.find((entry) => entry.id === assessmentId);
-    if (!existing) return HttpResponse.json({ error: { code: "NOT_FOUND" } }, { status: 404 });
-    if (existing.attemptCount > 0)
-      return HttpResponse.json({ error: { code: "ASSESSMENT_LOCKED" } }, { status: 409 });
-    const parsed = AssessmentUpdateInputSchema.safeParse(await request.json());
-    if (!parsed.success)
-      return HttpResponse.json({ error: { code: "ASSESSMENT_WINDOW_INVALID" } }, { status: 400 });
-    const updated = AssessmentSchema.parse({ ...existing, ...parsed.data });
-    assessments = assessments.map((entry) => (entry.id === updated.id ? updated : entry));
-    return HttpResponse.json(updated);
+    const result = updateMockAssessment(
+      assessments,
+      String(params.assessmentId),
+      await request.json(),
+    );
+    if (result.updated) {
+      const next = result.updated;
+      assessments = assessments.map((entry) => (entry.id === next.id ? next : entry));
+    }
+    return result.response;
   }),
   http.get(`${API_BASE_URL}/questions/my`, ({ request }) => {
     const url = new URL(request.url);
@@ -212,87 +238,3 @@ export const assessmentHandlers = [
     return HttpResponse.json(updated);
   }),
 ];
-
-function changeMockAssessmentStatus(
-  assessmentId: string,
-  status: "published" | "closed" | "archived",
-) {
-  const assessment = assessments.find((entry) => entry.id === assessmentId);
-  if (!assessment) return HttpResponse.json({ error: { code: "NOT_FOUND" } }, { status: 404 });
-  if (isLockedAssessmentAction(assessment, status))
-    return HttpResponse.json({ error: { code: "ASSESSMENT_LOCKED" } }, { status: 409 });
-  if (hasInsufficientQuestionPool(assessment, status))
-    return HttpResponse.json({ error: { code: "POOL_TOO_SMALL" } }, { status: 400 });
-  if (hasInvalidAssessmentWindow(assessment, status))
-    return HttpResponse.json({ error: { code: "ASSESSMENT_WINDOW_INVALID" } }, { status: 400 });
-  const updated = AssessmentSchema.parse({ ...assessment, status });
-  assessments = assessments.map((entry) => (entry.id === updated.id ? updated : entry));
-  return HttpResponse.json(updated);
-}
-
-function isLockedAssessmentAction(
-  assessment: (typeof assessments)[number],
-  status: "published" | "closed" | "archived",
-): boolean {
-  return assessment.attemptCount > 0 && status === "archived";
-}
-
-function hasInsufficientQuestionPool(
-  assessment: (typeof assessments)[number],
-  status: "published" | "closed" | "archived",
-): boolean {
-  return Boolean(
-    status === "published" &&
-    assessment.randomCount &&
-    assessment.randomCount > assessment.questionIds.length,
-  );
-}
-
-function hasInvalidAssessmentWindow(
-  assessment: (typeof assessments)[number],
-  status: "published" | "closed" | "archived",
-): boolean {
-  return Boolean(
-    status === "published" &&
-    assessment.windowStart &&
-    assessment.windowEnd &&
-    Date.parse(assessment.windowEnd) <= Date.parse(assessment.windowStart),
-  );
-}
-
-/** Maps invalid mock write inputs to the target assessment error code.
- * @param value Untrusted create payload received by the mock handler.
- */
-export function assessmentInputErrorCode(value: unknown): string {
-  if (typeof value !== "object" || value === null) return "QUESTION_INVALID";
-  if (hasNoQuestions(value)) return "NO_QUESTIONS";
-  if (hasRandomCountOverPool(value)) return "POOL_TOO_SMALL";
-  if (hasReversedWindow(value)) return "ASSESSMENT_WINDOW_INVALID";
-  return "QUESTION_INVALID";
-}
-
-function hasNoQuestions(value: object): boolean {
-  return (
-    "questionIds" in value && Array.isArray(value.questionIds) && value.questionIds.length === 0
-  );
-}
-
-function hasRandomCountOverPool(value: object): boolean {
-  return (
-    "questionIds" in value &&
-    Array.isArray(value.questionIds) &&
-    "randomCount" in value &&
-    typeof value.randomCount === "number" &&
-    value.randomCount > value.questionIds.length
-  );
-}
-
-function hasReversedWindow(value: object): boolean {
-  return (
-    "windowStart" in value &&
-    "windowEnd" in value &&
-    typeof value.windowStart === "string" &&
-    typeof value.windowEnd === "string" &&
-    Date.parse(value.windowEnd) <= Date.parse(value.windowStart)
-  );
-}

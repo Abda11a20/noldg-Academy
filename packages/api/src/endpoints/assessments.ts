@@ -9,6 +9,7 @@ import {
   AssessmentListSchema,
   AssessmentSchema,
   AssessmentUpdateInputSchema,
+  CourseStudentListSchema,
   type AssessmentInput,
   type AssessmentAttemptListQuery,
   type AssessmentListQuery,
@@ -207,4 +208,18 @@ export async function getAssessmentAttempt(
   return apiMode === "live"
     ? adaptAssessmentAttemptDetail(data)
     : AssessmentAttemptDetailSchema.parse(data);
+}
+
+/** Lists enrolled course students available for targeted assessments.
+ * @param courseId Course identifier.
+ * @param signal Optional cancellation signal.
+ */
+export async function listCourseStudents(courseId: string, signal?: AbortSignal) {
+  if (apiMode === "live" && !capabilities.assessmentTargeting) throw unavailable();
+  const payload = await request(
+    `assessments/courses/${encodeURIComponent(courseId)}/students`,
+    unknownResponseSchema,
+    signalOption(signal),
+  );
+  return CourseStudentListSchema.parse(extractData(payload));
 }

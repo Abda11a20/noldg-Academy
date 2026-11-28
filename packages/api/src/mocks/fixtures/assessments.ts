@@ -110,6 +110,14 @@ export const MOCK_ASSESSMENTS = AssessmentListSchema.parse({
   total: 4,
 });
 
+/** Enrolled student roster fixtures for targeted mock assessments. */
+export const MOCK_COURSE_STUDENTS = [
+  { id: "student-1", name: "مريم حسن" },
+  { id: "student-2", name: "Omar Ali" },
+  { id: "student-3", name: "سارة محمود" },
+  { id: "student-4", name: "Youssef Karim" },
+];
+
 /** Attempt summaries include server-computed scores and suspicious flags. */
 export const MOCK_ASSESSMENT_ATTEMPTS = [
   {

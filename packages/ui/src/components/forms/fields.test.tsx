@@ -26,6 +26,20 @@ describe("time and money fields", () => {
     expect(input).toHaveAttribute("aria-invalid", "true");
   });
 
+  it("renders a day-level date input when mode is date", () => {
+    render(
+      <DateTimeField
+        id="homework-start"
+        label="Start day"
+        mode="date"
+        onChange={() => undefined}
+        value="2026-12-01"
+      />,
+    );
+    expect(screen.getByLabelText("Start day")).toHaveAttribute("type", "date");
+    expect(screen.getByLabelText("Start day")).toHaveValue("2026-12-01");
+  });
+
   it("renders an integer amount and supplied formatted value without calculating it", () => {
     render(
       <MoneyField

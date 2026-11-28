@@ -13,6 +13,7 @@ import {
   listAssessmentAttempts,
   listAssessments,
   listCourseAssessments,
+  listCourseStudents,
   publishAssessment,
   updateAssessment,
 } from "./assessments";
@@ -146,4 +147,52 @@ it("rejects archiving an assessment that already has attempts", async () => {
     status: 409,
     code: "ASSESSMENT_LOCKED",
   });
+});
+
+it("lists course students, rejects unknown targeted students, and enforces locked window rules", async () => {
+  const roster = await listCourseStudents("course-1");
+  expect(roster.items.length).toBeGreaterThanOrEqual(2);
+  await expect(
+    createAssessment({
+      type: "exam",
+      courseId: "course-1",
+      title: "Bad target",
+      questionIds: ["question-mock-1"],
+      shuffle: true,
+      showResults: "immediate",
+      targetMode: "selected_students",
+      studentIds: ["unknown-student"],
+      windowStart: "2026-12-01T08:00:00.000Z",
+      windowEnd: "2026-12-01T10:00:00.000Z",
+      durationMinutes: 60,
+      maxAttempts: 1,
+    }),
+  ).rejects.toMatchObject({ status: 400, code: "TARGET_STUDENT_INVALID" });
+
+  expect(
+    assessmentInputErrorCode({
+      targetMode: "selected_students",
+      studentIds: [],
+    }),
+  ).toBe("TARGET_STUDENT_INVALID");
+
+  await expect(
+    updateAssessment("assessment-exam-published", { title: "Locked change" }),
+  ).rejects.toMatchObject({ status: 409, code: "ASSESSMENT_LOCKED" });
+
+  await expect(
+    updateAssessment("assessment-exam-published", { windowEnd: "2026-11-01T10:00:00.000Z" }),
+  ).rejects.toMatchObject({ status: 409, code: "ASSESSMENT_LOCKED" });
+
+  await expect(
+    updateAssessment("assessment-exam-published", { windowEnd: "2026-12-15T10:00:00.000Z" }),
+  ).resolves.toMatchObject({ windowEnd: "2026-12-15T10:00:00.000Z" });
+
+  const searched = await listAssessmentAttempts("assessment-exam-published", {
+    page: 1,
+    pageSize: 20,
+    search: "omar",
+  });
+  expect(searched.items).toHaveLength(1);
+  expect(searched.items[0]?.student.name).toBe("Omar Ali");
 });

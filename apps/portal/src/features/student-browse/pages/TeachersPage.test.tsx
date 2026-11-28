@@ -30,15 +30,16 @@ const scenarios = [
 beforeEach(async () => i18n.changeLanguage("en"));
 afterEach(cleanup);
 
-it("shows list loading while the server is pending", () => {
+it("shows list loading while the server is pending", async () => {
   nodeServer.use(
     http.get(`${API_BASE_URL}/teachers`, async () => {
-      await delay(1000);
+      await delay(50);
       return HttpResponse.json(listResult);
     }),
   );
-  renderPage(<TeachersPage />);
+  renderPage(<TeachersPage />, undefined, ["/student/teachers?trackId=track-secondary-1"]);
   expect(screen.getByLabelText("Loading teachers")).toBeTruthy();
+  expect(await screen.findByText("No teachers found")).toBeTruthy();
 });
 
 describe.each(scenarios)("teacher list $name response", ({ handler, expected }) => {

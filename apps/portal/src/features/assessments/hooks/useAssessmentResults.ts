@@ -7,10 +7,15 @@ import { assessmentQueryKeys } from "../assessment-query-keys";
  * @param assessmentId Assessment identifier.
  * @param query Validated paging, search, and suspicious-attempt filters.
  */
-export function useAssessmentResults(assessmentId: string, query: AssessmentAttemptListQuery) {
+export function useAssessmentResults(
+  assessmentId: string,
+  query: AssessmentAttemptListQuery,
+  enabled = true,
+) {
   return useQuery({
     queryKey: assessmentQueryKeys.attempts(assessmentId, query),
     queryFn: ({ signal }) => listAssessmentAttempts(assessmentId, query, signal),
+    enabled,
   });
 }
 

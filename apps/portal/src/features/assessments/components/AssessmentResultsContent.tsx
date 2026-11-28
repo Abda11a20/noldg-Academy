@@ -74,11 +74,12 @@ export function AssessmentResultsContent(props: AssessmentResultsContentProps) {
       render: (row: AssessmentAttemptSummary) => t(row.suspicious ? "yes" : "no"),
     },
   ];
-  const updateSuspicious = (checked: boolean | "indeterminate") =>
-    props.onFiltersChange({
-      ...props.filters,
-      suspicious: checked === true ? "true" : "false",
-    });
+  const updateSuspicious = (checked: boolean | "indeterminate") => {
+    const next = { ...props.filters };
+    if (checked === true) next.suspicious = "true";
+    else delete next.suspicious;
+    props.onFiltersChange(next);
+  };
   return (
     <section className="space-y-5">
       <Breadcrumbs

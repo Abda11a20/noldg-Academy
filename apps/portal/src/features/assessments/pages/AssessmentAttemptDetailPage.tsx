@@ -1,15 +1,19 @@
 import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
+import { capabilities } from "@noldg/api/config/capabilities";
 import { AppError } from "@noldg/api/errors";
 import { Alert, Skeleton } from "@noldg/ui";
 import { useAssessmentAttempt } from "../hooks/useAssessmentResults";
 import { AssessmentAttemptContent } from "../components/AssessmentAttemptContent";
 
-function getAttemptErrorKey(error: unknown): "forbidden" | "notFound" | "loadError" {
-  if (!(error instanceof AppError)) return "loadError";
-  if (error.status === 403) return "forbidden";
-  if (error.status === 404) return "notFound";
-  return "loadError";
+function resolveAttemptError(
+  error: unknown,
+  t: (key: "assessmentNotFound" | "loadError") => string,
+  tErrors: (key: "forbidden") => string,
+): string {
+  if (error instanceof AppError && error.status === 403) return tErrors("forbidden");
+  if (error instanceof AppError && error.status === 404) return t("assessmentNotFound");
+  return t("loadError");
 }
 
 /** Displays one student's frozen assessment attempt and server grading.
@@ -18,16 +22,19 @@ function getAttemptErrorKey(error: unknown): "forbidden" | "notFound" | "loadErr
 export function AssessmentAttemptDetailPage() {
   const { t, i18n } = useTranslation("assessments");
   const { t: tErrors } = useTranslation("errors");
-  const { courseId = "", assessmentId = "", attemptId = "" } = useParams();
-  const query = useAssessmentAttempt(assessmentId, attemptId, Boolean(assessmentId && attemptId));
+  const params = useParams();
+  const courseId = params.courseId ?? "";
+  const assessmentId = params.assessmentId ?? "";
+  const attemptId = params.attemptId ?? "";
+  const enabled = Boolean(assessmentId && attemptId && capabilities.assessmentResultsApi);
+  const query = useAssessmentAttempt(assessmentId, attemptId, enabled);
+  if (!capabilities.assessmentResultsApi)
+    return <Alert tone="info">{t("resultsUnavailable")}</Alert>;
   if (query.isPending) return <Skeleton height="lg" />;
   if (query.isError) {
-    const errorKey = getAttemptErrorKey(query.error);
     return (
       <Alert tone="danger" role="alert">
-        {errorKey === "forbidden"
-          ? tErrors("forbidden")
-          : t(errorKey === "notFound" ? "assessmentNotFound" : "loadError")}
+        {resolveAttemptError(query.error, t, tErrors)}
       </Alert>
     );
   }

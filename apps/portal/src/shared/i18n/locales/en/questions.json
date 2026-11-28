@@ -63,5 +63,7 @@
   "retry": "Retry",
   "listLabel": "Questions list",
   "unsupportedType": "Unsupported",
-  "showingUnsupported": "Legacy unsupported questions are shown read only."
+  "showingUnsupported": "Legacy unsupported questions are shown read only.",
+  "livePreviewHeading": "Student live preview",
+  "livePreviewEmpty": "Start typing the question and options to preview how students will see it."
 }

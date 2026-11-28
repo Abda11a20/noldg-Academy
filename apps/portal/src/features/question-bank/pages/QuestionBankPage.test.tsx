@@ -202,4 +202,40 @@ describe("question bank mutations", () => {
     fireEvent.click(screen.getAllByRole("button", { name: "Restore question" }).at(-1)!);
     expect(await screen.findByText("Question restored.")).toBeTruthy();
   });
+
+  it("shows live student preview while editing and maps QUESTION_IN_USE and QUESTION_INVALID", async () => {
+    nodeServer.use(
+      http.get(`${API_BASE_URL}/questions/my`, () =>
+        HttpResponse.json({ items: [question], page: 1, pageSize: 20, total: 1 }),
+      ),
+      http.post(`${API_BASE_URL}/questions`, () =>
+        HttpResponse.json({ error: { code: "QUESTION_INVALID" } }, { status: 400 }),
+      ),
+      http.post(`${API_BASE_URL}/questions/:id/archive`, () =>
+        HttpResponse.json({ error: { code: "QUESTION_IN_USE" } }, { status: 409 }),
+      ),
+    );
+    renderPage(<QuestionBankPage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Add question" }));
+    expect(screen.getByText("Student live preview")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Question text"), {
+      target: { value: "Live preview stem?" },
+    });
+    fireEvent.change(screen.getByLabelText("Option 1"), { target: { value: "Choice Alpha" } });
+    fireEvent.change(screen.getByLabelText("Option 2"), { target: { value: "Choice Beta" } });
+    expect(screen.getAllByText("Live preview stem?").length).toBeGreaterThan(0);
+    expect(screen.getByText("Choice Alpha")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Save question" }));
+    expect(
+      await screen.findByText("Check the question text, options, and correct answer."),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    fireEvent.click((await screen.findAllByRole("button", { name: "Archive question" }))[0]!);
+    fireEvent.click(screen.getAllByRole("button", { name: "Archive question" }).at(-1)!);
+    expect(
+      await screen.findByText(
+        "A question used in an assessment cannot be deleted. Archive it instead.",
+      ),
+    ).toBeTruthy();
+  });
 });

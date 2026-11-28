@@ -6,6 +6,7 @@ import {
   type QuestionInput,
 } from "@noldg/api/contracts/assessments";
 import type { QuestionBankLabels, QuestionEditorOption } from "../types";
+import { QuestionLivePreview } from "./QuestionLivePreview";
 import { QuestionOptionsEditor } from "./QuestionOptionsEditor";
 
 type EditorValues = {
@@ -203,6 +204,16 @@ export function QuestionEditorDialog({
             />
           </>
         ) : null}
+        <QuestionLivePreview
+          heading={labels.livePreviewHeading}
+          emptyText={labels.livePreviewEmpty}
+          correctLabel={labels.correctAnswerLabel}
+          explanationLabel={labels.explanation}
+          text={values.text}
+          options={values.options}
+          correctIndex={values.correctIndex}
+          explanation={values.explanation}
+        />
       </div>
     </Dialog>
   );

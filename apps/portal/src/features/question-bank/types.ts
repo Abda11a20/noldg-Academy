@@ -60,6 +60,8 @@ export interface QuestionBankLabels {
   previous: string;
   next: string;
   page: string;
+  livePreviewHeading: string;
+  livePreviewEmpty: string;
 }
 
 export interface QuestionEditorOption {

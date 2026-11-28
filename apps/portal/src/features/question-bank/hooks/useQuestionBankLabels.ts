@@ -70,6 +70,8 @@ export function useQuestionBankLabels(): QuestionBankLabels {
       previous: t("previous"),
       next: t("next"),
       page: t("page", { page: "{{page}}", pages: "{{pages}}" }),
+      livePreviewHeading: t("livePreviewHeading"),
+      livePreviewEmpty: t("livePreviewEmpty"),
     }),
     [t],
   );

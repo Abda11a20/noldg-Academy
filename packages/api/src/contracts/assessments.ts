@@ -250,6 +250,13 @@ export const AssessmentAttemptListSchema = z.object({
   total: z.number().int().nonnegative(),
   summary: AssessmentResultsSummarySchema.optional(),
 });
+export type AssessmentAttemptList = z.infer<typeof AssessmentAttemptListSchema>;
+export const AssessmentAttemptListQuerySchema = z.object({
+  page: z.number().int().positive(),
+  pageSize: z.number().int().positive(),
+  search: z.string().optional(),
+  suspicious: z.boolean().optional(),
+});
 export const AssessmentAttemptDetailSchema = z.object({
   id: IdSchema,
   assessmentId: IdSchema,
@@ -289,4 +296,6 @@ export type AssessmentUpdateInput = z.infer<typeof AssessmentUpdateInputSchema>;
 export type AssessmentListQuery = z.infer<typeof AssessmentListQuerySchema>;
 export type AssessmentType = z.infer<typeof AssessmentTypeSchema>;
 export type AssessmentAttemptDetail = z.infer<typeof AssessmentAttemptDetailSchema>;
+export type AssessmentAttemptSummary = z.infer<typeof AssessmentAttemptSummarySchema>;
 export type AssessmentResultsSummary = z.infer<typeof AssessmentResultsSummarySchema>;
+export type AssessmentAttemptListQuery = z.infer<typeof AssessmentAttemptListQuerySchema>;

@@ -2,6 +2,7 @@ import { AppError } from "../errors/app-error";
 import { capabilities } from "../config/capabilities";
 import {
   AssessmentAttemptDetailSchema,
+  AssessmentAttemptListQuerySchema,
   AssessmentAttemptListSchema,
   AssessmentInputSchema,
   AssessmentListQuerySchema,
@@ -9,6 +10,7 @@ import {
   AssessmentSchema,
   AssessmentUpdateInputSchema,
   type AssessmentInput,
+  type AssessmentAttemptListQuery,
   type AssessmentListQuery,
   type AssessmentUpdateInput,
 } from "../contracts/assessments";
@@ -164,16 +166,17 @@ export async function archiveAssessment(assessmentId: string) {
  */
 export async function listAssessmentAttempts(
   assessmentId: string,
-  query: { page: number; pageSize: number; search?: string; suspicious?: boolean },
+  query: AssessmentAttemptListQuery,
   signal?: AbortSignal,
 ) {
   if (apiMode === "live" && !capabilities.assessmentResultsApi) throw unavailable();
+  const values = AssessmentAttemptListQuerySchema.parse(query);
   const params = new URLSearchParams({
-    page: String(query.page),
-    pageSize: String(query.pageSize),
+    page: String(values.page),
+    pageSize: String(values.pageSize),
   });
-  if (query.search) params.set("q", query.search);
-  if (query.suspicious !== undefined) params.set("suspicious", String(query.suspicious));
+  if (values.search) params.set("q", values.search);
+  if (values.suspicious !== undefined) params.set("suspicious", String(values.suspicious));
   const payload = await request(
     `assessments/${encodeURIComponent(assessmentId)}/attempts?${params.toString()}`,
     unknownResponseSchema,

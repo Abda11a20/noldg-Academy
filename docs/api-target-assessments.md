@@ -44,20 +44,20 @@ After the first attempt, question content, duration, and attempt limit are locke
 
 ### Routes
 
-| Method | Route                                            | Purpose                  | Request                                                      | Response                                                         |
-| ------ | ------------------------------------------------ | ------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------------- |
-| GET    | `/assessments/my`                                | Teacher assessment list  | `page`, `pageSize`, `courseId`, `lessonId`, `type`, `status` | `{items, page, pageSize, total}`                                 |
-| GET    | `/assessments/courses/:courseId`                 | Course assessments       | —                                                            | Assessment list                                                  |
-| POST   | `/assessments`                                   | Create draft             | Target assessment fields                                     | `201` assessment                                                 |
-| GET    | `/assessments/:assessmentId`                     | Assessment detail        | —                                                            | Assessment including question snapshot data for teacher          |
-| PATCH  | `/assessments/:assessmentId`                     | Update draft             | Partial editable fields                                      | Updated assessment                                               |
-| PATCH  | `/assessments/:assessmentId/publish`             | Publish                  | —                                                            | Updated assessment                                               |
-| PATCH  | `/assessments/:assessmentId/close`               | Close                    | —                                                            | Updated assessment                                               |
-| GET    | `/assessments/:assessmentId/attempts`            | Teacher results          | `page`, `pageSize`, search, suspicious filter                | `{items, page, pageSize, total}` with server score and suspicion |
-| GET    | `/assessments/:assessmentId/attempts/:attemptId` | Frozen attempt detail    | —                                                            | Frozen questions, student answers, correct answers               |
-| GET    | `/assessments/:assessmentId/my-attempt`          | Student's latest attempt | —                                                            | Student-safe attempt data                                        |
+| Method | Route                                            | Purpose                  | Request                                                      | Response                                                                   |
+| ------ | ------------------------------------------------ | ------------------------ | ------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| GET    | `/assessments/my`                                | Teacher assessment list  | `page`, `pageSize`, `courseId`, `lessonId`, `type`, `status` | `{items, page, pageSize, total}`                                           |
+| GET    | `/assessments/courses/:courseId`                 | Course assessments       | —                                                            | Assessment list                                                            |
+| POST   | `/assessments`                                   | Create draft             | Target assessment fields                                     | `201` assessment                                                           |
+| GET    | `/assessments/:assessmentId`                     | Assessment detail        | —                                                            | Assessment including question snapshot data for teacher                    |
+| PATCH  | `/assessments/:assessmentId`                     | Update draft             | Partial editable fields                                      | Updated assessment                                                         |
+| PATCH  | `/assessments/:assessmentId/publish`             | Publish                  | —                                                            | Updated assessment                                                         |
+| PATCH  | `/assessments/:assessmentId/close`               | Close                    | —                                                            | Updated assessment                                                         |
+| GET    | `/assessments/:assessmentId/attempts`            | Teacher results          | `page`, `pageSize`, search, suspicious filter                | `{items, page, pageSize, total, summary?}` with server score and suspicion |
+| GET    | `/assessments/:assessmentId/attempts/:attemptId` | Frozen attempt detail    | —                                                            | Frozen questions, student answers, correct answers                         |
+| GET    | `/assessments/:assessmentId/my-attempt`          | Student's latest attempt | —                                                            | Student-safe attempt data                                                  |
 
-Attempt results contain student, score, total, start/submission time, submit reason (`manual` or `auto`), tab leaves, and server-computed `suspicious`. Detail questions are the frozen copies used for that attempt.
+Attempt results contain student, score, total, start/submission time, submit reason (`manual` or `auto`), tab leaves, and server-computed `suspicious`. The optional `summary` contains server-computed average score, manual and automatic submission counts, and suspicious count; the frontend does not derive these metrics. Detail questions are the frozen copies used for that attempt.
 
 ### Error codes
 

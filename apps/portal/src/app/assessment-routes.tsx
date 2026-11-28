@@ -14,4 +14,26 @@ export const assessmentRoutes: RouteObject[] = [
     },
     errorElement: <RouteErrorPage />,
   },
+  {
+    path: "courses/:courseId/assessments/:assessmentId/results",
+    lazy: async () => {
+      const { loadRouteNamespace } = await import("../shared/i18n/load-route-namespace");
+      await loadRouteNamespace("assessments");
+      return {
+        Component: (await import("../features/assessments")).AssessmentResultsPage,
+      };
+    },
+    errorElement: <RouteErrorPage />,
+  },
+  {
+    path: "courses/:courseId/assessments/:assessmentId/results/:attemptId",
+    lazy: async () => {
+      const { loadRouteNamespace } = await import("../shared/i18n/load-route-namespace");
+      await loadRouteNamespace("assessments");
+      return {
+        Component: (await import("../features/assessments")).AssessmentAttemptDetailPage,
+      };
+    },
+    errorElement: <RouteErrorPage />,
+  },
 ];

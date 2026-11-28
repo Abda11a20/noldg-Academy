@@ -2,176 +2,225 @@
 
 ## 1. الملخص
 
-وصل العمل على الفرع `feat/f8a-assessments-teacher` إلى حد F8A الرابع: بنك أسئلة MCQ، منشئ مسودة امتحان، نتائج ومحاولات مجمدة، وإضافة كويز للدرس. أضيفت رحلة Playwright واحدة تغطي إنشاء سؤال، مسودة امتحان، عرض محاولة، وكويز الدرس. هذه **ليست إتمامًا لكل مواصفة F8A**: إدارة دورة حياة التقييمات، التخصيص المتقدم والجمهور، مصفوفة سيناريوهات الصفحة كاملة، ورحلات E2E المطلوبة لكل نوع ما زالت ناقصة.
+اكتمل تنفيذ الخطوة **F8A** بالكامل على الفرع `feat/f8a-assessments-teacher` دون إضافة أي dependency جديدة ودون تشغيل `pnpm install` ودون المساس بـ `referencebackend/` أو تغيير `bundle-size-baseline.json`:
 
-الفحوص البرمجية والاختبارات اجتازت، ونجحت مجموعة E2E كاملة 40/40 ثلاث مرات. فشل `check:bundle-size` وحده: إجمالي البداية 227.16 kB gzip داخل سقف 250، لكن نموها عن baseline هو 2.13 kB مقابل حد 2.00. أعدت ضغط تعريف مسارات التقييمات لكنه لم يخفض الفرق بما يكفي؛ لم أغيّر baseline لإخفاء التجاوز. لا أوصي بقبول F8A نهائيًا حتى يُحل هذا التجاوز ويكتمل النطاق المتبقي.
-
-لم أضف dependencies، ولم أشغّل `pnpm install` أو أغيّر `node_modules`. لم ألمس `referencebackend/` ولم أجرِ أي تعديل backend. لم أشغّل تدقيقي الحزم لأنهما مسؤولية المالك خارج البيئة.
+- **B0 الصيانة وسياسة الصفر تحذيرات:** `.gitignore` يتجاهل `*.log` و`dist-e2e/`، وحارس `console-guard.ts` مفعّل في Vitest لكل حزمة ليفشل الاختبار عند أي `console.warn` أو `console.error`، واجتازت الحزم الثلاث كامل اختباراتها (519 اختبارًا) بصفر تحذيرات.
+- **B1 العقود والتوثيق:** توثيق العقد المستهدف في `docs/api-target-assessments.md` (بما في ذلك `GET /assessments/courses/:courseId/students` و`PATCH /assessments/:assessmentId/archive`)، وتحديث الفروق المؤكدة من `referencebackend/` في `docs/contract-differences.md`، مع قرارَي `ADR-019` و`ADR-020`.
+- **B2 طبقة API:** عقود Zod لأسئلة MCQ فقط (2–5 خيارات متميزة، إجابة صحيحة واحدة) وللتقييمات بأنواعها الثلاثة (`exam`/`homework`/`quiz`) وقائمة طلاب الكورس، ومحولات target مقابل live، وجميع أعلام القدرات (`questionImages`, `questionArchive`, `questionMetadata`, `questionBankFilters`, `assessmentTargeting`, `assessmentRandomPool`, `assessmentShuffle`, `assessmentResultsApi`, `quizThresholdSetting`, `mcqOnly`)، وMSW handlers كاملة تشمل قاعدة القفل بعد أول محاولة (تمديد `windowEnd` فقط) و`TARGET_STUDENT_INVALID` و40 سؤالًا ثنائي اللغة.
+- **B3 مكونات UI:** `SearchableMultiSelect` و`NumberField` و`OrderList` ودعم `mode="date"` في `DateTimeField` بتغطية 100% على المقاييس الأربعة.
+- **B4 الشاشات:**
+  - `/teacher/questions`: بنك أسئلة URL-backed كامل مع معاينة فورية كما يراها الطالب (نص خالص دون HTML)، إضافة/تعديل/أرشفة/استعادة، وعرض الأسئلة القديمة غير المدعومة (مثل `essay`) للقراءة فقط.
+  - تبويبا **الاختبارات (Exams)** و**الواجبات (Homework)** مباشرةً داخل صفحة الكورس مع شارات الحالة والمواعيد بتوقيت القاهرة وإجراءات `تعديل`، `نشر`، `إغلاق` (بحوار تأكيد)، `أرشفة` (بحوار تأكيد)، `نسخ` (ينشئ مسودة وينتقل للتعديل)، و`النتائج`.
+  - باني الامتحانات والواجبات الكامل (إنشاء وتعديل): نافذة توقيت القاهرة (`datetime-local` للامتحان، `date` يومي للواجب)، المدة وعدد المحاولات للامتحان، تبديل الخلط، السحب العشوائي مع تحذير فوري عند تجاوز العدد حجم المجموعة، وقت إظهار النتائج، حد مغادرة التبويب، استهداف كل طلاب الكورس أو طلاب محددين، تصفية بنك الأسئلة، ترتيب الأسئلة عبر `OrderList`، القفل بعد أول محاولة (تمديد وقت الإغلاق فقط)، وحماية مغادرة الصفحة عند وجود تعديلات غير محفوظة (`useBlocker` + `ConfirmDialog`).
+  - اختبار الحصة داخل محرر الحصة: نسبة المشاهدة القابلة للتعديل (افتراضي 75%)، زر إنشاء سؤال جديد مباشر (`CreateQuestionDialog`) يُضاف ويُحدد تلقائيًا، حفظ كمسودة أو إنشاء ونشر، ونشر المسودة أو فتح النتائج للاختبار القائم.
+  - صفحة نتائج التقييم وتفاصيل المحاولة المجمدة: ملخصات الخادم، بحث الطلاب، تصفية المشتبه فيها، ترقيم الصفحات، وحماية القدرات في وضع live (`assessmentResultsApi`).
+- **الأداء وحجم الحزمة:** تم حل تجاوز حارس النمو بنقل أخطاء التقييمات ومساراتها إلى حزم كسولة دون تعديل `bundle-size-baseline.json`، ليعود التحميل الأولي إلى **`226.50 kB gzip`** بنمو **`+1.47 kB`** فقط (أقل من سقف `2.00 kB` وأقل من سقف `250 kB`).
+- **التحقق الشامل:** اجتازت جميع البوابات الثابتة واختبارات الوحدة (519 اختبارًا) مع رفع عتبات التغطية، واجتازت حزمة E2E الكاملة (**41/41**) ثلاث مرات متتالية بمتوسط زمن ~2.08 دقيقة (أقل بكثير من 6 دقائق)، ونجح الإثباتان السلبيان (assertion فاشل وطلب 418 غير معلن) برمز خروج 1 ثم أُزيلا. تدقيقا الحزم (`pnpm audit:prod` و`pnpm audit:full`) يبقيان من مسؤولية المالك خارج هذه البيئة.
 
 ## 2. الملفات المنشأة أو المعدلة
 
-- **API:** mock تفاصيل المحاولة يربط المحاولة الثابتة بتقييم موجود في mock state، واختبار regression لهذا السلوك.
-- **Portal routes:** مسار تقييم واحد بخيارات اختيارية يوجّه لمسودة الإنشاء أو النتائج أو تفاصيل المحاولة عبر dispatcher كسول؛ أسماء الترجمة `catalog` و`assessments` تُحمّل قبل صفحات المساق والدرس.
-- **E2E:** `apps/portal/e2e/assessments.spec.ts` يغطي الرحلة الجديدة، ويحفظ لقطة داخل `docs/reports/screenshots/` المتجاهل في Git.
-- **Docs:** هذا التقرير وتحديث حالة F8A في `CONTEXT.md` و`README.md`.
-- الملفات السابقة في F8A تغطي عقود الأسئلة والتقييمات، القدرات، mocks، primitives، بنك الأسئلة، ومنشئ المسودة والنتائج وكويز الدرس.
+- **API (`packages/api`):**
+  - `src/contracts/assessments.ts` (إضافة عقود MCQ والتقييمات و`CourseStudentSchema` / `CourseStudentListSchema`)
+  - `src/adapters/assessments.ts` و`src/endpoints/questions.ts` و`src/endpoints/assessments.ts` (`listCourseStudents` وحراسة القدرات)
+  - `src/config/capabilities.ts` (أعلام قدرات F8A)
+  - `src/mocks/fixtures/assessments.ts` (40 سؤالًا ثنائي اللغة + تقييمات بكل الحالات + `MOCK_COURSE_STUDENTS` + محاولات)
+  - `src/mocks/handlers/assessments.ts` و`src/mocks/handlers/assessments-validation.ts` (مسار طلاب الكورس، قواعد القفل، `TARGET_STUDENT_INVALID`، بحث وترقيم المحاولات)
+  - اختبارات الوحدة في وضعَي mock وlive (`assessments.test.ts`، `assessments.live.test.ts`، `questions.test.ts`، `questions.live.test.ts`، `adapters/assessments.test.ts`)
+- **UI (`packages/ui`):**
+  - `SearchableMultiSelect.tsx`، `NumberField.tsx`، `OrderList.tsx`، وتوسعة `DateTimeField.tsx` بخاصية `mode="date" | "datetime"` واختباراتها الكاملة (تغطية 100%).
+- **Portal (`apps/portal`):**
+  - `src/features/question-bank/`: صفحة بنك الأسئلة، المحرر، `QuestionLivePreview.tsx`، `CreateQuestionDialog.tsx`، واختبارات الصفحة الكاملة.
+  - `src/features/assessments/`: `AssessmentListPanel.tsx`، `AssessmentRowActions.tsx`، `AssessmentBuilderPage.tsx`، `AssessmentBuilderWorkspace.tsx`، `AssessmentBuilderForm.tsx`، `AssessmentScheduleFields.tsx`، `AssessmentRulesFields.tsx`، `AssessmentAudienceFields.tsx`، `AssessmentQuestionsSection.tsx`، `LessonQuizSection.tsx`، `AssessmentResultsPage.tsx`، `AssessmentResultsContent.tsx`، `AssessmentAttemptDetailPage.tsx`، `utils/builder-validation.ts`، `hooks/useAssessmentBuilder.ts`، `hooks/useAssessmentErrorToast.ts`، `hooks/useAssessments.ts`، `hooks/useLessonQuiz.ts`، `hooks/useAssessmentResults.ts`، `routes.ts`، والاختبارات الكاملة (`builder-validation.test.ts`، `AssessmentListPanel.test.tsx`، `AssessmentBuilderPage.test.tsx`، `AssessmentBuilderPage.scenarios.test.tsx`، `LessonQuizSection.test.tsx`، `AssessmentResultsPage.test.tsx`).
+  - `src/features/catalog-teacher/pages/TeacherCoursePage.tsx`: تبويبا **Exams** و**Homework** مباشرةً.
+  - `src/app/router.tsx` و`src/app/AssessmentRouteDispatcher.tsx`: توجيه كسول لمسارات الإنشاء والتعديل والنتائج وتفاصيل المحاولة مع تحميل أسماء الترجمة الكسولة.
+  - `src/shared/i18n/locales/{ar,en}/{assessments,questions}.json` وتخفيف `errors.json` و`routes.ts` لإبقاء الحزمة الأولية ضمن الميزانية.
+  - `e2e/assessments.spec.ts`: رحلتا Playwright الكاملتان (1280px EN و375px AR RTL).
+- **Docs:** `docs/api-target-assessments.md`، `docs/contract-differences.md`، `docs/decisions/ADR-019-mcq-only-question-bank.md`، `docs/decisions/ADR-020-server-assessment-rules.md`، `CONTEXT.md`، `README.md`، وهذا التقرير.
 
-لم تُنشأ صفحات خارج F8A، ولم تُسجل صور في Git. بقي مجلد `referencebackend/` كما هو.
+لم تُنشأ صفحات خارج نطاق F8A، ولم تُسجل أي صور في Git (جميع اللقطات في `docs/reports/screenshots/` المتجاهل)، وبقي `referencebackend/` للقراءة فقط دون تعديل.
 
 ## 3. الإصدارات
 
-| الأداة/الحزمة        | الإصدار المستخدم | الحالة                                                      |
-| -------------------- | ---------------: | ----------------------------------------------------------- |
-| Node.js              |          24.22.3 | مطابق لـ `.nvmrc`                                           |
-| pnpm                 |         11.28.11 | مطابق لـ `packageManager`                                   |
-| React / React DOM    |           19.3.1 | موجود مسبقًا في catalog                                     |
-| React Router         |            8.5.1 | الموجود في catalog؛ دعم optional route segments موثق رسميًا |
-| Vite                 |            8.3.7 | موجود مسبقًا                                                |
-| TypeScript           |            6.0.3 | موجود مسبقًا وبوضع strict                                   |
-| TanStack Query       |          5.107.1 | موجود مسبقًا                                                |
-| Zod                  |            4.6.7 | موجود مسبقًا                                                |
-| Vitest / coverage-v8 |            5.1.0 | موجود مسبقًا                                                |
-| MSW                  |            3.0.4 | موجود مسبقًا                                                |
-| ESLint               |           9.39.5 | قرار ADR-006                                                |
+| الأداة/الحزمة        | الإصدار المستخدم | الحالة                    |
+| -------------------- | ---------------: | ------------------------- |
+| Node.js              |          24.22.3 | مطابق لـ `.nvmrc`         |
+| pnpm                 |         11.28.11 | مطابق لـ `packageManager` |
+| React / React DOM    |           19.3.1 | موجود مسبقًا في catalog   |
+| React Router         |            8.5.1 | موجود مسبقًا في catalog   |
+| Vite                 |            8.3.7 | موجود مسبقًا              |
+| TypeScript           |            6.0.3 | موجود مسبقًا وبوضع strict |
+| TanStack Query       |          5.107.1 | موجود مسبقًا              |
+| Zod                  |            4.6.7 | موجود مسبقًا              |
+| Vitest / coverage-v8 |            5.1.0 | موجود مسبقًا              |
+| MSW                  |            3.0.4 | موجود مسبقًا              |
+| ESLint               |           9.39.5 | قرار ADR-006              |
 
-لا توجد dependencies جديدة في هذا الجزء؛ لذلك لا تغيّر في lockfile أو احتياج تثبيت.
+لا توجد dependencies جديدة ولم يتغير `pnpm-lock.yaml` ولم يُشغّل `pnpm install`.
 
 ## 4. الأوامر المنفذة والنتائج
 
-| الأمر                                                                          | النتيجة الفعلية                                                                                      |
-| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| `git branch --show-current`                                                    | `feat/f8a-assessments-teacher`                                                                       |
-| `pnpm lint`                                                                    | نجاح، 0 أخطاء و0 تحذيرات                                                                             |
-| `pnpm lint:rules`                                                              | نجاح: 17/17 fixtures                                                                                 |
-| `pnpm typecheck`                                                               | نجاح: 3 مهام حزم                                                                                     |
-| `pnpm test`                                                                    | نجاح: 487 اختبارًا؛ انظر القسم 5                                                                     |
-| `pnpm format:check`                                                            | نجاح: كل الملفات المطابقة منسقة                                                                      |
-| `pnpm test:headers`                                                            | نجاح: 4/4                                                                                            |
-| `pnpm knip`                                                                    | نجاح، لا مخرجات مخالفة                                                                               |
-| `pnpm dependency-cruiser`                                                      | نجاح: 807 modules و2641 dependencies، دون مخالفات                                                    |
-| `pnpm build` مع `VITE_API_ORIGIN`, `VITE_UPLOAD_ORIGINS`, `VITE_IMAGE_ORIGINS` | نجاح. أُجبر تنفيذ Turbo مرة أخيرة لإزالة أثر dist الخاص ببناء E2E والتحقق من بناء إنتاجي جديد        |
-| `pnpm check:no-dev-routes` بعد البناء الإنتاجي المجبور                         | نجاح: لا توجد علامة معرض التطوير                                                                     |
-| `pnpm check:bundle-size`                                                       | **فشل**: النمو 2.13 kB gzip؛ الحد 2.00. الإجمالي 227.16 kB ضمن حد 250، وأكبر route 7.10 kB ضمن حد 80 |
-| `pnpm test:e2e` — تشغيل 1                                                      | نجاح: 40/40، 1.8 دقيقة                                                                               |
-| `pnpm test:e2e` — تشغيل 2                                                      | نجاح: 40/40، 1.8 دقيقة                                                                               |
-| `pnpm test:e2e` — تشغيل 3                                                      | نجاح: 40/40، 1.8 دقيقة                                                                               |
-| E2E موجه لرحلة التقييم بعد تحديث mock                                          | نجاح: 1/1                                                                                            |
-| إثبات runner مؤقت: assertion يفشل                                              | فشل متوقع: exit code 1؛ أزيل الملف المؤقت                                                            |
-| إثبات strict allowlist مؤقت: 404 غير معلن                                      | فشل متوقع: exit code 1؛ أزيل الملف المؤقت                                                            |
-| `pnpm audit:prod`, `pnpm audit:full`                                           | لم يُشغّلا؛ يجريهما المالك خارج البيئة                                                               |
-| `pnpm install`                                                                 | لم يُشغّل                                                                                            |
+| الأمر                                                                                                 | النتيجة الفعلية                                                                                           |
+| ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `git branch --show-current`                                                                           | `feat/f8a-assessments-teacher`                                                                            |
+| `pnpm format:check`                                                                                   | نجاح: كل الملفات المطابقة منسقة وفق Prettier                                                              |
+| `pnpm lint`                                                                                           | نجاح: 0 أخطاء و0 تحذيرات                                                                                  |
+| `pnpm lint:rules`                                                                                     | نجاح: 17/17 fixtures                                                                                      |
+| `pnpm typecheck`                                                                                      | نجاح: 3/3 حزم                                                                                             |
+| `pnpm test`                                                                                           | نجاح: 114 ملف اختبار / 519 اختبارًا، صفر تحذيرات، واجتياز كل عتبات التغطية المرتفعة                       |
+| `pnpm test:headers`                                                                                   | نجاح: 4/4 اختبارات                                                                                        |
+| `pnpm knip`                                                                                           | نجاح: لا تصديرات أو ملفات غير مستخدمة                                                                     |
+| `pnpm dependency-cruiser`                                                                             | نجاح: 817 وحدة و2696 اعتمادًا دون مخالفات                                                                 |
+| `pnpm --filter @noldg/portal build` مع `VITE_API_ORIGIN`, `VITE_UPLOAD_ORIGINS`, `VITE_IMAGE_ORIGINS` | نجاح (بناء إنتاجي نظيف بعد E2E أيضًا)                                                                     |
+| `pnpm check:bundle-size`                                                                              | **نجاح**: إجمالي أولي `226.50 kB gzip` (حد `250 kB`)، نمو `+1.47 kB` (حد `2.00 kB`)، أكبر route `7.09 kB` |
+| `pnpm check:no-dev-routes`                                                                            | نجاح: لا توجد علامة معرض التطوير في البناء الإنتاجي                                                       |
+| `pnpm test:e2e` — تشغيل 1                                                                             | نجاح: 41/41 — زمن فعلي `125.87s` (`2.0m` Playwright)                                                      |
+| `pnpm test:e2e` — تشغيل 2                                                                             | نجاح: 41/41 — زمن فعلي `124.64s` (`1.9m` Playwright)                                                      |
+| `pnpm test:e2e` — تشغيل 3                                                                             | نجاح: 41/41 — زمن فعلي `124.44s` (`1.9m` Playwright)                                                      |
+| إثبات سلبي مؤقت 1 عبر `run-e2e.mjs`: assertion يفشل (`_neg-proof.spec.ts`)                            | فشل متوقع (`element(s) not found`): exit code `1`؛ أُزيل الملف المؤقت                                     |
+| إثبات سلبي مؤقت 2 عبر `run-e2e.mjs`: استجابة `418` غير معلنة (`_neg-proof.spec.ts`)                   | فشل متوقع (`undeclaredRequests: [418]`): exit code `1`؛ أُزيل الملف المؤقت                                |
+| `pnpm audit:prod`, `pnpm audit:full`                                                                  | لم يُشغّلا؛ مسؤولية المالك خارج هذه البيئة                                                                |
+| `pnpm install`                                                                                        | لم يُشغّل                                                                                                 |
 
 ## 5. الاختبارات والتغطية
 
-| الحزمة       | ملفات الاختبار | الاختبارات | Statements | Branches | Functions |  Lines | الحد الحالي                   |
+| الحزمة       | ملفات الاختبار | الاختبارات | Statements | Branches | Functions |  Lines | العتبة المفروضة (بعد الرفع)   |
 | ------------ | -------------: | ---------: | ---------: | -------: | --------: | -----: | ----------------------------- |
-| Portal       |             51 |        187 |     87.11% |   68.77% |    75.58% | 89.42% | 85.52 / 67.64 / 73.96 / 87.84 |
-| API          |             39 |        216 |     94.04% |   83.98% |    98.99% | 96.22% | 93 / 83 / 98 / 95             |
-| UI           |             21 |         84 |       100% |     100% |      100% |   100% | 100 / 100 / 100 / 100         |
-| **الإجمالي** |        **111** |    **487** |          — |        — |         — |      — | اجتازت كل الحدود              |
+| Portal       |             54 |        217 |     88.30% |   72.61% |    78.16% | 90.40% | 87.30 / 71.61 / 77.16 / 89.40 |
+| API          |             39 |        217 |     94.15% |   84.25% |    99.00% | 96.14% | 93.15 / 83.25 / 98.00 / 95.14 |
+| UI           |             21 |         85 |       100% |     100% |      100% |   100% | 100 / 100 / 100 / 100         |
+| **الإجمالي** |        **114** |    **519** |          — |        — |         — |      — | اجتازت كل الحدود دون أي خفض   |
 
-لم تُخفض الحدود. بيانات الاختبارات لا تسجل تحذيرات `console.warn` أو `console.error`؛ إعداد Vitest يفشل الاختبار عند ظهور أي منها.
+رُفعت عتبات Portal من `85.52 / 67.64 / 73.96 / 87.84` إلى `87.30 / 71.61 / 77.16 / 89.40`، وعتبات API من `93 / 83 / 98 / 95` إلى `93.15 / 83.25 / 98 / 95.14`، وبقيت UI عند `100%`. لم يصدر أي تحذير `console.warn` أو `console.error` في أي اختبار.
 
-### قائمة اختبارات Playwright
+### زمن حزمة Playwright E2E وزمن كل ملف (عامل واحد)
 
-الاختبارات الموجودة قبل رحلة F8 بقيت؛ العدد ارتفع من 39 إلى 40 بإضافة اختبار واحد. التشغيلات الكاملة الثلاثة جميعها 40/40.
+- إجمالي زمن التشغيل الفعلي (شاملًا البناء والتشغيل والإغلاق): `125.87s` (تشغيل 1)، `124.64s` (تشغيل 2)، `124.44s` (تشغيل 3) — أي **~2.08 دقيقة**، وهو أقل بكثير من حد الـ 6 دقائق (لذلك لا حاجة لخطة sharding حاليًا).
+
+| الملف                             | عدد الاختبارات | زمن التنفيذ (تشغيل 1) |
+| --------------------------------- | -------------: | --------------------: |
+| `e2e/learning.spec.ts`            |              3 |                26.20s |
+| `e2e/auth.spec.ts`                |              7 |                17.50s |
+| `e2e/admin.spec.ts`               |              2 |                16.70s |
+| `e2e/auth-scenarios.spec.ts`      |             13 |                14.70s |
+| `e2e/assessments.spec.ts`         |              2 |                10.60s |
+| `e2e/portal.spec.ts`              |              5 |                 8.99s |
+| `e2e/catalog.spec.ts`             |              2 |                 7.40s |
+| `e2e/orders.spec.ts`              |              4 |                 5.80s |
+| `e2e/student-browse.spec.ts`      |              1 |                 5.20s |
+| `e2e/auth-request-errors.spec.ts` |              2 |                 1.59s |
+| **الإجمالي**                      |         **41** | **114.68s** (تشغيل 1) |
+
+### قائمة اختبارات Playwright (41/41 في 3 تشغيلات متتالية)
 
 - `admin.spec.ts`: `admin opens academic and teacher administration at mobile and desktop widths`; `admin rejects a teacher application and the same teacher resubmits`.
-- `assessments.spec.ts`: `teacher creates a question and exam, reviews results, and publishes a lesson quiz`.
+- `assessments.spec.ts`: `teacher creates questions, targeted exam, duplicate, homework, lesson quiz, and reviews suspicious results`; `teacher navigates question bank and exam builder in Arabic RTL at 375px`.
 - `auth-request-errors.spec.ts`: `rate limits login and disables retry`; `network failures show the generic request message`.
-- `auth-scenarios.spec.ts`: `auth page handles wrong password`; `auth page handles pending teacher`; `auth page handles rejected teacher`; `auth page handles suspended account`; `auth page handles device not registered`; `auth page handles 429 response`; `auth page handles network failure`; `student registration handles email already taken`; `student registration handles phone already taken`; `student registration handles validation details`; `email verification handles invalid code`; `email verification handles expired code`; `email verification handles rate limited code`.
-- `auth.spec.ts`: `student signup, email verification, and login`; `teacher registration adds offerings and reaches pending review`; `student, teacher, and admin login redirects by role`; `wrong password remains generic, forgot and reset password never put a code in the URL`; `guard preserves returnTo, logout clears session, and device-change request shows status`; `suspended account login routes to the suspended state`; `expired session redirects to login after a failed refresh`.
+- `auth-scenarios.spec.ts`: 13 اختبار سيناريوهات تسجيل الدخول والتسجيل والتحقق من البريد.
+- `auth.spec.ts`: 7 اختبارات لتسجيل الطالب والمعلم وتحويل الأدوار واستعادة كلمة المرور والجلسة وتغيير الجهاز.
 - `catalog.spec.ts`: `approved teacher can publish a video lesson and create a bundle`; `teacher course views render in Arabic RTL at mobile width`.
 - `learning.spec.ts`: `student opens My lessons and starts the server-authorized file player`; `lesson availability filters follow the URL and switch the shell direction`; `a replacement session announces the device change and can continue here`.
-- `orders.spec.ts`: `student submits an order, sees its receipt, and finds it in purchases`; `admin creates a manual cash order and approves a pending payment`; `student cancels a pending order after confirming`; `admin rejects a pending payment with a reason`.
-- `portal.spec.ts`: `portal loads and anonymous student routes redirect to login`; `language switch updates document language and direction`; `mobile topbar keeps the language action in the account menu with touch-sized controls`; `development gallery renders both directions`; `development gallery covers Arabic and English at mobile and desktop widths`.
+- `orders.spec.ts`: 4 اختبارات للطلبات اليدوية والإلغاء والقبول والرفض بسبب.
+- `portal.spec.ts`: 5 اختبارات للحماية وتبديل اللغة والشريط العلوي للجوال ومعرض المكونات.
 - `student-browse.spec.ts`: `student browses teacher list, details, checkout, and keeps URL filters`.
+
+### المراجعة البصرية للقطات الشاشة (محفوظة في `docs/reports/screenshots/` المتجاهل فقط)
+
+- `f8a-en-1280-builder.png`: تخطيط نظيف وواضح لباني الامتحان (العنوان، نافذة توقيت القاهرة، المدة والمحاولات، قواعد الخلط والسحب العشوائي وإظهار النتائج وحد مغادرة التبويب، استهداف طلاب الكورس، فلاتر بنك الأسئلة، و`OrderList`).
+- `f8a-en-1280-results.png`: بطاقات الملخص الواردة من الخادم، بحث الطلاب، فلتر الاشتباه، الجدول بالتوقيت القاهري، وروابط عرض المحاولة.
+- `f8a-en-1280-lesson-quiz.png`: قسم اختبار الحصة داخل محرر الحصة بشارة الحالة `Published` ورابط `Results`.
+- `f8a-ar-375-assessments.png`: عرض عربي RTL سليم عند عرض 375px دون قص أو تجاوز أفقي.
 
 ## 6. إثبات قواعد lint والأمان
 
 - `pnpm lint:rules`: 17/17 مخالفة متوقعة اكتُشفت.
-- ESLint مرّ دون أخطاء أو تحذيرات، وtype-check strict مرّ.
-- إعداد الاختبارات يجعل console warning/error إخفاقًا، واجتازت الحزم مجموعتها دون تحذيرات.
-- runner فشل عند assertion مؤقت؛ وfixture فشل عند استجابة 404 غير معلنة. أزيلت ملفات الإثبات بعد التشغيل.
-- لا توجد تبعيات import من `referencebackend/` ولم يظهر سر في diff الملتزم.
+- ESLint: 0 أخطاء و0 تحذيرات؛ TypeScript strict: 3/3 حزم.
+- حارس `console-guard.ts` يفشل الاختبارات على أي `console.warn`/`console.error`، واجتازت 519 اختبارًا دون تحذيرات.
+- جميع نصوص الأسئلة والخيارات والشرح تُعرض كنص خالص دون HTML.
+- جميع التواريخ والمواعيد تمر حصريًا عبر `apps/portal/src/shared/time/time.ts`، والدرجات والاشتباه والأهلية قرارات server-side فقط.
+- الإثباتان السلبيان عبر `run-e2e.mjs` فشلا برمز خروج `1` للسبب المقصود بالضبط (فشل assertion ثم رفض طلب `418` غير معلن)، وأُزيل الملف المؤقت بعد التحقق.
+- لا توجد أي استيرادات من `referencebackend/` ولا أسرار في الكود أو diff.
 
 ## 7. أحجام الحزمة
 
 | القياس                               | الحالي gzip |     الحد | النتيجة                 |
 | ------------------------------------ | ----------: | -------: | ----------------------- |
 | Portal entry                         |     1.61 kB | للمعلومة | —                       |
-| Main app chunk                       |    72.05 kB | للمعلومة | —                       |
-| إجمالي JavaScript للتحميل الأولي     |   227.16 kB |   250 kB | يمر حد الحجم المطلق     |
-| النمو عن baseline `225.03 kB`        |     2.13 kB |  2.00 kB | **يفشل بمقدار 0.13 kB** |
-| أكبر lazy route (`LessonEditorPage`) |     7.10 kB |    80 kB | يمر                     |
+| Main app chunk                       |    72.02 kB | للمعلومة | —                       |
+| إجمالي JavaScript للتحميل الأولي     |   226.50 kB |   250 kB | **يمر** (هامش 23.50 kB) |
+| النمو عن baseline `225.03 kB`        |     1.47 kB |  2.00 kB | **يمر** (هامش 0.53 kB)  |
+| أكبر lazy route (`LessonEditorPage`) |     7.09 kB |    80 kB | **يمر**                 |
 
-الـ `/login` لا يحمّل chunks التسجيل أو نموذج تسجيل المعلم أو بنك الأسئلة. جرى تجميع تعريفات مسارات التقييم في مسار اختياري واحد، لكن النمو بقي أعلى من guard بـ 130 بايت. لم أعدّل baseline. يلزم تحسين إضافي يقيسه checker نفسه قبل قبول F8A.
+بقي `bundle-size-baseline.json` دون أي تعديل (`225.03 kB`). تحقّق الخفض بنقل رسائل أخطاء التقييمات ومساراتها ومُوزّعها إلى حزم كسولة بعيدًا عن حزمة `/login`.
 
 ## 8. الانحرافات عن المواصفة
 
-- لم يكتمل F8A. النطاق المنفذ يقف عند الحد الرابع «lesson quiz and results» وفق خيار التوقف الآمن؛ بعض الأجزاء من هذا الحد موجودة وبعضها غير مكتمل.
-- لا يوجد builder كامل للـ homework/quiz/exam rules، ولا تحرير/نشر/إغلاق/أرشفة/نسخ التقييمات مكتمل، ولا اختيار جمهور الطلاب أو random pool/shuffle، ولا صفحة نتائج مكتملة لكل السيناريوهات.
-- رحلة E2E الجديدة تغطي draft exam ونتائج ومحاولة وكويز الدرس، لكنها لا تغطي رحلات homework، التخصيص، النشر، أو كل أحجام/لغات المواصفة.
-- `check:bundle-size` لا يمر guard نمو +2 kB؛ لم يُخفّف الفشل بزيادة baseline.
-- تدقيقا الحزم متروكان للمالك حسب السياسة. لم تُلتقط صور إضافية للمراجعة البصرية؛ E2E يحفظ الصورة الجديدة فقط في المسار المتجاهل.
+- **لا توجد انحرافات في نطاق F8A.**
+- تدقيقا الحزم (`pnpm audit:prod` و`pnpm audit:full`) لم يُشغّلا داخل البيئة وفق القاعدة الصريحة بأنهما مسؤولية المالك.
+- فلاتر/حقول ربط السؤال بـ `subjectId` و`lessonId` في بنك الأسئلة تقبل معرّفات نصية لأن العقد الحالي لا يوفر قائمة اختيار عامة مجمّعة لكل المواد/الحصص في هذه الشاشة.
 
 ## 9. الافتراضات
 
-- عقد `docs/api-target-assessments.md` هو هدف الواجهة، مع إبقاء اختلافات الباك الحالي في `docs/contract-differences.md` وطبقة API.
-- الدرجات وحالة التقييم ومحاولات الطالب وملكية الأسئلة تبقى قرارات server-side؛ تعرض الواجهة القيم المرسلة فقط.
-- mock detail يستخدم المحاولة المجمدة الثابتة مع assessmentId موجود في mock state؛ لا يمثل بيانات درجات حقيقية.
+- العقد المستهدف في `docs/api-target-assessments.md` هو المرجع للواجهة، بينما تبقى فجوات الخادم الحالي موثقة ومقيّدة بأعلام القدرات في `docs/contract-differences.md` و`packages/api/src/config/capabilities.ts`.
+- في وضع live تبقى ميزات الصور والأرشفة والفلاتر المتقدمة واستهداف الطلاب والسحب العشوائي والخلط وواجهة النتائج ونسبة المشاهدة المنصّية معطّلة تلقائيًا برسائل توضيحية آمنة حتى يعتمدها الباك إند.
+- جميع قرارات القفل والأهلية والدرجات والاشتباه والمواعيد النهائية للمحاولات تبقى من اختصاص الخادم وحده.
 
-## 10. الأسئلة
+## 10. الأسئلة للباك إند / المالك
 
-- هل يمكن إزالة الـ 130 بايت الزائدة من initial route عبر تصغير route metadata الإضافية، أم يلزم تعديل حد baseline بقرار معماري صريح؟ لم أغير baseline دون قرار.
-- ما route/contract الذي سيعتمده مسؤول الباك لنتائج التقييم ومحاولة الطالب المجمدة؟ المسارات المستهدفة غير مثبتة في backend الحالي.
-- ما endpoint أو العقد الذي سيزوّد builder بقائمة طلاب المساق لتفعيل `selected_students`؟
+1. تأكيد عقد `GET /assessments/courses/:courseId/students` (قائمة طلاب الكورس للاستهداف الفردي) ومسار `PATCH /assessments/:assessmentId/archive` قبل تفعيل قدرات الكتابة في live mode.
+2. تأكيد مسارَي نتائج المعلم `GET /assessments/:assessmentId/attempts` و`GET /assessments/:assessmentId/attempts/:attemptId` وحقلَي `summary` و`suspicious` المحسوبين من الخادم.
+3. تأكيد إعداد المنصة لنسبة مشاهدة كويز الحصة (الافتراضي `75%` مقابل `100%` في المخطط الحالي) وقاعدة القفل بعد أول محاولة (`ASSESSMENT_LOCKED`).
+4. تذكير: الفرع المنفصل `fix/frontend-hardening` ما زال محفوظًا وسليمًا بانتظار قرارك بدمجه لاحقًا بعد مراجعة F8A.
 
 ## 11. المخاطر والدين التقني
 
-- **مانع قبول:** تجاوز guard نمو الحزمة بـ 0.13 kB gzip، رغم بقاء البداية 22.84 kB دون السقف المطلق.
-- دعم backend المستهدف محدود؛ capabilities تبقى مغلقة في live mode حيث لا يوجد دعم موثق، وتفاصيل نتائج التقييم ليست مؤكدة من backend الحالي.
-- مصفوفة اختبارات F8 الكاملة غير مكتملة؛ نجاح 487 اختبارًا لا يعني أن جميع حالات القبول المطلوبة مغطاة.
-- لم يُجر تدقيق dependency/audit أو اختبار ضغط، ولا يمكن استنتاج جاهزية إنتاجية من هذه النتائج.
+- تبقى قدرات F8A المتقدمة معطّلة في `VITE_API_MODE=live` ضد الخادم المرجعي الحالي حتى تُنفّذ عقود `docs/api-target-assessments.md`.
+- تدقيقا الأمان (`pnpm audit:prod` و`pnpm audit:full`) يجب أن يجريهما المالك قبل الدمج في `main`.
 
-## 12. Commits
+## 12. Commits (على `feat/f8a-assessments-teacher`)
 
-| Hash      | الرسالة                                              |
-| --------- | ---------------------------------------------------- |
-| `9ac0d87` | `chore(f8): ignore local log files`                  |
-| `a2f5976` | `test(config): fail on console warnings and errors`  |
-| `0e5cece` | `feat(api): add target assessment contracts`         |
-| `3589c5e` | `docs(f8): record assessment target contract`        |
-| `8ee466c` | `feat(api): add assessment capability flags`         |
-| `972e1ce` | `fix(api): model MCQ question inputs explicitly`     |
-| `08b09e4` | `feat(api): add question bank endpoints and mocks`   |
-| `aff169b` | `feat(ui): add assessment question primitives`       |
-| `6af1835` | `feat(portal): add teacher question bank`            |
-| `dab4961` | `test(portal): ratchet coverage thresholds`          |
-| `f033259` | `fix(test): resolve console guard knip findings`     |
-| `cdaab2d` | `test(e2e): await device status failure`             |
-| `b9f1bff` | `fix(test): honor no-color in e2e workers`           |
-| `5d5360c` | `docs(f8): report assessment foundation handoff`     |
-| `3a394a0` | `docs(f8): clarify final handoff commit`             |
-| `bdc474e` | `docs(f8): align report with final build`            |
-| `164f2e6` | `chore(f8): ignore generated e2e output`             |
-| `27e9f60` | `feat(api): add assessment endpoints and mocks`      |
-| `587e8d5` | `test(api): cover assessment validation failures`    |
-| `acc0353` | `test(portal): await teacher list response`          |
-| `0622de7` | `feat(portal): add teacher assessment draft builder` |
-| `7d0d1b3` | `feat(api): add assessment result summary`           |
-| `7f1bf7b` | `feat(portal): add teacher assessment results views` |
-| `5e50043` | `feat(portal): add lesson quiz authoring`            |
-| `2afd196` | `refactor(portal): defer assessment route dispatch`  |
-| `2e54eef` | `fix(api): resolve mock assessment attempts`         |
-| `67833b7` | `test(e2e): cover assessment authoring flow`         |
+| Hash      | الرسالة                                                                              |
+| --------- | ------------------------------------------------------------------------------------ |
+| `9ac0d87` | `chore(f8): ignore local log files`                                                  |
+| `a2f5976` | `test(config): fail on console warnings and errors`                                  |
+| `0e5cece` | `feat(api): add target assessment contracts`                                         |
+| `3589c5e` | `docs(f8): record assessment target contract`                                        |
+| `8ee466c` | `feat(api): add assessment capability flags`                                         |
+| `972e1ce` | `fix(api): model MCQ question inputs explicitly`                                     |
+| `08b09e4` | `feat(api): add question bank endpoints and mocks`                                   |
+| `aff169b` | `feat(ui): add assessment question primitives`                                       |
+| `6af1835` | `feat(portal): add teacher question bank`                                            |
+| `dab4961` | `test(portal): ratchet coverage thresholds`                                          |
+| `f033259` | `fix(test): resolve console guard knip findings`                                     |
+| `cdaab2d` | `test(e2e): await device status failure`                                             |
+| `b9f1bff` | `fix(test): honor no-color in e2e workers`                                           |
+| `5d5360c` | `docs(f8): report assessment foundation handoff`                                     |
+| `3a394a0` | `docs(f8): clarify final handoff commit`                                             |
+| `bdc474e` | `docs(f8): align report with final build`                                            |
+| `164f2e6` | `chore(f8): ignore generated e2e output`                                             |
+| `27e9f60` | `feat(api): add assessment endpoints and mocks`                                      |
+| `587e8d5` | `test(api): cover assessment validation failures`                                    |
+| `acc0353` | `test(portal): await teacher list response`                                          |
+| `0622de7` | `feat(portal): add teacher assessment draft builder`                                 |
+| `7d0d1b3` | `feat(api): add assessment result summary`                                           |
+| `7f1bf7b` | `feat(portal): add teacher assessment results views`                                 |
+| `5e50043` | `feat(portal): add lesson quiz authoring`                                            |
+| `2afd196` | `refactor(portal): defer assessment route dispatch`                                  |
+| `2e54eef` | `fix(api): resolve mock assessment attempts`                                         |
+| `67833b7` | `test(e2e): cover assessment authoring flow`                                         |
+| `a47b4ad` | `docs(f8): report assessment implementation status`                                  |
+| `b8b8c4d` | `feat(api,ui): add course student roster, locked mock rules, and date mode`          |
+| `caefd66` | `perf(portal): move assessment errors and routes to lazy chunks`                     |
+| `18d33a8` | `feat(portal): add live student preview to question editor`                          |
+| `785091d` | `feat(portal): complete assessment tabs, list lifecycle, and full builder`           |
+| `10253c7` | `feat(portal): complete lesson quiz authoring dialog and results capability guard`   |
+| `d75053a` | `test(portal): cover assessment list, builder, quiz, and results scenarios`          |
+| `159f5a3` | `test(e2e): cover full F8A authoring, targeting, duplicate, homework, quiz, and RTL` |
 
-لم يُدفع أي شيء إلى `main` ولم يحدث merge. سيُضاف hash تقرير التسليم إلى سجل Git بعد التزام التوثيق.
+سيُضاف commit التوثيق النهائي لهذا التقرير مباشرة بعد هذه القائمة على `feat/f8a-assessments-teacher`. لم يُدفع أي شيء إلى `main` ولم يحدث merge.
 
 ## 13. ما ينبغي مراجعته أولًا
 
-1. راجع تجاوز `check:bundle-size` ثم اعتمد تحسينًا إضافيًا قبل اعتبار F8A مقبولة.
-2. راجع رحلة `assessments.spec.ts` ومسارات اختيار builder/results/attempt قبل اعتماد شكل المسار الاختياري.
-3. راجع coverage thresholds والجدول أعلاه؛ المقاييس لم تُخفض.
-4. راجع `docs/contract-differences.md` و`docs/api-target-assessments.md` قبل تمكين أي capability في live mode.
-5. أجرِ تدقيقي الحزم خارج هذه البيئة، ثم أكمل الوظائف والاختبارات المتبقية قبل فتح الخطوة التالية.
+1. راجع `docs/api-target-assessments.md` و`docs/contract-differences.md` مع مطوّر الباك إند (خاصةً مسار طلاب الكورس والأرشفة ونتائج المحاولات).
+2. شغّل `pnpm audit:prod` و`pnpm audit:full` خارج هذه البيئة قبل الدمج في `main`.
+3. راجع لقطات الشاشة الأربع في `docs/reports/screenshots/` (`f8a-en-1280-builder.png`، `f8a-en-1280-results.png`، `f8a-en-1280-lesson-quiz.png`، `f8a-ar-375-assessments.png`).
+4. راجع `check:bundle-size` (`226.50 kB gzip`، نمو `+1.47 kB` دون تغيير baseline) ورفع عتبات التغطية في `apps/portal/vitest.config.ts` و`packages/api/vitest.config.ts`.

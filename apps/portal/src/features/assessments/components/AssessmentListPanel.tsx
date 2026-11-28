@@ -5,6 +5,7 @@ import type { Assessment, AssessmentType } from "@noldg/api/contracts/assessment
 import { Alert, Button, DataTable, EmptyState, Heading, Skeleton } from "@noldg/ui";
 import { capabilities } from "@noldg/api/config/capabilities";
 import { useAssessments } from "../hooks/useAssessments";
+import { getTeacherAssessmentNewPath, getTeacherAssessmentResultsPath } from "../routes";
 
 interface AssessmentListPanelProps {
   courseId: string;
@@ -51,7 +52,9 @@ export function AssessmentListPanel({ courseId, type }: AssessmentListPanelProps
         <Heading level={2}>{t(type === "exam" ? "examsTitle" : "homeworkTitle")}</Heading>
         <Button
           onClick={() =>
-            navigate(`/teacher/courses/${encodeURIComponent(courseId)}/assessments/new/${type}`)
+            navigate(
+              getTeacherAssessmentNewPath(courseId, type === "homework" ? "homework" : "exam"),
+            )
           }
         >
           {t("create", { type: t(type) })}
@@ -87,11 +90,7 @@ export function AssessmentListPanel({ courseId, type }: AssessmentListPanelProps
             <Button
               size="sm"
               variant="ghost"
-              onClick={() =>
-                navigate(
-                  `/teacher/courses/${encodeURIComponent(courseId)}/assessments/${encodeURIComponent(row.id)}/results`,
-                )
-              }
+              onClick={() => navigate(getTeacherAssessmentResultsPath(courseId, row.id))}
             >
               {t("results")}
             </Button>

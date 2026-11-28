@@ -3,8 +3,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AssessmentInput } from "@noldg/api/contracts/assessments";
 import { createAssessment, publishAssessment } from "@noldg/api/endpoints/assessments";
 import { capabilities } from "@noldg/api/config/capabilities";
-import { useApiErrorToast } from "../../../shared/errors/useApiErrorToast";
 import { DEFAULT_ASSESSMENT_SHOW_RESULTS, DEFAULT_QUIZ_WATCH_PERCENTAGE } from "../constants";
+import { useAssessmentErrorToast } from "./useAssessmentErrorToast";
 import { useAssessments } from "./useAssessments";
 import { assessmentQueryKeys } from "../assessment-query-keys";
 
@@ -14,7 +14,7 @@ import { assessmentQueryKeys } from "../assessment-query-keys";
  */
 export function useLessonQuiz(courseId: string, lessonId: string) {
   const queryClient = useQueryClient();
-  const reportError = useApiErrorToast();
+  const reportError = useAssessmentErrorToast();
   const data = useAssessments(courseId);
   const [title, setTitle] = useState("");
   const [selectedIds, setSelectedIds] = useState<readonly string[]>([]);

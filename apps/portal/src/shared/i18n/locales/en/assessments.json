@@ -97,5 +97,14 @@
     "published": "Published",
     "closed": "Closed",
     "archived": "Archived"
+  },
+  "errors": {
+    "ASSESSMENT_LOCKED": "This assessment is locked because students have already started an attempt.",
+    "ASSESSMENT_WINDOW_INVALID": "The assessment opening and closing window is invalid.",
+    "POOL_TOO_SMALL": "The random question count cannot exceed the selected question pool.",
+    "NO_QUESTIONS": "Select at least one question before saving this assessment.",
+    "QUESTION_INVALID": "One or more selected questions are invalid.",
+    "QUESTION_IN_USE": "This question is already used by an assessment and cannot be removed.",
+    "TARGET_STUDENT_INVALID": "One or more selected students do not belong to this course."
   }
 }

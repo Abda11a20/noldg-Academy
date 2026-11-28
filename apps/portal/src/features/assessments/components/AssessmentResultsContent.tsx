@@ -18,10 +18,8 @@ import {
 } from "@noldg/ui";
 import { formatNumber } from "../../../shared/i18n/formatting";
 import { formatCairoDateTime } from "../../../shared/time/time";
-import {
-  getTeacherAssessmentAttemptPath,
-  getTeacherCoursePath,
-} from "../../../shared/navigation/routes";
+import { getTeacherCoursePath } from "../../../shared/navigation/routes";
+import { getTeacherAssessmentAttemptPath } from "../routes";
 import { ASSESSMENT_PAGE_SIZE_OPTIONS } from "../constants";
 
 interface AssessmentResultsContentProps {

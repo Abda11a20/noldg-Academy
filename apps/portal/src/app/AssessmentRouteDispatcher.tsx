@@ -17,12 +17,12 @@ const AssessmentAttemptDetailPage = lazy(async () => ({
  */
 export function AssessmentRouteDispatcher() {
   const { assessmentId, action, attemptId } = useParams();
-  const Page =
-    assessmentId === "new" && action
-      ? AssessmentBuilderPage
-      : attemptId
-        ? AssessmentAttemptDetailPage
-        : AssessmentResultsPage;
+  const isBuilder = (assessmentId === "new" && Boolean(action)) || action === "edit";
+  const Page = isBuilder
+    ? AssessmentBuilderPage
+    : attemptId
+      ? AssessmentAttemptDetailPage
+      : AssessmentResultsPage;
   return (
     <Suspense fallback={<Skeleton height="lg" />}>
       <Page />

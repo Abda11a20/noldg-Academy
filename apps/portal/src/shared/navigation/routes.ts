@@ -21,11 +21,6 @@ export const ROUTE_PATHS = {
   studentPurchaseDetail: "/student/purchases/:orderId",
   teacher: "/teacher",
   teacherQuestions: "/teacher/questions",
-  teacherAssessmentNew: "/teacher/courses/:courseId/assessments/new/:type",
-  teacherAssessmentEdit: "/teacher/courses/:courseId/assessments/:assessmentId/edit",
-  teacherAssessmentResults: "/teacher/courses/:courseId/assessments/:assessmentId/results",
-  teacherAssessmentAttempt:
-    "/teacher/courses/:courseId/assessments/:assessmentId/results/:attemptId",
   teacherCourse: "/teacher/courses/:courseId",
   teacherLessonNew: "/teacher/courses/:courseId/lessons/new",
   teacherLessonEdit: "/teacher/courses/:courseId/lessons/:lessonId",
@@ -83,29 +78,6 @@ export function getAdminOrderPath(orderId: string): string {
 /** Builds the teacher course route for an opaque course identifier. */
 export function getTeacherCoursePath(courseId: string): string {
   return ROUTE_PATHS.teacherCourse.replace(":courseId", encodeURIComponent(courseId));
-}
-
-/** Builds the result list route for an assessment owned by a teacher's course.
- * @param courseId Teacher-owned course identifier.
- * @param assessmentId Assessment identifier.
- */
-export function getTeacherAssessmentResultsPath(courseId: string, assessmentId: string): string {
-  return ROUTE_PATHS.teacherAssessmentResults
-    .replace(":courseId", encodeURIComponent(courseId))
-    .replace(":assessmentId", encodeURIComponent(assessmentId));
-}
-
-/** Builds a frozen attempt detail route under its assessment results.
- * @param courseId Teacher-owned course identifier.
- * @param assessmentId Assessment identifier.
- * @param attemptId Attempt identifier.
- */
-export function getTeacherAssessmentAttemptPath(
-  courseId: string,
-  assessmentId: string,
-  attemptId: string,
-): string {
-  return `${getTeacherAssessmentResultsPath(courseId, assessmentId)}/${encodeURIComponent(attemptId)}`;
 }
 
 /** Builds the new teacher lesson route for a course identifier. */

@@ -10,7 +10,7 @@ import {
 } from "@noldg/api/endpoints/assessments";
 import { listQuestions } from "@noldg/api/endpoints/questions";
 import { QuestionListQuerySchema } from "@noldg/api/contracts/assessments";
-import { useApiErrorToast } from "../../../shared/errors/useApiErrorToast";
+import { useAssessmentErrorToast } from "./useAssessmentErrorToast";
 import { assessmentQueryKeys } from "../assessment-query-keys";
 
 /** Loads course assessment and question data and exposes precise cache-aware mutations.
@@ -19,7 +19,7 @@ import { assessmentQueryKeys } from "../assessment-query-keys";
  */
 export function useAssessments(courseId: string) {
   const client = useQueryClient();
-  const reportError = useApiErrorToast();
+  const reportError = useAssessmentErrorToast();
   const assessments = useQuery({
     queryKey: assessmentQueryKeys.list({ page: 1, pageSize: 100, courseId }),
     queryFn: ({ signal }) => listCourseAssessments(courseId, signal),

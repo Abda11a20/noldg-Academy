@@ -25,16 +25,6 @@ const ORDER_ERROR_KEYS: Record<string, string> = {
   ORDER_PAYMENT_SUBMISSION_FAILED: "orderPaymentSubmissionFailed",
 };
 
-const ASSESSMENT_ERROR_KEYS: Record<string, string> = {
-  ASSESSMENT_LOCKED: "assessmentLocked",
-  ASSESSMENT_WINDOW_INVALID: "assessmentWindowInvalid",
-  POOL_TOO_SMALL: "assessmentPoolTooSmall",
-  NO_QUESTIONS: "assessmentNoQuestions",
-  QUESTION_INVALID: "assessmentQuestionInvalid",
-  QUESTION_IN_USE: "assessmentQuestionInUse",
-  TARGET_STUDENT_INVALID: "assessmentTargetStudentInvalid",
-};
-
 /** Reports a normalized, localized API error through the shared toast queue.
  * @returns Function accepting an unknown request failure; raw server text is never rendered.
  */
@@ -47,7 +37,6 @@ export function useApiErrorToast() {
         error instanceof AppError
           ? (ORDER_ERROR_KEYS[error.code] ??
             CATALOG_ERROR_KEYS[error.code] ??
-            ASSESSMENT_ERROR_KEYS[error.code] ??
             (error.code === "DUPLICATE_TRACK"
               ? "duplicateTrack"
               : error.message_key.replace("errors:", "")))

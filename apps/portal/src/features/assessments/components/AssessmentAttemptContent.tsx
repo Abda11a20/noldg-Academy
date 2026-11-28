@@ -1,10 +1,8 @@
 import { useTranslation } from "react-i18next";
 import type { AssessmentAttemptDetail } from "@noldg/api/contracts/assessments";
 import { Breadcrumbs, Heading, Text } from "@noldg/ui";
-import {
-  getTeacherAssessmentResultsPath,
-  getTeacherCoursePath,
-} from "../../../shared/navigation/routes";
+import { getTeacherCoursePath } from "../../../shared/navigation/routes";
+import { getTeacherAssessmentResultsPath } from "../routes";
 import { formatNumber } from "../../../shared/i18n/formatting";
 import { formatCairoDateTime } from "../../../shared/time/time";
 import { AssessmentAttemptQuestion } from "./AssessmentAttemptQuestion";

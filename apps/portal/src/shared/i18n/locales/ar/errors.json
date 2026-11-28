@@ -25,13 +25,6 @@
   "orderAlreadyProcessed": "تمت معالجة الطلب بالفعل. حدّث الصفحة لمعرفة حالته.",
   "orderNotCancellable": "لم يعد من الممكن إلغاء هذا الطلب.",
   "orderPaymentSubmissionFailed": "تم حفظ الطلب لكن تعذر إرسال تفاصيل الدفع. تواصل مع الدعم قبل إعادة المحاولة.",
-  "assessmentLocked": "هذا التقييم مقفل لأن بعض الطلاب بدأوا المحاولة بالفعل.",
-  "assessmentWindowInvalid": "موعد فتح التقييم وإغلاقه غير صالح.",
-  "assessmentPoolTooSmall": "لا يمكن أن يتجاوز عدد الأسئلة العشوائية عدد الأسئلة المختارة.",
-  "assessmentNoQuestions": "اختر سؤالًا واحدًا على الأقل قبل حفظ التقييم.",
-  "assessmentQuestionInvalid": "يوجد سؤال واحد أو أكثر غير صالح.",
-  "assessmentQuestionInUse": "هذا السؤال مستخدم بالفعل في تقييم ولا يمكن إزالته.",
-  "assessmentTargetStudentInvalid": "يوجد طالب أو أكثر لا ينتمي إلى هذا الكورس.",
   "auth": {
     "INVALID_CREDENTIALS": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
     "EMAIL_TAKEN": "يوجد حساب مسجل بهذا البريد الإلكتروني.",

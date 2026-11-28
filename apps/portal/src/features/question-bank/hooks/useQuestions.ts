@@ -50,6 +50,10 @@ export function useQuestions(state: {
       notify({ title: t("questionInUse"), tone: "danger" });
       return;
     }
+    if (error instanceof AppError && error.code === "QUESTION_INVALID") {
+      notify({ title: t("validationError"), tone: "danger" });
+      return;
+    }
     reportError(error);
   };
   const create = useMutation({

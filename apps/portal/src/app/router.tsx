@@ -1,9 +1,10 @@
 import { createBrowserRouter, redirect, type RouteObject } from "react-router";
 import { ROUTE_PATHS } from "../shared/navigation/routes";
 import { RouteErrorPage } from "../pages/RouteErrorPage";
+import { assessmentRoutes } from "./assessment-routes";
 
 function lazyWithNamespace(
-  namespace: "admin" | "browse" | "catalog" | "orders" | "learning" | "questions",
+  namespace: "admin" | "browse" | "catalog" | "orders" | "learning" | "questions" | "assessments",
   loadComponent: () => Promise<Pick<RouteObject, "Component">>,
 ) {
   return async () => {
@@ -209,6 +210,7 @@ const routes: RouteObject[] = [
         })),
         errorElement: <RouteErrorPage />,
       },
+      ...assessmentRoutes,
     ],
   },
   {

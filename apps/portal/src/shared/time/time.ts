@@ -2,6 +2,8 @@ const CAIRO_TIME_ZONE = "Africa/Cairo";
 const MINUTE_MS = 60_000;
 const SEARCH_RADIUS_MS = 36 * 60 * MINUTE_MS;
 const OFFSET_SAMPLE_STEP_MS = 30 * MINUTE_MS;
+const CAIRO_START_OF_DAY = "00:00";
+const CAIRO_END_OF_DAY = "23:59";
 
 type LocalDateTimeParts = {
   year: number;
@@ -118,6 +120,18 @@ export function cairoLocalToIso(value: string, choice?: AmbiguousTimeChoice): st
   const selected = choice === "later" ? instants.at(-1) : instants[0];
   if (!selected) throw new RangeError("This Cairo local time could not be resolved.");
   return selected.toISOString();
+}
+
+/** Converts a Cairo calendar date to its UTC start or end boundary.
+ * @param value Local date in YYYY-MM-DD format.
+ * @param boundary Selects the first or last minute of that Cairo date.
+ * @returns ISO UTC instant for API window fields.
+ */
+export function cairoDateBoundaryToIso(value: string, boundary: "startOfDay" | "endOfDay"): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value))
+    throw new RangeError("Expected a local date in YYYY-MM-DD format.");
+  const time = boundary === "startOfDay" ? CAIRO_START_OF_DAY : CAIRO_END_OF_DAY;
+  return cairoLocalToIso(`${value}T${time}`);
 }
 
 /** Converts a user-entered Cairo wall-clock value to ISO, returning undefined when DST makes it invalid.

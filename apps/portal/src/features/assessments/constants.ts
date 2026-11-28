@@ -1,0 +1,5 @@
+export const ASSESSMENT_PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
+export const DEFAULT_ASSESSMENT_SHOW_RESULTS = "immediate" as const;
+export const DEFAULT_QUIZ_WATCH_PERCENTAGE = 75;
+export const ASSESSMENT_MIN_DURATION_MINUTES = 1;
+export const ASSESSMENT_MAX_DURATION_MINUTES = 1440;

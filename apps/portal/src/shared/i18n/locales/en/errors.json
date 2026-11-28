@@ -25,6 +25,13 @@
   "orderAlreadyProcessed": "This order was already processed. Refresh to see its status.",
   "orderNotCancellable": "This order can no longer be cancelled.",
   "orderPaymentSubmissionFailed": "The order was saved, but payment details could not be submitted. Contact support before retrying.",
+  "assessmentLocked": "This assessment is locked because students have already started an attempt.",
+  "assessmentWindowInvalid": "The assessment opening and closing window is invalid.",
+  "assessmentPoolTooSmall": "The random question count cannot exceed the selected question pool.",
+  "assessmentNoQuestions": "Select at least one question before saving this assessment.",
+  "assessmentQuestionInvalid": "One or more selected questions are invalid.",
+  "assessmentQuestionInUse": "This question is already used by an assessment and cannot be removed.",
+  "assessmentTargetStudentInvalid": "One or more selected students do not belong to this course.",
   "auth": {
     "INVALID_CREDENTIALS": "The email or password is incorrect.",
     "EMAIL_TAKEN": "An account already uses this email address.",

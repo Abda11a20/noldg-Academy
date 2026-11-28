@@ -113,12 +113,13 @@ export const assessmentHandlers = [
     return HttpResponse.json(assessment, { status: 201 });
   }),
   http.get(`${API_BASE_URL}/assessments/:assessmentId/attempts/:attemptId`, ({ params }) => {
-    if (
-      params.assessmentId !== MOCK_ASSESSMENT_ATTEMPT_DETAIL.assessmentId ||
-      params.attemptId !== MOCK_ASSESSMENT_ATTEMPT_DETAIL.id
-    )
+    const assessmentExists = assessments.some((item) => item.id === params.assessmentId);
+    if (!assessmentExists || params.attemptId !== MOCK_ASSESSMENT_ATTEMPT_DETAIL.id)
       return HttpResponse.json({ error: { code: "NOT_FOUND" } }, { status: 404 });
-    return HttpResponse.json(MOCK_ASSESSMENT_ATTEMPT_DETAIL);
+    return HttpResponse.json({
+      ...MOCK_ASSESSMENT_ATTEMPT_DETAIL,
+      assessmentId: String(params.assessmentId),
+    });
   }),
   http.get(`${API_BASE_URL}/assessments/:assessmentId/attempts`, ({ request }) => {
     const url = new URL(request.url);

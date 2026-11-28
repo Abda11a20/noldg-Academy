@@ -51,6 +51,9 @@ it("creates, updates, publishes, closes, archives, and loads an assessment", asy
     maxAttempts: 1,
   });
   expect(created).toMatchObject({ id: "assessment-mock-5", status: "draft", attemptCount: 0 });
+  await expect(getAssessmentAttempt(created.id, "attempt-2")).resolves.toMatchObject({
+    assessmentId: created.id,
+  });
   expect(await getAssessment(created.id)).toEqual(created);
   expect(await updateAssessment(created.id, { title: "Updated unit test" })).toMatchObject({
     title: "Updated unit test",

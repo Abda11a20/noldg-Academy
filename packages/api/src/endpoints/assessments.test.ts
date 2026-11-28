@@ -1,6 +1,7 @@
 import { beforeEach, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
 import { resetAssessmentMockState } from "../mocks/testing";
+import { assessmentInputErrorCode } from "../mocks/handlers/assessments";
 import { API_BASE_URL } from "../constants/http";
 import { nodeServer } from "../mocks/node";
 import {
@@ -96,5 +97,46 @@ it("normalizes server and authorization failures for assessment lists", async ()
   await expect(listAssessments({ page: 1, pageSize: 20 })).rejects.toMatchObject({
     code: "FORBIDDEN",
     status: 403,
+  });
+});
+
+it("maps invalid draft payloads to stable assessment error codes", async () => {
+  const validDraft = {
+    type: "exam",
+    courseId: "course-1",
+    title: "Assessment",
+    questionIds: ["question-mock-1"],
+    shuffle: true,
+    showResults: "immediate",
+    targetMode: "all_course_students",
+    studentIds: [],
+    windowStart: "2026-12-01T08:00:00.000Z",
+    windowEnd: "2026-12-01T10:00:00.000Z",
+    durationMinutes: 60,
+    maxAttempts: 1,
+  };
+  const scenarios: Array<{ input: unknown; code: string }> = [
+    { input: null, code: "QUESTION_INVALID" },
+    { input: { ...validDraft, questionIds: [] }, code: "NO_QUESTIONS" },
+    { input: { ...validDraft, randomCount: 2 }, code: "POOL_TOO_SMALL" },
+    {
+      input: {
+        ...validDraft,
+        windowStart: "2026-12-01T10:00:00.000Z",
+        windowEnd: "2026-12-01T08:00:00.000Z",
+      },
+      code: "ASSESSMENT_WINDOW_INVALID",
+    },
+  ];
+
+  for (const scenario of scenarios) {
+    expect(assessmentInputErrorCode(scenario.input)).toBe(scenario.code);
+  }
+});
+
+it("rejects archiving an assessment that already has attempts", async () => {
+  await expect(archiveAssessment("assessment-exam-published")).rejects.toMatchObject({
+    status: 409,
+    code: "ASSESSMENT_LOCKED",
   });
 });

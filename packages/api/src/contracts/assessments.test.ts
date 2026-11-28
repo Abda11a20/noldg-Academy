@@ -157,6 +157,7 @@ it("validates assessment writes and rejects empty partial updates", () => {
   };
   expect(AssessmentInputSchema.safeParse(exam).success).toBe(true);
   expect(AssessmentInputSchema.safeParse({ ...exam, randomCount: 2 }).success).toBe(false);
+  expect(AssessmentInputSchema.safeParse({ ...exam, questionIds: [] }).success).toBe(false);
   expect(
     AssessmentInputSchema.safeParse({ ...exam, type: "homework", durationMinutes: 60 }).success,
   ).toBe(false);

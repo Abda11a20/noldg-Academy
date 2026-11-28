@@ -91,7 +91,7 @@ const AssessmentBaseSchema = z.object({
   lessonId: IdSchema.optional(),
   title: z.string().trim().min(1),
   status: AssessmentStatusSchema,
-  questionIds: z.array(IdSchema),
+  questionIds: z.array(IdSchema).min(1),
   randomCount: z.number().int().positive().optional(),
   shuffle: z.boolean().default(true),
   showResults: z.enum(["immediate", "after_close"]),
@@ -108,6 +108,18 @@ const AssessmentBaseSchema = z.object({
 
 function addAssessmentIssue(context: z.RefinementCtx, path: string, message: string): void {
   context.addIssue({ code: "custom", path: [path], message });
+}
+
+function validateAssessmentWindow(
+  assessment: { windowStart?: string | undefined; windowEnd?: string | undefined },
+  context: z.RefinementCtx,
+): void {
+  if (
+    assessment.windowStart &&
+    assessment.windowEnd &&
+    Date.parse(assessment.windowEnd) <= Date.parse(assessment.windowStart)
+  )
+    addAssessmentIssue(context, "windowEnd", "Window end must follow its start");
 }
 
 function validateWindowRequired(
@@ -173,6 +185,7 @@ function validateAssessmentAudience(
 export const AssessmentSchema = AssessmentBaseSchema.superRefine((assessment, context) => {
   if (assessment.randomCount && assessment.randomCount > assessment.questionIds.length)
     addAssessmentIssue(context, "randomCount", "Random count exceeds pool");
+  validateAssessmentWindow(assessment, context);
   validateAssessmentType(assessment, context);
   validateAssessmentAudience(assessment, context);
 });
@@ -186,6 +199,7 @@ export const AssessmentInputSchema = AssessmentInputBaseSchema.superRefine(
   (assessment, context) => {
     if (assessment.randomCount && assessment.randomCount > assessment.questionIds.length)
       addAssessmentIssue(context, "randomCount", "Random count exceeds pool");
+    validateAssessmentWindow(assessment, context);
     validateAssessmentType(assessment as z.infer<typeof AssessmentBaseSchema>, context);
     validateAssessmentAudience(assessment as z.infer<typeof AssessmentBaseSchema>, context);
   },

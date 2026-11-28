@@ -4,7 +4,7 @@ import { AppShell, Topbar, type NavItemProps } from "@noldg/ui";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { DeferredMobileAccountMenu } from "./DeferredMobileAccountMenu";
 import { useLocation } from "react-router";
-
+import { getNavigationForRole } from "./navigation";
 import { ROUTE_PATHS } from "./routes";
 
 const ROLE_ROOT_PATHS = new Set<string>([
@@ -113,5 +113,3 @@ export function PortalFrame({
     </AppShell>
   );
 }
-
-import { getNavigationForRole } from "../../app/navigation";

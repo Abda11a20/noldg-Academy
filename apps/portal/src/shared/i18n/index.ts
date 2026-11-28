@@ -29,6 +29,7 @@ void i18next.use(initReactI18next).init({
   defaultNS: "common",
   ns: ["common", "errors", "auth"],
   interpolation: { escapeValue: false },
+  react: { bindI18nStore: "added" },
   returnNull: false,
 });
 
@@ -44,7 +45,7 @@ declare module "i18next" {
       orders: typeof import("./locales/en/orders.json");
       learning: typeof import("./locales/en/learning.json");
       questions: typeof import("./locales/en/questions.json");
-      gallery: typeof import("../../pages/ui-gallery/locales/en/gallery.json");
+      gallery: typeof import("./locales/en/gallery.json");
     };
     returnNull: false;
   }

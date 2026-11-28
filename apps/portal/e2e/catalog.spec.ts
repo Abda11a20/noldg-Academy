@@ -85,8 +85,12 @@ test("approved teacher can publish a video lesson and create a bundle", async ({
   const productsRefresh = page.waitForResponse(
     (response) => response.url().endsWith("/api/products/my") && response.status() === 200,
   );
+  const pricingRefresh = page.waitForResponse(
+    (response) =>
+      /\/api\/products\/[^/]+\/pricing$/u.test(response.url()) && response.status() === 200,
+  );
   await page.getByRole("button", { name: "Save bundle" }).click();
-  await productsRefresh;
+  await Promise.all([productsRefresh, pricingRefresh]);
   await expect(page.getByRole("cell", { name: "F4 lesson bundle" })).toBeVisible();
   await expect(page.getByText(/EGP.*240/).first()).toBeVisible();
   await page.screenshot({

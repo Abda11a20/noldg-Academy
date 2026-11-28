@@ -97,6 +97,7 @@ function lazyChunks(manifest) {
         chunk.isDynamicEntry === true &&
         (key.startsWith("src/app/layouts/") ||
           key.startsWith("src/pages/") ||
+          key.startsWith("src/features/") ||
           key.includes("/pages/")),
     )
     .map(([key, chunk]) => ({ key, file: chunk.file, gzipBytes: compressedSize(chunk.file) }))

@@ -9,12 +9,15 @@ import { UIGalleryPage } from "./UIGalleryPage";
 export async function loadUiGalleryRoute() {
   if (!i18next.hasResourceBundle("ar", "gallery") || !i18next.hasResourceBundle("en", "gallery")) {
     const [{ default: ar }, { default: en }] = await Promise.all([
-      import("./locales/ar/gallery.json"),
-      import("./locales/en/gallery.json"),
+      import("../../shared/i18n/locales/ar/gallery.json"),
+      import("../../shared/i18n/locales/en/gallery.json"),
     ]);
     i18next.addResourceBundle("ar", "gallery", ar);
     i18next.addResourceBundle("en", "gallery", en);
   }
-  await Promise.all(DEFERRED_ROUTE_NAMESPACES.map(loadRouteNamespace));
+  await Promise.all([
+    ...DEFERRED_ROUTE_NAMESPACES.map((namespace) => loadRouteNamespace(namespace, "ar")),
+    ...DEFERRED_ROUTE_NAMESPACES.map((namespace) => loadRouteNamespace(namespace, "en")),
+  ]);
   return { Component: UIGalleryPage };
 }

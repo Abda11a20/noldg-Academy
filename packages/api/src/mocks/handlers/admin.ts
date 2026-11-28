@@ -2,7 +2,12 @@ import { http, HttpResponse } from "msw";
 import { API_BASE_URL } from "../../constants/http";
 import { AcademicSubjectSchema, AcademicTrackSchema } from "../../contracts/admin";
 import type { AcademicSubject, AcademicTrack } from "../../contracts/admin";
-import { MOCK_APPLICATIONS, MOCK_SUBJECTS, MOCK_TRACKS } from "../fixtures/admin";
+import {
+  buildMockOfferingCatalog,
+  MOCK_APPLICATIONS,
+  MOCK_SUBJECTS,
+  MOCK_TRACKS,
+} from "../fixtures/admin";
 import { mockPendingTeacherState, resetMockPendingTeacherState } from "../state";
 
 let tracks = structuredClone(MOCK_TRACKS);
@@ -70,6 +75,9 @@ function readPage(url: URL): { page: number; pageSize: number } {
 
 /** Mock API handlers for administrative academic and teacher application endpoints. */
 export const adminHandlers = [
+  http.get(`${API_BASE_URL}/academic/catalog`, () =>
+    HttpResponse.json(buildMockOfferingCatalog(tracks, subjects, mappings)),
+  ),
   http.get(`${API_BASE_URL}/academic/tracks`, ({ request }) => {
     const url = new URL(request.url);
     const { page, pageSize } = readPage(url);

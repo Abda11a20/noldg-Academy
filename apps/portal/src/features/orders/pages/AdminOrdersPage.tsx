@@ -17,7 +17,7 @@ import { useListUrlState } from "../../../shared/navigation/useListUrlState";
 import { getAdminOrderPath, ROUTE_PATHS } from "../../../shared/navigation/routes";
 import { OrderCard } from "../components/OrderCard";
 import { useAdminOrders } from "../hooks/useOrders";
-import { AdminOrderFilters } from "./AdminOrderFilters";
+import { AdminOrderFilters } from "../components/AdminOrderFilters";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 const ORDER_STATUSES = ["awaiting_payment", "completed", "rejected", "closed"] as const;

@@ -7,12 +7,12 @@ import { getStudentCheckoutPath, ROUTE_PATHS } from "../../../shared/navigation/
 import { useAttachmentDownload } from "../hooks/useAttachmentDownload";
 import { usePlaybackSession } from "../hooks/usePlaybackSession";
 import { useStudentLesson } from "../hooks/useLearningQueries";
-import { LessonAttachments } from "./LessonAttachments";
-import { LessonDescription } from "./LessonDescription";
-import { LessonHeader } from "./LessonHeader";
-import { LessonNotices } from "./LessonNotices";
-import { LessonPlaybackSection } from "./LessonPlaybackSection";
-import { LessonQuizEntry } from "./LessonQuizEntry";
+import { LessonAttachments } from "../components/LessonAttachments";
+import { LessonDescription } from "../components/LessonDescription";
+import { LessonHeader } from "../components/LessonHeader";
+import { LessonNotices } from "../components/LessonNotices";
+import { LessonPlaybackSection } from "../components/LessonPlaybackSection";
+import { LessonQuizEntry } from "../components/LessonQuizEntry";
 
 type LessonErrorKey = "lesson.notFound" | "lesson.unavailable" | "lesson.loadError";
 

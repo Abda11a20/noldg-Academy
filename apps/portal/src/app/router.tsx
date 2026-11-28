@@ -102,65 +102,62 @@ const routes: RouteObject[] = [
       {
         index: true,
         lazy: lazyWithNamespace("browse", async () => ({
-          Component: (await import("../features/student-browse/pages/StudentHomePage"))
-            .StudentHomePage,
+          Component: (await import("../features/student-browse")).StudentHomePage,
         })),
       },
       {
         path: "teachers",
         lazy: lazyWithNamespace("browse", async () => ({
-          Component: (await import("../features/student-browse/pages/TeachersPage")).TeachersPage,
+          Component: (await import("../features/student-browse")).TeachersPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "teachers/:teacherId",
         lazy: lazyWithNamespace("browse", async () => ({
-          Component: (await import("../features/student-browse/pages/TeacherDetailPage"))
-            .TeacherDetailPage,
+          Component: (await import("../features/student-browse")).TeacherDetailPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "lessons",
         lazy: lazyWithNamespace("learning", async () => ({
-          Component: (await import("../features/learning/pages/MyLessonsPage")).MyLessonsPage,
+          Component: (await import("../features/learning")).MyLessonsPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "lessons/:lessonId",
         lazy: lazyWithNamespace("learning", async () => ({
-          Component: (await import("../features/learning/pages/LessonPage")).LessonPage,
+          Component: (await import("../features/learning")).LessonPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "lessons/:lessonId/quiz",
         lazy: lazyWithNamespace("learning", async () => ({
-          Component: (await import("../features/learning/pages/LessonQuizStubPage"))
-            .LessonQuizStubPage,
+          Component: (await import("../features/learning")).LessonQuizStubPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "checkout/:productId",
         lazy: lazyWithNamespace("orders", async () => ({
-          Component: (await import("../features/orders/pages/CheckoutPage")).CheckoutPage,
+          Component: (await import("../features/orders")).CheckoutPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "purchases",
         lazy: lazyWithNamespace("orders", async () => ({
-          Component: (await import("../features/orders/pages/PurchasesPage")).PurchasesPage,
+          Component: (await import("../features/orders")).PurchasesPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "purchases/:orderId",
         lazy: lazyWithNamespace("orders", async () => ({
-          Component: (await import("../features/orders/pages/OrderDetailPage")).OrderDetailPage,
+          Component: (await import("../features/orders")).OrderDetailPage,
         })),
         errorElement: <RouteErrorPage />,
       },
@@ -174,31 +171,27 @@ const routes: RouteObject[] = [
       {
         index: true,
         lazy: lazyWithNamespace("catalog", async () => ({
-          Component: (await import("../features/catalog-teacher/pages/TeacherCoursesPage"))
-            .TeacherCoursesPage,
+          Component: (await import("../features/catalog-teacher")).TeacherCoursesPage,
         })),
       },
       {
         path: "courses/:courseId",
         lazy: lazyWithNamespace("catalog", async () => ({
-          Component: (await import("../features/catalog-teacher/pages/TeacherCoursePage"))
-            .TeacherCoursePage,
+          Component: (await import("../features/catalog-teacher")).TeacherCoursePage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "courses/:courseId/lessons/new",
         lazy: lazyWithNamespace("catalog", async () => ({
-          Component: (await import("../features/catalog-teacher/pages/LessonEditorPage"))
-            .LessonEditorPage,
+          Component: (await import("../features/catalog-teacher")).LessonEditorPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "courses/:courseId/lessons/:lessonId",
         lazy: lazyWithNamespace("catalog", async () => ({
-          Component: (await import("../features/catalog-teacher/pages/LessonEditorPage"))
-            .LessonEditorPage,
+          Component: (await import("../features/catalog-teacher")).LessonEditorPage,
         })),
         errorElement: <RouteErrorPage />,
       },
@@ -225,45 +218,42 @@ const routes: RouteObject[] = [
       {
         path: "academic",
         lazy: lazyWithNamespace("admin", async () => ({
-          Component: (await import("../features/academic-admin/pages/AcademicPage")).AcademicPage,
+          Component: (await import("../features/academic-admin")).AcademicPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "teachers",
         lazy: lazyWithNamespace("admin", async () => ({
-          Component: (await import("../features/teacher-applications/pages/TeachersPage"))
-            .TeachersPage,
+          Component: (await import("../features/teacher-applications")).TeachersPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "teachers/applications/:applicationId",
         lazy: lazyWithNamespace("admin", async () => ({
-          Component: (await import("../features/teacher-applications/pages/ApplicationDetailPage"))
-            .ApplicationDetailPage,
+          Component: (await import("../features/teacher-applications")).ApplicationDetailPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "orders",
         lazy: lazyWithNamespace("orders", async () => ({
-          Component: (await import("../features/orders/pages/AdminOrdersPage")).AdminOrdersPage,
+          Component: (await import("../features/orders")).AdminOrdersPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "orders/new",
         lazy: lazyWithNamespace("orders", async () => ({
-          Component: (await import("../features/orders/pages/ManualOrderPage")).ManualOrderPage,
+          Component: (await import("../features/orders")).ManualOrderPage,
         })),
         errorElement: <RouteErrorPage />,
       },
       {
         path: "orders/:orderId",
         lazy: lazyWithNamespace("orders", async () => ({
-          Component: (await import("../features/orders/pages/AdminOrderDetailPage"))
-            .AdminOrderDetailPage,
+          Component: (await import("../features/orders")).AdminOrderDetailPage,
         })),
         errorElement: <RouteErrorPage />,
       },

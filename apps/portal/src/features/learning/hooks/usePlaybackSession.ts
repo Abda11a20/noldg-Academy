@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { AppError } from "@noldg/api/errors";
 import type { PlaybackHeartbeat, PlaybackSession } from "@noldg/api/contracts/learning";
 import { closePlayback, startPlayback } from "@noldg/api/endpoints/learning";
+import { createPlaybackState, type PlaybackMutableState } from "./playback-state";
 import { isPlaybackFatal, runHeartbeatCycle } from "./send-heartbeat-with-retry";
 import { usePlaybackMediaEvents } from "./usePlaybackMediaEvents";
 import { usePlaybackSessionLifecycle } from "./usePlaybackSessionLifecycle";
@@ -17,13 +18,7 @@ interface RestartOptions {
 }
 
 interface StartOptions {
-  flight: { current: Promise<void> | null };
-  sessionRef: { current: PlaybackSession | null };
-  mounted: { current: boolean };
-  lessonRef: { current: string };
-  sequence: { current: number };
-  position: { current: number };
-  tokenRestarted: { current: boolean };
+  stateRef: { current: PlaybackMutableState };
   setSession: (session: PlaybackSession | null) => void;
   setStatus: (status: PlaybackStatus) => void;
   fatalStatus: (error: unknown) => PlaybackStatus | null;
@@ -31,21 +26,22 @@ interface StartOptions {
 }
 
 function startPlaybackOnce(lessonId: string, options: StartOptions): Promise<void> {
-  if (options.flight.current) return options.flight.current;
-  if (options.sessionRef.current) return Promise.resolve();
+  const state = options.stateRef.current;
+  if (state.startFlight) return state.startFlight;
+  if (state.session) return Promise.resolve();
   options.setStatus("starting");
-  options.flight.current = (async () => {
+  state.startFlight = (async () => {
     try {
       const next = await startPlayback(lessonId);
-      if (!options.mounted.current || options.lessonRef.current !== lessonId) {
+      if (!state.mounted || state.lessonId !== lessonId) {
         void closePlayback(next.sessionId, true).catch(() => undefined);
         return;
       }
-      options.sessionRef.current = next;
+      state.session = next;
       options.setSession(next);
-      options.sequence.current = 0;
-      options.position.current = next.startPositionSeconds;
-      options.tokenRestarted.current = false;
+      state.sequence = 0;
+      state.position = next.startPositionSeconds;
+      state.tokenRestarted = false;
       options.setStatus("paused");
     } catch (error) {
       const fatal = options.fatalStatus(error);
@@ -53,16 +49,16 @@ function startPlaybackOnce(lessonId: string, options: StartOptions): Promise<voi
       else if (
         error instanceof AppError &&
         error.code === "PLAYBACK_TOKEN_EXPIRED" &&
-        !options.tokenRestarted.current
+        !state.tokenRestarted
       ) {
-        options.tokenRestarted.current = true;
+        state.tokenRestarted = true;
         await options.restart();
       } else options.setStatus("failed");
     } finally {
-      options.flight.current = null;
+      state.startFlight = null;
     }
   })();
-  return options.flight.current;
+  return state.startFlight;
 }
 
 async function restartExpiredPlayback(lessonId: string, options: RestartOptions): Promise<void> {
@@ -82,7 +78,7 @@ async function restartExpiredPlayback(lessonId: string, options: RestartOptions)
 
 interface FailureHandlerOptions {
   fatalStatus: (error: unknown) => PlaybackStatus | null;
-  tokenRestarted: { current: boolean };
+  stateRef: { current: PlaybackMutableState };
   closeCurrent: () => void;
   setStatus: (status: PlaybackStatus) => void;
   restartExpiredSession: () => Promise<void>;
@@ -93,6 +89,7 @@ async function handleHeartbeatFailure(
   lastAttempt: boolean,
   options: FailureHandlerOptions,
 ): Promise<boolean> {
+  const state = options.stateRef.current;
   const fatal = options.fatalStatus(error);
   if (fatal) {
     options.closeCurrent();
@@ -102,9 +99,9 @@ async function handleHeartbeatFailure(
   if (
     error instanceof AppError &&
     error.code === "PLAYBACK_TOKEN_EXPIRED" &&
-    !options.tokenRestarted.current
+    !state.tokenRestarted
   ) {
-    options.tokenRestarted.current = true;
+    state.tokenRestarted = true;
     await options.restartExpiredSession();
     return true;
   }
@@ -125,39 +122,28 @@ export function usePlaybackSession(
 ) {
   const [status, setStatus] = useState<PlaybackStatus>("idle");
   const [session, setSession] = useState<PlaybackSession | null>(null);
-  const sessionRef = useRef<PlaybackSession | null>(null);
-  const currentLessonId = useRef(lessonId);
-  const progressCallback = useRef(onProgress);
-  const sequence = useRef(0);
-  const position = useRef(0);
-  const playbackRate = useRef(1);
-  const playing = useRef(false);
-  const mounted = useRef(false);
-  const startFlight = useRef<Promise<void> | null>(null);
-  const heartbeatFlight = useRef(false);
-  const intervalTimer = useRef<number | undefined>(undefined);
-  const retryTimer = useRef<number | undefined>(undefined);
-  const retryWaitResolver = useRef<(() => void) | null>(null);
-  const heartbeatController = useRef<AbortController | null>(null);
-  const tokenRestarted = useRef(false);
+  const stateRef = useRef<PlaybackMutableState>(createPlaybackState(lessonId, onProgress));
 
   const clearTimers = useCallback(() => {
-    if (intervalTimer.current !== undefined) window.clearInterval(intervalTimer.current);
-    if (retryTimer.current !== undefined) window.clearTimeout(retryTimer.current);
-    retryWaitResolver.current?.();
-    retryWaitResolver.current = null;
-    intervalTimer.current = undefined;
-    retryTimer.current = undefined;
-    heartbeatController.current?.abort();
-    heartbeatController.current = null;
+    const state = stateRef.current;
+    if (state.intervalTimer !== undefined) window.clearInterval(state.intervalTimer);
+    if (state.retryTimer !== undefined) window.clearTimeout(state.retryTimer);
+    state.retryWaitResolver?.();
+    state.retryWaitResolver = null;
+    state.intervalTimer = undefined;
+    state.retryTimer = undefined;
+    state.heartbeatController?.abort();
+    state.heartbeatController = null;
   }, []);
+
   const closeCurrent = useCallback(
     (keepalive = false) => {
       clearTimers();
-      const active = sessionRef.current;
-      sessionRef.current = null;
-      playing.current = false;
-      if (mounted.current) setSession(null);
+      const state = stateRef.current;
+      const active = state.session;
+      state.session = null;
+      state.playing = false;
+      if (state.mounted) setSession(null);
       if (active) void closePlayback(active.sessionId, keepalive).catch(() => undefined);
     },
     [clearTimers],
@@ -168,12 +154,13 @@ export function usePlaybackSession(
   const restartExpiredSession = useCallback(async () => {
     await restartExpiredPlayback(lessonId, {
       closeCurrent,
-      isCurrent: () => mounted.current && currentLessonId.current === lessonId,
+      isCurrent: () => stateRef.current.mounted && stateRef.current.lessonId === lessonId,
       onStarted: (next) => {
-        sessionRef.current = next;
+        const state = stateRef.current;
+        state.session = next;
         setSession(next);
-        sequence.current = 0;
-        position.current = next.startPositionSeconds;
+        state.sequence = 0;
+        state.position = next.startPositionSeconds;
         setStatus("paused");
       },
       setStatus,
@@ -182,43 +169,42 @@ export function usePlaybackSession(
 
   const sendHeartbeat = useCallback(
     async (options?: { force?: boolean; isPlaying?: boolean }): Promise<void> => {
+      const state = stateRef.current;
       const force = options?.force === true;
       await runHeartbeatCycle({
-        activeSession: sessionRef.current,
-        isPlaying: () => playing.current,
-        isBusy: () => heartbeatFlight.current,
+        activeSession: state.session,
+        isPlaying: () => state.playing,
+        isBusy: () => state.heartbeatFlight,
         setBusy: (busy) => {
-          heartbeatFlight.current = busy;
+          state.heartbeatFlight = busy;
         },
-        sequence: sequence.current + 1,
+        sequence: state.sequence + 1,
         force,
         playingValue: options?.isPlaying ?? true,
         isActive: (sessionId) =>
-          mounted.current &&
-          (force || playing.current) &&
-          sessionRef.current?.sessionId === sessionId,
-        getPosition: () => position.current,
-        getRate: () => playbackRate.current,
+          state.mounted && (force || state.playing) && state.session?.sessionId === sessionId,
+        getPosition: () => state.position,
+        getRate: () => state.playbackRate,
         wait: (delay) =>
           new Promise<void>((resolve) => {
-            retryWaitResolver.current = resolve;
-            retryTimer.current = window.setTimeout(() => {
-              retryTimer.current = undefined;
-              retryWaitResolver.current = null;
+            state.retryWaitResolver = resolve;
+            state.retryTimer = window.setTimeout(() => {
+              state.retryTimer = undefined;
+              state.retryWaitResolver = null;
               resolve();
             }, delay);
           }),
         setController: (controller) => {
-          heartbeatController.current = controller;
+          state.heartbeatController = controller;
         },
         onProgress: (sentSequence, result) => {
-          sequence.current = sentSequence;
-          progressCallback.current?.(result);
+          state.sequence = sentSequence;
+          state.onProgress?.(result);
         },
         onFailure: (error, lastAttempt) =>
           handleHeartbeatFailure(error, lastAttempt, {
             fatalStatus,
-            tokenRestarted,
+            stateRef,
             closeCurrent,
             setStatus,
             restartExpiredSession,
@@ -231,13 +217,7 @@ export function usePlaybackSession(
   const start = useCallback(
     () =>
       startPlaybackOnce(lessonId, {
-        flight: startFlight,
-        sessionRef,
-        mounted,
-        lessonRef: currentLessonId,
-        sequence,
-        position,
-        tokenRestarted,
+        stateRef,
         setSession,
         setStatus,
         fatalStatus,
@@ -247,12 +227,7 @@ export function usePlaybackSession(
   );
 
   const mediaEvents = usePlaybackMediaEvents({
-    sessionRef,
-    playingRef: playing,
-    positionRef: position,
-    rateRef: playbackRate,
-    intervalTimerRef: intervalTimer,
-    controllerRef: heartbeatController,
+    stateRef,
     sendHeartbeat,
     closeCurrent,
     setStatus,
@@ -261,9 +236,7 @@ export function usePlaybackSession(
   usePlaybackSessionLifecycle({
     lessonId,
     onProgress,
-    currentLessonIdRef: currentLessonId,
-    progressCallbackRef: progressCallback,
-    mountedRef: mounted,
+    stateRef,
     closeCurrent,
   });
 

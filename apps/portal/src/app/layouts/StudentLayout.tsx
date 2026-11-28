@@ -3,7 +3,7 @@ import { PortalFrame } from "../../shared/navigation/PortalFrame";
 import { RequireRole } from "../guards/RequireRole";
 import { RequireAuth } from "../guards/RequireAuth";
 import { useAuthSnapshot } from "../../shared/auth/auth-store";
-import { useLogout } from "../../features/auth/hooks/useLogout";
+import { useLogout } from "../../features/auth";
 import { useTranslation } from "react-i18next";
 
 /** Renders the protected empty student portal shell. */

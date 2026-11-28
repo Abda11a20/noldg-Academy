@@ -1,51 +1,36 @@
 import i18next from "./index";
 
-const namespaceLoaders = {
-  admin: async () => {
-    const [{ default: ar }, { default: en }] = await Promise.all([
-      import("./locales/ar/admin.json"),
-      import("./locales/en/admin.json"),
-    ]);
-    return { ar, en };
+type SupportedLanguage = "ar" | "en";
+type ResourceLoader = () => Promise<{ default: Record<string, unknown> }>;
+
+const namespaceLoaders: Record<RouteNamespace, Record<SupportedLanguage, ResourceLoader>> = {
+  admin: {
+    ar: () => import("./locales/ar/admin.json"),
+    en: () => import("./locales/en/admin.json"),
   },
-  browse: async () => {
-    const [{ default: ar }, { default: en }] = await Promise.all([
-      import("./locales/ar/browse.json"),
-      import("./locales/en/browse.json"),
-    ]);
-    return { ar, en };
+  browse: {
+    ar: () => import("./locales/ar/browse.json"),
+    en: () => import("./locales/en/browse.json"),
   },
-  catalog: async () => {
-    const [{ default: ar }, { default: en }] = await Promise.all([
-      import("./locales/ar/catalog.json"),
-      import("./locales/en/catalog.json"),
-    ]);
-    return { ar, en };
+  catalog: {
+    ar: () => import("./locales/ar/catalog.json"),
+    en: () => import("./locales/en/catalog.json"),
   },
-  orders: async () => {
-    const [{ default: ar }, { default: en }] = await Promise.all([
-      import("./locales/ar/orders.json"),
-      import("./locales/en/orders.json"),
-    ]);
-    return { ar, en };
+  orders: {
+    ar: () => import("./locales/ar/orders.json"),
+    en: () => import("./locales/en/orders.json"),
   },
-  learning: async () => {
-    const [{ default: ar }, { default: en }] = await Promise.all([
-      import("./locales/ar/learning.json"),
-      import("./locales/en/learning.json"),
-    ]);
-    return { ar, en };
+  learning: {
+    ar: () => import("./locales/ar/learning.json"),
+    en: () => import("./locales/en/learning.json"),
   },
-  questions: async () => {
-    const [{ default: ar }, { default: en }] = await Promise.all([
-      import("./locales/ar/questions.json"),
-      import("./locales/en/questions.json"),
-    ]);
-    return { ar, en };
+  questions: {
+    ar: () => import("./locales/ar/questions.json"),
+    en: () => import("./locales/en/questions.json"),
   },
 };
 
-export type RouteNamespace = keyof typeof namespaceLoaders;
+export type RouteNamespace = "admin" | "browse" | "catalog" | "orders" | "learning" | "questions";
 
 /** Namespaces deferred from the initial authentication route. */
 export const DEFERRED_ROUTE_NAMESPACES = [
@@ -57,13 +42,43 @@ export const DEFERRED_ROUTE_NAMESPACES = [
   "questions",
 ] as const;
 
-/** Loads a deferred bilingual feature namespace before its route renders. */
-export async function loadRouteNamespace(namespace: RouteNamespace): Promise<void> {
-  if (i18next.hasResourceBundle("ar", namespace) && i18next.hasResourceBundle("en", namespace)) {
-    return;
-  }
+const loadedNamespaces = new Set<RouteNamespace>();
 
-  const resources = await namespaceLoaders[namespace]();
-  i18next.addResourceBundle("ar", namespace, resources.ar);
-  i18next.addResourceBundle("en", namespace, resources.en);
+function resolveLanguage(language: string | undefined): SupportedLanguage {
+  return language?.startsWith("en") ? "en" : "ar";
+}
+
+async function loadNamespaceForLanguage(
+  namespace: RouteNamespace,
+  language: SupportedLanguage,
+): Promise<void> {
+  if (i18next.hasResourceBundle(language, namespace)) return;
+  const resource = await namespaceLoaders[namespace][language]();
+  i18next.addResourceBundle(language, namespace, resource.default, true, true);
+}
+
+/** Loads all already-activated route namespaces for the specified language.
+ * @param language Target language code.
+ */
+export async function loadActiveRouteNamespaces(language: SupportedLanguage): Promise<void> {
+  await Promise.all(
+    [...loadedNamespaces].map((namespace) => loadNamespaceForLanguage(namespace, language)),
+  );
+}
+
+i18next.on("languageChanged", (nextLanguage) => {
+  void loadActiveRouteNamespaces(resolveLanguage(nextLanguage));
+});
+
+/** Loads a deferred feature namespace for the active (or specified) language before its route renders.
+ * @param namespace Route translation namespace to load.
+ * @param language Optional explicit language override.
+ */
+export async function loadRouteNamespace(
+  namespace: RouteNamespace,
+  language?: SupportedLanguage,
+): Promise<void> {
+  loadedNamespaces.add(namespace);
+  const targetLanguage = language ?? resolveLanguage(i18next.resolvedLanguage ?? i18next.language);
+  await loadNamespaceForLanguage(namespace, targetLanguage);
 }

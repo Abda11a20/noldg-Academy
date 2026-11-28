@@ -25,7 +25,7 @@ function normalizedPath(context) {
 }
 
 function isAllowedHttpFile(filename) {
-  return /\/packages\/api\/src\/(http|realtime)\//.test(filename);
+  return /\/packages\/api\/src\/(http|realtime|uploads)\//.test(filename);
 }
 
 function hasForbiddenFeatureImport(filename, source) {
@@ -125,13 +125,25 @@ const plugin = {
       meta: {
         type: "problem",
         schema: [],
-        messages: { forbidden: "Keep network APIs inside packages/api/src/http or realtime." },
+        messages: {
+          forbidden: "Keep network APIs inside packages/api/src/http, realtime, or uploads.",
+        },
       },
       create(context) {
         if (isAllowedHttpFile(normalizedPath(context))) return {};
         return {
           Identifier(node) {
-            if (["fetch", "axios", "EventSource", "WebSocket"].includes(node.name))
+            if (
+              ["fetch", "axios", "EventSource", "WebSocket", "XMLHttpRequest"].includes(node.name)
+            )
+              context.report({ node, messageId: "forbidden" });
+          },
+          MemberExpression(node) {
+            if (
+              !node.computed &&
+              node.property.type === "Identifier" &&
+              node.property.name === "sendBeacon"
+            )
               context.report({ node, messageId: "forbidden" });
           },
           ImportDeclaration(node) {
@@ -160,7 +172,10 @@ const plugin = {
       meta: {
         type: "problem",
         schema: [],
-        messages: { forbidden: "Avoid dangerouslySetInnerHTML and eval." },
+        messages: {
+          forbidden:
+            "Avoid dangerouslySetInnerHTML, raw HTML injection, eval, and dynamic Function.",
+        },
       },
       create(context) {
         return {
@@ -169,8 +184,36 @@ const plugin = {
               context.report({ node, messageId: "forbidden" });
           },
           CallExpression(node) {
-            if (node.callee.type === "Identifier" && node.callee.name === "eval")
+            if (
+              node.callee.type === "Identifier" &&
+              (node.callee.name === "eval" || node.callee.name === "Function")
+            ) {
               context.report({ node, messageId: "forbidden" });
+              return;
+            }
+            if (
+              node.callee.type === "MemberExpression" &&
+              !node.callee.computed &&
+              node.callee.object.type === "Identifier" &&
+              node.callee.object.name === "document" &&
+              node.callee.property.type === "Identifier" &&
+              (node.callee.property.name === "write" || node.callee.property.name === "writeln")
+            ) {
+              context.report({ node, messageId: "forbidden" });
+            }
+          },
+          NewExpression(node) {
+            if (node.callee.type === "Identifier" && node.callee.name === "Function")
+              context.report({ node, messageId: "forbidden" });
+          },
+          MemberExpression(node) {
+            if (
+              !node.computed &&
+              node.property.type === "Identifier" &&
+              (node.property.name === "innerHTML" || node.property.name === "outerHTML")
+            ) {
+              context.report({ node, messageId: "forbidden" });
+            }
           },
           Identifier(node) {
             if (node.name === "eval") context.report({ node, messageId: "forbidden" });

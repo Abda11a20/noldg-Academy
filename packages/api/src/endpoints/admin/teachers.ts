@@ -113,20 +113,7 @@ export async function getMyTeacherApplication(
  * @returns Catalog adapted from the authenticated legacy catalog endpoint.
  */
 export async function getTeacherOfferingCatalog(): Promise<AcademicCatalog> {
-  if (apiMode === "mock")
-    return AcademicCatalogSchema.parse({
-      systems: ["general", "al_azhar"],
-      tracks: [
-        {
-          id: "track-1",
-          system: "general",
-          stage: "secondary",
-          grade: 1,
-          name: "First secondary",
-          subjects: [{ id: "subject-1", name: "Mathematics" }],
-        },
-      ],
-    });
+  if (apiMode === "mock") return request("academic/catalog", AcademicCatalogSchema);
   const state: ListUrlState = { page: 1, pageSize: 100, search: "", filters: {} };
   const trackPage = await listTracks(state);
   const tracks = await Promise.all(

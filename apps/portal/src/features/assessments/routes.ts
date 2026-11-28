@@ -3,6 +3,11 @@ export function getTeacherAssessmentNewPath(courseId: string, type: "exam" | "ho
   return `/teacher/courses/${encodeURIComponent(courseId)}/assessments/new/${type}`;
 }
 
+/** Builds the edit route for an existing teacher assessment. */
+export function getTeacherAssessmentEditPath(courseId: string, assessmentId: string): string {
+  return `/teacher/courses/${encodeURIComponent(courseId)}/assessments/${encodeURIComponent(assessmentId)}/edit`;
+}
+
 /** Builds the result list route for an assessment owned by a teacher's course.
  * @param courseId Teacher-owned course identifier.
  * @param assessmentId Assessment identifier.

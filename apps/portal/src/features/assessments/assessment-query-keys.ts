@@ -9,6 +9,7 @@ export const assessmentQueryKeys = {
   lists: () => [...assessmentQueryKeys.root, "list"] as const,
   list: (query: AssessmentListQuery) => [...assessmentQueryKeys.lists(), query] as const,
   detail: (id: string) => [...assessmentQueryKeys.root, "detail", id] as const,
+  students: (courseId: string) => [...assessmentQueryKeys.root, "students", courseId] as const,
   attempts: (id: string, query: AssessmentAttemptListQuery) =>
     [...assessmentQueryKeys.root, "attempts", id, query] as const,
   attempt: (assessmentId: string, attemptId: string) =>

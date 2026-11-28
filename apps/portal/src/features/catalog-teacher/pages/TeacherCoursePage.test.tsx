@@ -104,7 +104,7 @@ describe("teacher course detail", () => {
       undefined,
       ["/teacher/courses/course-1"],
     );
-    await user.click(await screen.findByRole("tab", { name: "Exams and homework" }));
+    await user.click(await screen.findByRole("tab", { name: "Exams" }));
     expect((await screen.findAllByText(/First exam/)).length).toBeGreaterThan(0);
     await user.click(screen.getByRole("tab", { name: "Homework" }));
     expect((await screen.findAllByText(/Grammar homework/)).length).toBeGreaterThan(0);

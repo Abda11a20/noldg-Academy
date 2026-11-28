@@ -19,7 +19,7 @@ const ASSESSMENT_ERROR_CODES = new Set([
  * @param t Assessments translation function.
  * @returns Localized message when the error matches a known assessment error code, otherwise null.
  */
-function getAssessmentErrorMessage(
+export function getAssessmentErrorMessage(
   error: unknown,
   t: ReturnType<typeof useTranslation<"assessments">>["t"],
 ): string | null {

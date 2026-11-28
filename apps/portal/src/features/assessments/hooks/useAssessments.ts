@@ -4,7 +4,9 @@ import {
   archiveAssessment,
   closeAssessment,
   createAssessment,
+  getAssessment,
   listCourseAssessments,
+  listCourseStudents,
   publishAssessment,
   updateAssessment,
 } from "@noldg/api/endpoints/assessments";
@@ -32,7 +34,7 @@ export function useAssessments(courseId: string) {
     queryKey: ["question-bank", "list", questionQuery],
     queryFn: ({ signal }) => listQuestions(questionQuery, signal),
   });
-  const invalidate = () => client.invalidateQueries({ queryKey: assessmentQueryKeys.lists() });
+  const invalidate = () => client.invalidateQueries({ queryKey: assessmentQueryKeys.root });
   return {
     assessments,
     questions,
@@ -67,4 +69,22 @@ export function useAssessments(courseId: string) {
       onError: reportError,
     }),
   };
+}
+
+/** Loads a single assessment detail when editing an existing exam or homework. */
+export function useAssessmentDetail(assessmentId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: assessmentQueryKeys.detail(assessmentId),
+    queryFn: ({ signal }) => getAssessment(assessmentId, signal),
+    enabled,
+  });
+}
+
+/** Loads enrolled students for a course when audience targeting is available. */
+export function useCourseStudents(courseId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: assessmentQueryKeys.students(courseId),
+    queryFn: ({ signal }) => listCourseStudents(courseId, signal),
+    enabled,
+  });
 }

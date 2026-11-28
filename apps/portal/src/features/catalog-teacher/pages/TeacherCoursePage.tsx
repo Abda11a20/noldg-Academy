@@ -7,7 +7,7 @@ import { BundlesPanel } from "../components/BundlesPanel";
 import { COURSE_LOOKUP_PAGE_SIZE } from "../constants";
 import { isForbiddenError } from "../../../shared/errors/isForbiddenError";
 import { ROUTE_PATHS } from "../../../shared/navigation/routes";
-import { CourseAssessmentTabs } from "../../assessments/index";
+import { AssessmentListPanel } from "../../assessments/index";
 
 /** Composes the teacher course title and its lesson and bundle tabs. */
 export function TeacherCoursePage() {
@@ -59,9 +59,14 @@ export function TeacherCoursePage() {
             content: <BundlesPanel courseId={course.id} />,
           },
           {
-            value: "exams-homework",
-            label: t("assessments:assessmentsTab"),
-            content: <CourseAssessmentTabs courseId={course.id} />,
+            value: "exams",
+            label: t("assessments:examsTitle"),
+            content: <AssessmentListPanel courseId={course.id} type="exam" />,
+          },
+          {
+            value: "homework",
+            label: t("assessments:homeworkTitle"),
+            content: <AssessmentListPanel courseId={course.id} type="homework" />,
           },
         ]}
       />

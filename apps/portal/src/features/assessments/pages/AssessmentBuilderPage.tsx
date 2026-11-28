@@ -10,7 +10,8 @@ import { AssessmentBuilderForm } from "../components/AssessmentBuilderForm";
  */
 export function AssessmentBuilderPage() {
   const { t } = useTranslation("assessments");
-  const { courseId = "", type: rawType = "exam" } = useParams();
+  const { courseId = "", type: routeType, action = "exam" } = useParams();
+  const rawType = routeType ?? action;
   const type = rawType === "homework" ? "homework" : "exam";
   const navigate = useNavigate();
   const builder = useAssessmentBuilder(courseId, type);

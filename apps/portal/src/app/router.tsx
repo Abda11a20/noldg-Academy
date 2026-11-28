@@ -2,9 +2,10 @@ import { createBrowserRouter, redirect, type RouteObject } from "react-router";
 import { ROUTE_PATHS } from "../shared/navigation/routes";
 import { RouteErrorPage } from "../pages/RouteErrorPage";
 import { assessmentRoutes } from "./assessment-routes";
+import type { RouteNamespace } from "../shared/i18n/load-route-namespace";
 
 function lazyWithNamespace(
-  namespace: "admin" | "browse" | "catalog" | "orders" | "learning" | "questions" | "assessments",
+  namespace: RouteNamespace | readonly RouteNamespace[],
   loadComponent: () => Promise<Pick<RouteObject, "Component">>,
 ) {
   return async () => {
@@ -181,7 +182,7 @@ const routes: RouteObject[] = [
       },
       {
         path: "courses/:courseId",
-        lazy: lazyWithNamespace("catalog", async () => ({
+        lazy: lazyWithNamespace(["catalog", "assessments"], async () => ({
           Component: (await import("../features/catalog-teacher/pages/TeacherCoursePage"))
             .TeacherCoursePage,
         })),
@@ -189,7 +190,7 @@ const routes: RouteObject[] = [
       },
       {
         path: "courses/:courseId/lessons/new",
-        lazy: lazyWithNamespace("catalog", async () => ({
+        lazy: lazyWithNamespace(["catalog", "assessments"], async () => ({
           Component: (await import("../features/catalog-teacher/pages/LessonEditorPage"))
             .LessonEditorPage,
         })),
@@ -197,7 +198,7 @@ const routes: RouteObject[] = [
       },
       {
         path: "courses/:courseId/lessons/:lessonId",
-        lazy: lazyWithNamespace("catalog", async () => ({
+        lazy: lazyWithNamespace(["catalog", "assessments"], async () => ({
           Component: (await import("../features/catalog-teacher/pages/LessonEditorPage"))
             .LessonEditorPage,
         })),
@@ -289,7 +290,7 @@ if (import.meta.env.DEV || import.meta.env.VITE_INCLUDE_UI_GALLERY === "true") {
     lazy: async () => {
       const { DEFERRED_ROUTE_NAMESPACES, loadRouteNamespace } =
         await import("../shared/i18n/load-route-namespace");
-      await Promise.all(DEFERRED_ROUTE_NAMESPACES.map(loadRouteNamespace));
+      await loadRouteNamespace(DEFERRED_ROUTE_NAMESPACES);
       return {
         Component: (await import("../pages/ui-gallery/UIGalleryPage")).UIGalleryPage,
       };

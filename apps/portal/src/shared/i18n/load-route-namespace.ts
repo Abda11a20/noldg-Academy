@@ -65,8 +65,16 @@ export const DEFERRED_ROUTE_NAMESPACES = [
   "assessments",
 ] as const;
 
-/** Loads a deferred bilingual feature namespace before its route renders. */
-export async function loadRouteNamespace(namespace: RouteNamespace): Promise<void> {
+/** Loads one or more deferred bilingual feature namespaces before a route renders.
+ * @param namespace Namespace name or a readonly list loaded in parallel.
+ */
+export async function loadRouteNamespace(
+  namespace: RouteNamespace | readonly RouteNamespace[],
+): Promise<void> {
+  if (typeof namespace !== "string") {
+    await Promise.all(namespace.map(loadRouteNamespace));
+    return;
+  }
   if (i18next.hasResourceBundle("ar", namespace) && i18next.hasResourceBundle("en", namespace)) {
     return;
   }

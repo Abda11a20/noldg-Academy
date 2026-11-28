@@ -177,6 +177,35 @@ export const AssessmentSchema = AssessmentBaseSchema.superRefine((assessment, co
   validateAssessmentAudience(assessment, context);
 });
 
+const AssessmentInputBaseSchema = AssessmentBaseSchema.omit({
+  id: true,
+  status: true,
+  attemptCount: true,
+});
+export const AssessmentInputSchema = AssessmentInputBaseSchema.superRefine(
+  (assessment, context) => {
+    if (assessment.randomCount && assessment.randomCount > assessment.questionIds.length)
+      addAssessmentIssue(context, "randomCount", "Random count exceeds pool");
+    validateAssessmentType(assessment as z.infer<typeof AssessmentBaseSchema>, context);
+    validateAssessmentAudience(assessment as z.infer<typeof AssessmentBaseSchema>, context);
+  },
+);
+export const AssessmentUpdateInputSchema = AssessmentInputBaseSchema.omit({ shuffle: true })
+  .partial()
+  .extend({ shuffle: z.boolean().optional() })
+  .refine((input) => Object.keys(input).length > 0, {
+    message: "At least one assessment field must be updated",
+  });
+export const AssessmentListQuerySchema = z.object({
+  page: z.number().int().positive(),
+  pageSize: z.number().int().positive(),
+  courseId: IdSchema.optional(),
+  lessonId: IdSchema.optional(),
+  type: AssessmentTypeSchema.optional(),
+  status: AssessmentStatusSchema.optional(),
+  search: z.string().optional(),
+});
+
 export const AssessmentListSchema = z.object({
   items: z.array(AssessmentSchema),
   page: z.number().int().positive(),
@@ -200,6 +229,24 @@ export const AssessmentAttemptListSchema = z.object({
   pageSize: z.number().int().positive(),
   total: z.number().int().nonnegative(),
 });
+export const AssessmentAttemptDetailSchema = z.object({
+  id: IdSchema,
+  assessmentId: IdSchema,
+  student: z.object({ id: IdSchema, name: z.string() }),
+  score: z.number().nullable(),
+  total: z.number().nonnegative(),
+  startedAt: IsoTimestampSchema,
+  submittedAt: IsoTimestampSchema.nullable(),
+  submitReason: z.enum(["manual", "auto"]).nullable(),
+  tabLeaves: z.number().int().nonnegative(),
+  suspicious: z.boolean(),
+  questions: z.array(
+    z.object({
+      question: QuestionSchema,
+      selectedIndex: z.number().int().nonnegative().nullable(),
+    }),
+  ),
+});
 export const AssessmentErrorCodeSchema = z.enum([
   "ASSESSMENT_LOCKED",
   "ASSESSMENT_WINDOW_INVALID",
@@ -216,4 +263,8 @@ export type QuestionInput = z.infer<typeof QuestionInputSchema>;
 export type QuestionUpdateInput = z.infer<typeof QuestionUpdateInputSchema>;
 export type QuestionListQuery = z.infer<typeof QuestionListQuerySchema>;
 export type Assessment = z.infer<typeof AssessmentSchema>;
+export type AssessmentInput = z.infer<typeof AssessmentInputSchema>;
+export type AssessmentUpdateInput = z.infer<typeof AssessmentUpdateInputSchema>;
+export type AssessmentListQuery = z.infer<typeof AssessmentListQuerySchema>;
 export type AssessmentType = z.infer<typeof AssessmentTypeSchema>;
+export type AssessmentAttemptDetail = z.infer<typeof AssessmentAttemptDetailSchema>;

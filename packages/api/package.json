@@ -32,6 +32,7 @@
     "./adapters/learning": "./src/adapters/learning.ts",
     "./adapters/assessments": "./src/adapters/assessments.ts",
     "./endpoints/questions": "./src/endpoints/questions.ts",
+    "./endpoints/assessments": "./src/endpoints/assessments.ts",
     "./mocks/fixtures/assessments": "./src/mocks/fixtures/assessments.ts",
     "./uploads": "./src/uploads/uploadFile.ts",
     "./mocks/mode": "./src/mocks/mode.ts",

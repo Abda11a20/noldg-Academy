@@ -1,5 +1,11 @@
 import { expect, it } from "vitest";
-import { AssessmentSchema, QuestionInputSchema, QuestionSchema } from "./assessments";
+import {
+  AssessmentInputSchema,
+  AssessmentSchema,
+  AssessmentUpdateInputSchema,
+  QuestionInputSchema,
+  QuestionSchema,
+} from "./assessments";
 
 const question = {
   id: "question-1",
@@ -132,4 +138,28 @@ it("validates homework and quiz constraints", () => {
       windowStart: "2026-11-28T00:00:00Z",
     }).success,
   ).toBe(false);
+});
+
+it("validates assessment writes and rejects empty partial updates", () => {
+  const exam = {
+    type: "exam",
+    courseId: "course-1",
+    title: "Exam",
+    questionIds: ["question-1"],
+    shuffle: true,
+    showResults: "immediate",
+    targetMode: "all_course_students",
+    studentIds: [],
+    windowStart: "2026-11-28T10:00:00Z",
+    windowEnd: "2026-11-28T11:00:00Z",
+    durationMinutes: 60,
+    maxAttempts: 1,
+  };
+  expect(AssessmentInputSchema.safeParse(exam).success).toBe(true);
+  expect(AssessmentInputSchema.safeParse({ ...exam, randomCount: 2 }).success).toBe(false);
+  expect(
+    AssessmentInputSchema.safeParse({ ...exam, type: "homework", durationMinutes: 60 }).success,
+  ).toBe(false);
+  expect(AssessmentUpdateInputSchema.safeParse({ title: "Updated" }).success).toBe(true);
+  expect(AssessmentUpdateInputSchema.safeParse({}).success).toBe(false);
 });
